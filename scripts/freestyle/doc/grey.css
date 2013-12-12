@@ -1,0 +1,197 @@
+body{
+  font-family : "helvetica", "arial", sans-serif ;
+  color: rgb(100, 100, 100);
+}
+
+H1 {
+  text-align: center;
+  color: rgb(190,190,190);
+}
+H2 {
+  color: rgb(50,50,50);
+  padding : 0px 0px 1px 30px;
+  background-color: #EEE;
+  border: 1px solid #AAC;
+  font-size: medium;
+}
+h3 {
+  color: rgb(170,170,170);
+  font-size: medium;
+  margin : 30px 0px 0px 30px;
+  border-bottom:1px solid #BBC;
+}
+
+.corpus {
+color          : rgb(80,80,80);
+padding-left   : 10%;
+padding-right  : 10%;
+text-align     : justify;
+}
+
+.brighttitle {
+color            : rgb(190,190,190);
+background-color : transparent;
+padding-top    : 0.5ex;
+padding-bottom : 0.5ex;
+/*padding-left   : -10%;*/
+padding-right  : 1ex;
+padding-right  : 1ex;
+border : 0ex;
+}
+
+.brighttitle hr{
+  color: rgb(220, 160, 0);
+  background-color: rgb(220, 160, 0);
+  border: 0;
+  height: 2px;
+}
+
+table.footer td {
+	font-size:xx-small;
+	font-family: verdana, helvetica, sans-serif;
+	font-weight:normal;
+	background-color: #eee; 
+}
+
+.alt{
+  /*color: rgb(150,150,150);*/
+  font-weight:bolder;
+  color : rgb(240, 190, 0);
+}
+
+CAPTION { font-weight: bold }
+A:link {
+color : rgb(220, 160, 0);
+background-color : transparent; 
+text-decoration  : none; 
+}
+A:visited {
+color : rgb(220, 160, 0);
+background-color : transparent; 
+text-decoration  : none; 
+}
+
+A.qindex {}
+A.qindexRef {}
+A.el { color: rgb(220, 160, 0); text-decoration: none; font-weight: bold }
+A.elRef { font-weight: bold }
+A.code { text-decoration: none; font-weight: normal; color: #4444ee }
+A.codeRef { font-weight: normal; color: #4444ee }
+A:hover { text-decoration: underline;}
+
+DL.el { margin-left: -1cm }
+DIV.fragment { width: 100%; border: none; background-color: #eeeeee }
+DIV.ah { background-color: black; font-weight: bold; color: #ffffff; margin-bottom: 3px; margin-top: 3px }
+TD{
+  font-size: small
+}
+TD.md { background-color: #f2f2f2; font-weight: bold;font-size: medium;}
+TD.mdname1 { background-color: #f2f2f2; font-weight: bold; color:
+  rgb(120, 120, 120); font-size: medium;}
+TD.mdname { background-color: #f2f2f2; font-weight: bold; color: rgb(180, 180, 180); width: 600px; font-size: medium;}
+DIV.groupHeader { margin-left: 16px; margin-top: 12px; margin-bottom: 6px; font-weight: bold }
+DIV.groupText { margin-left: 16px; font-style: italic; font-size: smaller }
+BODY { background: white }
+TD.indexkey { 
+   background-color: #eeeeff; 
+   font-weight: bold;
+   padding-right  : 10px; 
+   padding-top    : 2px; 
+   padding-left   : 10px; 
+   padding-bottom : 2px; 
+   margin-left    : 0px; 
+   margin-right   : 0px; 
+   margin-top     : 2px; 
+   margin-bottom  : 2px  
+}
+TD.indexvalue { 
+   background-color: #eeeeff; 
+   font-style: italic;
+   padding-right  : 10px; 
+   padding-top    : 2px; 
+   padding-left   : 10px; 
+   padding-bottom : 2px; 
+   margin-left    : 0px; 
+   margin-right   : 0px; 
+   margin-top     : 2px; 
+   margin-bottom  : 2px  
+}
+
+
+
+
+
+span.keyword       { color: #008000 }
+span.keywordtype   { color: #604020 }
+span.keywordflow   { color: #e08000 }
+span.comment       { color: #800000 }
+span.preprocessor  { color: #806020 }
+span.stringliteral { color: #002080 }
+span.charliteral   { color: #008080 }
+
+.mdTable {
+  padding-top: 10px;
+  width: 100%;
+  border-top: 2px solid #DDD;
+}
+
+.mdRow {
+  padding: 8px 10px;
+}
+
+
+.memItemLeft {
+  padding: 1px 0px 0px 8px;
+  margin: 4px;
+  border-bottom: 1px solid #EEE;
+  font-family: Geneva, Arial, Helvetica, sans-serif;
+  font-size: small;
+}
+.memItemRight {
+  padding: 1px 0px 0px 8px;
+  margin: 4px;
+  border-bottom: 1px solid #EEE;
+  font-family: Geneva, Arial, Helvetica, sans-serif;
+  font-size: small;
+}
+
+.memTemplItemLeft {
+  padding: 1px 0px 0px 8px;
+  margin: 4px;
+  border-bottom: 1px solid #EEE;
+  font-family: Geneva, Arial, Helvetica, sans-serif;
+  font-size: small;
+}
+.memTemplItemRight {
+  padding: 1px 0px 0px 8px;
+  margin: 4px;
+  border-bottom: 1px solid #EEE;
+  font-family: Geneva, Arial, Helvetica, sans-serif;
+  font-size: small;
+}
+.memTemplParams {
+  padding: 1px 0px 0px 8px;
+  margin: 4px;
+  border-bottom: 1px solid #EEE;
+  font-family: Geneva, Arial, Helvetica, sans-serif;
+  font-size: small;
+}
+.mdescLeft {
+  font-size: smaller;
+  font-style: italic;
+  padding-left: 8px;
+  border: 1px none #E0E0E0;
+  margin: 0px;
+}
+.mdescRight {
+  font-size: smaller;
+  font-style: italic;
+  padding-left: 4px;
+  border: 1px none #E0E0E0;
+  margin: 0px;
+  padding-bottom: 0px;
+  padding-right: 8px;
+}
+
+
+

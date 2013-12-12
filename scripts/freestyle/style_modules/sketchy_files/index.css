@@ -1,0 +1,112 @@
+body
+{
+font-family: "helvetica", "arial", sans-serif;
+  font-size: 11pt;
+  color: rgb(100,100,100);
+  
+  background-color: white;
+
+  margin-left   : 10%;
+  margin-right  : 10%;
+  /*margin-top    : 10%;
+  margin-bottom : 10%;*/
+}
+hr{
+  color: rgb(220, 160, 0);
+  background-color: rgb(220, 160, 0);
+  border: 0;
+  height: 2px;
+}
+
+h1{
+  letter-spacing: 0.2em ;
+}
+h2{
+  letter-spacing: 0.15em ;
+}
+
+A:link {
+/*color            : rgb(150,150,150);*/
+color : rgb(220, 160, 0);
+font-weight: bolder;
+background-color : transparent; 
+text-decoration  : none; 
+}
+
+A:visited {
+/*color            : rgb(120,120,120);*/
+color : rgb(220, 160, 0);
+font-weight: bolder;
+background-color : transparent; 
+text-decoration  : none; 
+}
+
+
+
+A:hover {
+/*color            : rgb(180,180,200); */
+color : rgb(220, 160, 0);
+background-color : transparent; 
+text-decoration  : underline; 
+}
+
+.brighttitle {
+color            : rgb(190,190,190);
+background-color : transparent;
+
+padding-top    : 0.5ex;
+padding-bottom : 0.5ex;
+/*padding-left   : -10%;*/
+padding-right  : 1ex;
+padding-right  : 1ex;
+border : 0ex;
+}
+
+.huge {
+color            : rgb(190,190,190);
+background-color : transparent;
+padding-top    : 0.5ex;
+padding-bottom : 0.5ex;
+padding-right  : 1ex;
+border : 0ex;
+font-size: 40pt;
+font-weight: bold;
+}
+
+.alt{
+  /*color: rgb(150,150,150);*/
+  font-weight:bolder;
+  color : rgb(240, 190, 0);
+}
+.corpus {
+color          : rgb(80,80,80);
+padding-left   : 10%;
+padding-right  : 10%;
+text-align     : justify;
+
+}
+
+table.footer td {
+	font-size:xx-small;
+	font-family: verdana, helvetica, sans-serif;
+	font-weight:normal;
+	background-color: #eee; 
+}
+
+img{
+  border-width:0px;
+  border-color:rgb(220, 160, 0);
+}
+
+a img {
+  border-width:1px;
+  border-color:rgb(220, 160, 0);
+}
+
+.title-link A:link{
+  text-decoration  : none; 
+}
+
+.title-link A:hover{
+text-decoration  : underline; 
+}
