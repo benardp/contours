@@ -2234,7 +2234,7 @@ void checkVertex(ViewVertex * vv)
     }
 }
 
-void ViewMap::checkPointers(char * stepName,bool forceCheck)
+void ViewMap::checkPointers(const char * stepName,bool forceCheck)
 // iterate over the whole map and check consistency of the datastructure, for debugging
 //
 // TODO: check 'incoming' vs. 'outgoing' on viewedges and viewvertices

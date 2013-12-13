@@ -229,7 +229,7 @@ public:
   TVertex * MergeSNonTVertices(SVertex *oldSV, NonTVertex *newSV);
     void MergeVertices(ViewVertex * v1, ViewVertex * v2);
 
-  void checkPointers(char * stepName,bool forceCheck = false);
+  void checkPointers(const char *stepName, bool forceCheck = false);
 
   void render3D(bool selectionMode, DebugVisOptions options);
 

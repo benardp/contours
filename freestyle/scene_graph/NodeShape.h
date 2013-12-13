@@ -78,7 +78,7 @@ public:
   inline Material& material() { return _Material; }
   inline const vector<Rep*>& shapes() {return _Shapes;}
 
-  void serialize() { printf("NodeShape (%d shapes)\n",_Shapes.size()); }
+  void serialize() { printf("NodeShape (%lu shapes)\n",_Shapes.size()); }
 
 private:
   /*! list of shapes */

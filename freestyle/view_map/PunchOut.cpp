@@ -2371,7 +2371,7 @@ ViewMapBuilder::GenerateCuspRegionGeometry()
       assert(!closed || chain.size() > 1);
 
       if (closed)
-	printf("WARNING: CLOSED PO BOUNDARY CHAIN.  size = %d.  IS THIS POSSIBLE?\n",chain.size());
+          printf("WARNING: CLOSED PO BOUNDARY CHAIN.  size = %lu.  IS THIS POSSIBLE?\n",chain.size());
       //      cout << chain.front().first << ", " << chain.back().first << endl;
 
       //      assert(!closed); // I don't think a chain can ever be closed.
