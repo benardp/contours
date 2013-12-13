@@ -12,4 +12,4 @@ add_definitions(-DAPPNAME=\"${APPNAME}\" -DAPPVERSION=\"${APPVERSION}\")
 
 add_library(stroke SHARED ${SOURCE_FILES})
 
-target_link_libraries(stroke ${QT_LIBRARIES})
+target_link_libraries(stroke geometry view_map ${QT_LIBRARIES})

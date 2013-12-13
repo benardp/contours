@@ -12,4 +12,4 @@ add_definitions(-DAPPNAME=\"${APPNAME}\" -DAPPVERSION=\"${APPVERSION}\")
 
 add_library(winged_edge SHARED ${SOURCE_FILES})
 
-target_link_libraries(winged_edge ${QT_LIBRARIES})
+target_link_libraries(winged_edge geometry ${QT_LIBRARIES})

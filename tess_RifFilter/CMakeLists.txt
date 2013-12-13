@@ -9,6 +9,7 @@ set(LIBS ${LIBS} osd_static_cpu)
 
 find_package(3Delight REQUIRED)
 include_directories(${3Delight_INCLUDE_DIR})
+set(LIBS ${LIBS} ${3Delight_LIBRARIES})
 
 set(LIBS ${LIBS} app)
 add_definitions(-DLINK_FREESTYLE)

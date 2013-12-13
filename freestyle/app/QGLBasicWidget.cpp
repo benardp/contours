@@ -30,12 +30,12 @@ QGLBasicWidget::QGLBasicWidget( QWidget* parent, const char* name, int w, int h,
   _pGLRenderer = new GLRenderer;
 // #ifndef WIN32
 //   _Pbuffer = new PBuffer(w,h,
-//               PBuffer::SingleBuffer 
-// 			  | PBuffer::DepthBuffer 
+//               PBuffer::SingleBuffer
+// 			  | PBuffer::DepthBuffer
 // 			  | PBuffer::StencilBuffer);
 
 //   _Pbuffer->create(false);
-// #endif 
+// #endif
   resizeGL(w,h);
   _RootNode.SetLightingEnabled(false);
   _RootNode.SetLineWidth(1.0);
@@ -48,11 +48,11 @@ QGLBasicWidget::QGLBasicWidget( const QGLFormat& format, QWidget* parent, const 
   _pGLRenderer = new GLRenderer;
 // #ifndef WIN32
 //   _Pbuffer = new PBuffer(w,h,
-//               PBuffer::SingleBuffer 
-// 			  | PBuffer::DepthBuffer 
+//               PBuffer::SingleBuffer
+// 			  | PBuffer::DepthBuffer
 // 			  | PBuffer::StencilBuffer);
 //   _Pbuffer->create(false);
-// #endif 
+// #endif
   resizeGL(w,h);
   _RootNode.SetLightingEnabled(false);
   _RootNode.SetLineWidth(1.0);
@@ -66,7 +66,7 @@ QGLBasicWidget::~QGLBasicWidget()
 // #ifndef WIN32
 //   if(_Pbuffer)
 //     delete _Pbuffer;
-// #endif 
+// #endif
 }
 
 void QGLBasicWidget::AddNode(Node* iNode){

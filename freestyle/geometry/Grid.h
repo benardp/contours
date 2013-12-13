@@ -330,7 +330,7 @@ public:
   /*
   // added by aaron
   // for visiting all non-empty cells
-  class iterator 
+  class iterator
   {
   public:
     iterator() { };

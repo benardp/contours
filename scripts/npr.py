@@ -14,8 +14,7 @@ except ImportError, e:
     pass
 
 ############################ OPTIONS AND SETTINGS
-freestyleDir = os.getcwd() + '/freestyle' #os.environ['FREESTYLE_DIR']
-freestyleFlavor = os.environ['FREESTYLE_FLAVOR']
+freestyleDir = os.getcwd() + '/freestyle'
 
 if os.uname()[0] == 'Linux':
     buildName = 'linux'
@@ -252,7 +251,10 @@ def runStrokes(s):  # s is the settings module/class
             if not os.path.exists(outputFolder):
                 os.makedirs(outputFolder)
 
-            dso='../tess_RifFilter/lib/libtess_RifFilter.so'
+            if buildName == 'linux':
+                dso='../tess_RifFilter/lib/libtess_RifFilter.so'
+            else:
+                dso='../tess_RifFilter/lib/libtess_RifFilter.dylib'
 
             rifargs = string.join(['-rifargs',geomFilename,'-pattern','"'+pattern+'"',
                                    '-refinement',refinementLocal,

@@ -39,9 +39,7 @@ using namespace Geometry;
 
 class GLRenderer;
 class ViewMap;
-// #ifndef WIN32
-// class PBuffer;
-// #endif
+
 class QGLBasicWidget : public QGLWidget
 {
     Q_OBJECT

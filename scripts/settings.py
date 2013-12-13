@@ -1,5 +1,7 @@
 # TODO: create a class for each shot that encapsulates specific details like first and last frame, shotName, etc.
 
+mainTestShotFolder = '/Users/benard/PostDoc/contours/code/freestyleTestShots/'
+mainOutputFolder   = '/Users/benard/PostDoc/contours/code/freestyleOutput/'
 
 # processing steps to perform
 forceRunRIF              = True # Force re-running RIB->PLY processing, optionally optimizing consistency
@@ -140,12 +142,6 @@ styleBasenames = ['paramVis3.py']
 
 # draw just the mesh boundary
 #styleBasenames = ['SIsonly.py','boundariesOnly.py'] # color-code visible curves according to type
-
-
-mainTestShotFolder = '/home/benard/Projects/Toronto/contours/code/freestyleTestShots/'
-mainOutputFolder   = '/home/benard/Projects/Toronto/contours/code/freestyleOutput/'
-
-
 
 
 # -------------------- maximum output image size for display purposes ------------------

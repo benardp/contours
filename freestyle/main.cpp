@@ -1,6 +1,7 @@
 #include "app/Controller.h"
 #include "app/AppMainWindow.h"
 #include "app/AppConfig.h"
+#include <QGLFormat>
 
 int main(int argc, char** argv)
 {

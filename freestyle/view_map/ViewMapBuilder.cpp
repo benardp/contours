@@ -54,10 +54,6 @@ int tri_tri_intersection_test_3d(real p1[3], real q1[3], real r1[3],
 real p2[3], real q2[3], real r2[3],
 int * coplanar,
 real source[3],real target[3]);
-
-//  int tri_tri_intersect_with_isectline(real V0[3],real V1[3],real V2[3],
-//  				       real U0[3],real U1[3],real U2[3],int *coplanar,
-//  				       real isectpt1[3],real isectpt2[3]);
 }
 
 
@@ -745,12 +741,6 @@ bool intersectFaces(TriPair & tp, Vec3r * lastpt = NULL, bool A = true)
     int result = tri_tri_intersection_test_3d(t1[0], t1[1], t1[2],
             t2[0], t2[1], t2[2],
             &coplanar, source, target);
-
-
-    //  int result = tri_tri_intersect_with_isectline(t1[0], t1[1], t1[2],
-    //					    t2[0], t2[1], t2[2],
-    //					    &coplanar, source, target);
-
 
     if (result == 0)
     {

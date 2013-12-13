@@ -4,6 +4,9 @@ SET(QT_USE_QTOPENGL TRUE)
 find_package(GLEW)
 include_directories(GLEW_INCLUDE_DIRS)
 
+find_package(OpenGL REQUIRED)
+include_directories(OPENGL_INCLUDE_DIRS)
+
 include_directories(${PROJECT_SOURCE_DIR}/geometry)
 include_directories(${PROJECT_SOURCE_DIR}/scene_graph)
 
@@ -21,4 +24,4 @@ endif()
 
 add_library(rendering SHARED ${SOURCE_FILES})
 
-target_link_libraries(rendering ${QT_LIBRARIES} ${GLEW_LIBRARIES})
+target_link_libraries(rendering stroke system ${QT_LIBRARIES} ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES})

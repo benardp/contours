@@ -32,7 +32,7 @@
 
 # include <string>
 # include "ConfigIO.h"
-# include <QGLViewer/qglviewer.h>   // for opengl
+# include "../rendering/GLUtils.h"
 # include "../geometry/FastGrid.h"
 # include "../geometry/HashGrid.h"
 # include "../view_map/ViewMapBuilder.h"
