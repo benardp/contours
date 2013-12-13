@@ -33,8 +33,6 @@ void LIB_RENDERING_EXPORT *glutils_extgl_GetProcAddress(const char *name);
 #  include <OpenGL/glu.h>
 # else
 #  include <GL/glew.h>
-#  include <GL/gl.h>
-#  include <GL/glu.h>
 # endif
 
 #ifndef CHECK_FOR_ERROR
@@ -54,14 +52,8 @@ GLenum checkForError(const char *file, int line, const char *func)
   if ((errCode = glGetError()) != GL_NO_ERROR)
     {
       errString = gluErrorString(errCode);
-      printf("OpenGL error: %s. %s() at %s:%d",errString,func, file,line);
-
-      //      if (loc != NULL)
-      //      	printf(" (%s)",loc);
-      
-      printf("\n");
+      printf("OpenGL error: %s. %s() at %s:%d\n",errString,func, file,line);
     }
-
   return errCode;
 }
 

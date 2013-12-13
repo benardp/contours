@@ -26,9 +26,9 @@
 #include <QToolBar>
 #include <QToolButton>
 #include <QLayout>
+#include "Controller.h"
 #include "AppMainWindow.h"
 #include "AppGLWidget.h"
-#include "Controller.h"
 #include "AppConfig.h"
 
 AppMainWindow::AppMainWindow(QWidget *parent, const char *name, Qt::WindowFlags f)

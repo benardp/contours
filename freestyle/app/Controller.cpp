@@ -19,14 +19,16 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "Controller.h"
+
 // Must be included before any QT header, because of moc
 #include "../system/PythonInterpreter.h"
 
 #include <fstream>
 #include <float.h>
-#include <qfileinfo.h>
-#include <qprocess.h>
-#include <qstring.h>
+#include <QFileInfo>
+#include <QProcess>
+#include <QString>
 
 #include "AppGLWidget.h"
 #include "AppMainWindow.h"
@@ -54,7 +56,6 @@
 #include "../view_map/ViewMapTesselator.h"
 #include "../stroke/StrokeTesselator.h"
 #include "../view_map/ViewMapIO.h"
-#include "Controller.h"
 #include "../view_map/ViewMap.h"
 #include "../winged_edge/Curvature.h"
 #include "QGLBasicWidget.h"
