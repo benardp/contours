@@ -52,7 +52,6 @@ RifPlugin* RifPluginManufacture(int argc, char ** argv)
     std::vector<char*> styleModules;
     bool invertNormals = false;
     bool useConsistency = true;
-    int numRefinements = 0;
 
     if (argc > 1)
         outputFilename = argv[0];
@@ -60,8 +59,6 @@ RifPlugin* RifPluginManufacture(int argc, char ** argv)
     int i = 1;
     while (i<argc)
     {
-        //      printf("PROCESSING %s\n", argv[i]);
-
         if (strcmp(argv[i],"-pattern") == 0)
         {
             targetSurfacePattern = argv[i+1];
@@ -168,11 +165,6 @@ RifPlugin* RifPluginManufacture(int argc, char ** argv)
                                                 exit(1);
                                             }
                                         }
-                                        else if (strcmp(argv[i],"-numRefinements") == 0)
-                                        {
-                                            numRefinements = atoi(argv[i+1]);
-                                            i +=2;
-                                        }
                                         else if (strcmp(argv[i],"-maxInconsistentSplits") == 0)
                                         {
                                             maxInconsistentSplits = atoi(argv[i+1]);
@@ -255,14 +247,14 @@ RifPlugin* RifPluginManufacture(int argc, char ** argv)
                                         }
                                         else
                                         {
-                                            printf("RIBTO3DS: INVALID COMMAND-LINE (i=%d, argv[i] = %s)\n",i,argv[i]);
+                                            printf("RIB2MESH: INVALID COMMAND-LINE (i=%d, argv[i] = %s)\n",i,argv[i]);
                                             exit(1);
                                         }
     }
 
 
     rib2mesh * obj = new rib2mesh(targetSurfacePattern,outputFilename,exclusionPattern,subdivisionLevel,meshSmoothing,
-                            refinement, numRefinements, maxInconsistentSplits, allowShifts, maxDisplayWidth, maxDisplayHeight, useOrientation, invertNormals,
+                            refinement, maxInconsistentSplits, allowShifts, maxDisplayWidth, maxDisplayHeight, useOrientation, invertNormals,
                             cullBackFaces, meshSilhouettes, useConsistency, runFreestyle,
                             runFreestyleInteractive, cuspTrimThreshold, graftThreshold, wiggleFactor, outputImage, outputEPSPolyline, outputEPSThick, freestyleLibPath, lastStep);
 
@@ -276,8 +268,8 @@ RifPlugin* RifPluginManufacture(int argc, char ** argv)
 
 
 rib2mesh::rib2mesh(const char * targetSurfacePattern, const char *outputFilename, const char * exclusionPattern,
-             int subdivisionLevel,double meshSmoothing,
-             RefinementType refinement, int numRefinements, int maxInconsistentSplits,
+             int subdivisionLevel, double meshSmoothing,
+             RefinementType refinement, int maxInconsistentSplits,
              bool allowShifts, int maxDisplayWidth, int maxDisplayHeight,
              bool useOrientation, bool invertNormals,
              bool cullBackFaces,
@@ -291,10 +283,6 @@ rib2mesh::rib2mesh(const char * targetSurfacePattern, const char *outputFilename
         printf("No exclusion pattern\n");
     else
         printf("Exclusion pattern: %s\n", exclusionPattern);
-
-    //  printf("Mesh smo: %f\n", wiggleFactor);
-
-    //  printf("Output camera filename: %s\n", outputCameraFilename);
 
     _filter.ClientData = this;
     _filter.SubdivisionMeshV = subdivisionMeshV;
@@ -317,26 +305,20 @@ rib2mesh::rib2mesh(const char * targetSurfacePattern, const char *outputFilename
     _filter.WorldBegin = worldBegin;
     _filter.ProjectionV = projection;
 
-    // AttributeBegin and AttributeEnd push and pop the matrix stack too.  The PRman spec is misleading on this point, but this page
-    // seems to indicate this: "http://wiki.pixar.com/display/FAQ/Scopes+and+stacks"
+    // AttributeBegin and AttributeEnd push and pop the matrix stack too.
     _filter.AttributeBegin = attributeBegin;
     _filter.AttributeEnd = attributeEnd;
-    // i am otherwise ignoring the entire attribute stack
+    // I am otherwise ignoring the entire attribute stack
 
     _outputFilename = outputFilename;
-    //  _outputCameraFilename = outputCameraFilename;
     _getNextSubd = false;
     _getNextXform_geom = false;
     _firstConcatTransform = true;
-    //  _transformDepth = 0;
-    //  _getNextXform_camera = false;
     _subdivisionLevel = subdivisionLevel;
     _meshSmoothing = meshSmoothing;
-    //  _orientationOutside = true;
     _attributeStack.push_back(Attribute(true));
     _refinement = refinement;
     _lastStep = lastStep;
-    _numRefinements = numRefinements;
     _allowShifts = allowShifts;
     _cullBackFaces = cullBackFaces;
     _meshSilhouettes = meshSilhouettes;
@@ -356,9 +338,8 @@ rib2mesh::rib2mesh(const char * targetSurfacePattern, const char *outputFilename
     _invertNormals = invertNormals;
     _useConsistency = useConsistency;
     _focalLength = 1;
+    _wiggleFactor = wiggleFactor;
 
-    // set the initial transformation to be an identity.  a hack (?) to try to get the Bunny to work.
-    //  _currentMatrix.SetIdentity();
     mat4 firstMatrix;
     firstMatrix.SetIdentity();
     _matrixStack.push_back(firstMatrix);
@@ -367,8 +348,6 @@ rib2mesh::rib2mesh(const char * targetSurfacePattern, const char *outputFilename
     _totalOutputFaces = 0;
     _totalInconsistentFaces = 0;
     _totalStrongInconsistentFaces = 0;
-
-    //  _numMeshes = 0;
 
     // ---------------------------- COMPILE THE REGEXPs ----------------------------------
 
@@ -395,11 +374,6 @@ rib2mesh::rib2mesh(const char * targetSurfacePattern, const char *outputFilename
     {
         _geomExclusion = false;
     }
-
-    // ----------------------------- INITIALIZE THE OUTPUT FILE -------------------------
-
-    //  _output3DSFile = lib3ds_file_new();
-    //  _output3DSFile->frames = 1;
 }
 
 template <class T>
@@ -828,17 +802,6 @@ RtVoid rib2mesh::extractCameraCenter()
     // assumes the upper diagonal of the matrix is orthonormal (i.e., reflection and/or rotation): [R t; 0 1]
     // compute -R^T * t
 
-//      printf("wt = [%Lf %Lf %Lf %Lf; %Lf %Lf %Lf %Lf; %Lf %Lf %Lf %Lf; %Lf %Lf %Lf %Lf]'\n",
-//        _cameraMatrix[0][0], _cameraMatrix[1][0], _cameraMatrix[2][0], _cameraMatrix[3][0],
-//        _cameraMatrix[0][1], _cameraMatrix[1][1], _cameraMatrix[2][1], _cameraMatrix[3][1],
-//        _cameraMatrix[0][2], _cameraMatrix[1][2], _cameraMatrix[2][2], _cameraMatrix[3][2],
-//        _cameraMatrix[0][3], _cameraMatrix[1][3], _cameraMatrix[2][3], _cameraMatrix[3][3]
-//         );
-
-
-    // compute -R^T * t   (assumes the upper-left component is orthonormal (i.e., rotation or reflection)
-    //probably a prettier way to write this using matrix operators
-
     for(int i=0;i<3;i++)
         _cameraCenter[i] =
                 -_cameraMatrix[i][0] * _cameraMatrix[3][0] +
@@ -990,13 +953,6 @@ RtVoid rib2mesh::subdivisionMeshV(RtToken mask, RtInt nf, RtInt nverts[],
 
     obj->_getNextSubd = false;
 
-    /*
-  if (obj->_firstConcatTransform)
-    {
-      printf("Didn't find camera matrix for subd\n");
-      exit(1);
-    }
-  */
     int * nargs3 = new int[nt*3];   // do i need to delete this memory after building the mesh?
 
     // set the number of stringargs to zero, since the calling function assumes no stringargs
@@ -1037,14 +993,6 @@ RtVoid rib2mesh::hierarchicalSubdivisionMeshV(RtToken mask, RtInt nf, RtInt nver
 
     obj->_getNextSubd = false;
 
-    /*
-  if (obj->_firstConcatTransform)
-    {
-      printf("Didn't find camera matrix when trying to clip\n");
-      exit(1);
-    }
-  */
-
     bool isTriangleMesh = true;
 
     for(int i=0;i<nf && isTriangleMesh;i++)
@@ -1071,8 +1019,6 @@ void CreatePointDebuggingData(HbrMesh<T> * mesh)
     mesh->GetVertices(std::back_inserter(vertices));
     for(typename std::list<HbrVertex<T>*>::iterator it = vertices.begin(); it != vertices.end(); ++it)
     {
-        //      printf("adding vertex, location %08X\n", *it);
-
         vec3 posx = (*it)->GetData().pos;
         char debugString[2000];
         int type = (*it)->GetData().DebugString(debugString);
@@ -1123,7 +1069,7 @@ void rib2mesh::handleCatmark(RtInt nf, RtInt nverts[],
         if (verts[i]+1 > params.numVertices)
             params.numVertices = verts[i]+1;
 
-    params.faceSizes = nverts;   // do we need to allocate more memory?
+    params.faceSizes = nverts;
     params.vertIndices = verts;
     params.numTags = nt;
     params.tags = tags;
@@ -1310,11 +1256,6 @@ void rib2mesh::handleCatmark(RtInt nf, RtInt nverts[],
     else if (obj->_refinement == RF_RADIAL)
     {
         RefineContourRadial(outputMesh, obj->cameraModel().CameraCenter(), obj->_allowShifts, obj->_lastStep);
-
-//        WiggleInParamSpace(outputMesh,obj->cameraModel().CameraCenter());
-//        OptimizeConsistency<VertexDataCatmark>(outputMesh, obj->cameraModel().CameraCenter(), OPT_LAMBDA, OPT_EPSILON);
-//        WiggleAllFaces<VertexDataCatmark>(outputMesh, obj->cameraModel().CameraCenter());
-//        WiggleAllVertices<VertexDataCatmark>(outputMesh, obj->cameraModel().CameraCenter());
     }
 
     if (obj->_cullBackFaces)
@@ -1368,11 +1309,6 @@ void rib2mesh::runFreestyle()
 
     int displayWidth;
     int displayHeight;
-
-    //  _xres *= 2;
-    //  _yres *= 2;
-
-    //  printf("Doubling output resolution!\n");
 
     if (_runFreestyleInteractive && (_xres > _maxDisplayWidth || _xres > _maxDisplayHeight))
     {

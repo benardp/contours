@@ -113,28 +113,10 @@ def runStrokes(s):  # s is the settings module/class
     shotFolder = s.mainTestShotFolder + s.shot + '/'
     outputFolder = s.mainOutputFolder + s.shot + '/'
 
-    if s.shot in ['balloons','singleBalloon','pillows','intersectingPillows','origIntersectingPillows']:
-        shotName = 'sphereShot'  
-    elif s.shot == 'bunnySmall':
-        shotName = 'bunny'
-    elif s.shot == 'devresearch_sanjay_1':
-        shotName = 'devresearch_sanjay_1.NPR_BaseColor_ah'
-    elif s.shot == 'devresearch_sanjay_2':
-        shotName = 'devresearch_sanjay_2.NPR_Lighting_all'
-    elif s.shot == 'devresearch_sanjay_2_3xslower':
-        shotName = 'devresearch_sanjay_2.NPR_Lighting_all_ah3x'
-    elif s.shot == 'devresearch_sanjay_2_5xslower':
-        shotName = 'devresearch_sanjay_2.NPR_Lighting_all_ah5x'
-    else:
-        shotName = s.shot
+    shotName = s.shot
 
-    if s.shot in ['torus','torus_sliced','spheres','coneBoy','angela','angelaFace','bunnyQuads','sintel','darwin','teapot','walk','test','horse','lezard','bimba','fertility','pig','dazTest']:
-        headerPattern = shotFolder + shotName + '.%04d.rib'
-    elif s.shot in ['bunny','cow','bunnySmall'] or s.shot[:18] == 'devresearch_sanjay':
-        headerPattern = shotFolder + shotName + '.%d.rib'
-    else:
-        headerPattern = shotFolder + shotName + '.%d.rip'
-
+    headerPattern = shotFolder + shotName + '.%04d.rib'
+        
     cameraFilePattern = shotFolder + 'camera.%d.pickle'
     
     inputHeaders = [headerPattern%i for i in fileNums]
@@ -149,15 +131,10 @@ def runStrokes(s):  # s is the settings module/class
     if s.exclusionObjects != None:
         outputFolder = outputFolder + '-' + string.join(s.exclusionObjects,'')
     
-
-
-
     # -------------------- output filenames --------------------------------------------
 
-    refstrs = {'None':'N','ContourOnly':'C','ContourInconsistent':'CI','Full':'F','Optimize':'Opt','Radial':'R', 'Dualtess':'DT'}
+    refstrs = {'None':'N','ContourOnly':'C','ContourInconsistent':'CI','Full':'F','Optimize':'Opt','Radial':'R'}
     refstr = refstrs[refinementLocal]
-    if refinementLocal == 'Optimize':
-        refstr + str(s.numRefinements)
     if not meshSilhouettes:
         refstr = refstr + '_Sm'
 
@@ -170,8 +147,6 @@ def runStrokes(s):  # s is the settings module/class
         snapshotBasename = s.shot+'_#_'+refstr
     else:
         snapshotBasename = s.shot+'_'+s.styleBasenames[0][:-3]+'_'+refstr
-    QTFilename = outputFolder+'/'+snapshotBasename+'.mov'
-    QTFilename2 = outputFolder+'/'+snapshotBasename+'_poly.mov'
 
     snapshotBasename = snapshotBasename + '_ts%d'%s.cuspTrimThreshold
     
@@ -183,12 +158,6 @@ def runStrokes(s):  # s is the settings module/class
     except:
         pass
 
-
-    # tell Freestyle which rendering styles to use
-    #Freestyle.clearStylesFS()
-    #for style in styleFilenames:
-    #    Freestyle.addStyleFS(style)
-
     ################################## MAIN RENDERING LOOP ########################################
 
     for i in range(0,len(fileNums)):
@@ -198,7 +167,6 @@ def runStrokes(s):  # s is the settings module/class
         RIBfilename = inputRIBs[i]
         geomFilename = outputFolder+'/'+meshBasename+'.'+str(fileNums[i])+'.ply'
         snapshotFilename = outputFolder+'/'+snapshotBasename + '.%03d.tiff'%fileNums[i]
-        #    svgFilename = outputFolder+'/'+snapshotBasename + '.%03d.svg'%fileNums[i]
         EPSFilenamePolyline = outputFolder+'/'+snapshotBasename + '_polyline.%03d.eps'%fileNums[i]
         EPSFilenameThick = outputFolder+'/'+snapshotBasename + '.%03d.eps'%fileNums[i]
         PDFFilenamePolyline = outputFolder+'/'+snapshotBasename + '_polyline.%03d.pdf'%fileNums[i]
@@ -207,42 +175,33 @@ def runStrokes(s):  # s is the settings module/class
         PNGFilenameThick = outputFolder+'/'+snapshotBasename+'.%03d.png'%fileNums[i]
         
         cameraFilename = cameraFiles[i]
-
-        ################### USE RIT TO EXTRACT RIB FILE FROM THE SHOT #############################
-
-        if buildName == 'linux' and ( s.forceExtractShot or not fileExists(headerFilename)):
-            print('*** Extracting RIB file from shot ***')
-            
-            print('rib file: %s'%headerFilename)
-            
-            #        cmd = 'cd %s; rit -cam main_cam -res 1920'%shotFolder
-            cmd = 'pushd %s; rit -cam main_cam -res 1920 -gzip; popd'%s.shotFolder   # this may not work without "-shot [SHOTNAME]" unless you're already in the shot. add -gzip to compress
-            print('Executing '+cmd)
-            os.system(cmd)
-
+    
         ################### USE A RIF TO EXTRACT CAMERA TRANSFORM FROM RIB ########################
 
-        if not fileExists(cameraFilename) and prmanAvailable:
+        if not fileExists(cameraFilename):
+            if prmanAvailable:
                 
-            print('*** Extracting camera data from RIB file ***')
-            cameraData = cameraRif.runFilter([headerFilename])
+                print('*** Extracting camera data from RIB file ***')
+                cameraData = cameraRif.runFilter([headerFilename])
                 
-            cameraFile = open(cameraFilename,'wb')
-            cPickle.dump(cameraData,cameraFile)
-            cameraFile.close()
+                cameraFile = open(cameraFilename,'wb')
+                cPickle.dump(cameraData,cameraFile)
+                cameraFile.close()
+            else:
+                print('*** Error camera data not available ***')
+                return
         else:
-
             print('Loading pickled camera data from '+cameraFilename)
             cameraFile = open(cameraFilename,'r')
             cameraData = cPickle.load(cameraFile)
             cameraFile.close()
         
-        print(cameraData)
+        #print(cameraData)
 
         ################### USE THE RIF TO EXTRACT GEOMETRY FROM RIB AND PROCESS IT ##################
 
         runRIF = False
-        if (s.forceRunRIF or (s.renderStrokes and (s.forceExtractShot or not fileExists(geomFilename)))):
+        if (s.forceRunRIF or (s.renderStrokes and (not fileExists(geomFilename)))):
             
             print('*** Running RI Filter ***')
             runRIF = True
@@ -258,7 +217,6 @@ def runStrokes(s):  # s is the settings module/class
 
             rifargs = string.join(['-rifargs',geomFilename,'-pattern','"'+pattern+'"',
                                    '-refinement',refinementLocal,
-                                   '-numRefinements',str(s.numRefinements),
                                    '-allowShifts',str(s.allowShifts),
                                    '-cullBackFaces',str(s.cullBackFaces),
                                    '-subdivLevel',str(s.subdivisionLevel),
@@ -294,7 +252,7 @@ def runStrokes(s):  # s is the settings module/class
 
             if (result != 0):
                 print('PRMAN ERROR: '+str(result))
-                raise Exception()
+                raise Exception() 
         
         # ----- count the number of faces in the geometry files (to be able to tell if it's empty -----
         if s.renderStrokes:
@@ -310,6 +268,11 @@ def runStrokes(s):  # s is the settings module/class
 
         if s.renderStrokes and not runRIF:
             print('*** Starting Freestyle ***')
+
+            # tell Freestyle which rendering styles to use
+            Freestyle.clearStylesFS()
+            for style in styleFilenames:
+                Freestyle.addStyleFS(style)
 
             def arrayToMatrix(data):
                 return Freestyle.Matrix4x4(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],
@@ -373,29 +336,7 @@ def runStrokes(s):  # s is the settings module/class
                     os.system('gs -q -dEPSCrop -dNOPAUSE -dBATCH -sDEVICE=png16m -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -sOutputFile=%s %s'%(PNGFilenamePolyline,EPSFilenamePolyline))
                     print('\tsos %s\n'%(PNGFilenamePolyline))
                     print('\tsos %s\n'%(PNGFilenameThick))
-
-    ############################ GENERATE QT #########################
-            
-    if s.renderStrokes:
-        outputPatternTIFF = outputFolder+'/'+snapshotBasename + '.#.tiff';
-        outputPatternpolypng = outputFolder+'/'+snapshotBasename + '_polyline.#.png';
         
-        if s.makeQuickTime and len(inputRIBs) > 1:
-            cmd = 'qtMake -force -out %s -scale %f -saveType qtJpg -compressionQuality 100 %s'%(QTFilename,s.QTScale,outputPatternTIFF)
-            print('Executing '+cmd)
-            os.system(cmd)
-            
-            cmd = 'qtMake -force -out %s -scale %f -saveType qtJpg -compressionQuality 100 %s'%(QTFilename2,s.QTScale,outputPatternpolypng)
-            print('Executing '+cmd)
-            os.system(cmd)
-
-            print('Done.')
-            print('\tsloopt '+QTFilename)
-            print('\tsloopt '+QTFilename2)
-        if len(inputRIBs) > 1:
-            print('\tsloopt '+outputPatternTIFF)
-            print('\tsloopt '+outputPatternpolypng)
-
 if __name__ == "__main__":
     import settings
 

@@ -36,7 +36,6 @@ public:
     bool _useOrientation;
     bool _invertNormals;
     bool _useConsistency;
-    int _numRefinements;
 
     // meshes to save to the output file
     std::vector<HbrMesh<VertexDataCatmark>*> _outputMeshesCatmark;
@@ -87,8 +86,6 @@ public:
     float _pixelaspect, _aspect;
     float _focalLength;
 
-    //  bool _orientationOutside;
-
     vec3 matrixTransform(const vec3 &);
     vec3 matrixTransform(double x, double y, double z) { return matrixTransform(vec3(x,y,z)); }
 
@@ -135,7 +132,6 @@ public:
 
     CameraModel cameraModel() {  return CameraModel(_cameraMatrix, _near, _far, _left, _right, _top, _bottom,
                                                     _xres, _yres, _focalLength, _cameraCenter); }
-
     void extractCameraCenter();
 
 #ifdef LINK_FREESTYLE
@@ -144,9 +140,8 @@ public:
 
     int SavePLYFile();
 
-    // public:
     rib2mesh(const char* targetPattern, const char *outputFilename, const char * exclusionPattern,
-          int subdivisionMeshV, double meshSmoothing, RefinementType refinement, int numRefinements,
+          int subdivisionMeshV, double meshSmoothing, RefinementType refinement,
           int maxInconsistentSplits, bool allowShifts, int maxDisplayWidth, int maxDisplayHeight, bool useOrientation,
           bool invertNormals, bool cullBackFaces, bool meshSilhouettes, bool useConsistency,
           bool runFreestyle, bool runFreestyleInteractive, double cuspTrimThreshold, double graftThreshhold,  double wiggleFactor,
