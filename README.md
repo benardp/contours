@@ -18,7 +18,7 @@ use in any kind of production pipeline.
 ### Dependencies
 
 The code is based on a skimmed and tweaked version of
-[OpenSubdiv](http://graphics.pixar.com/opensubdiv/) and an heavily
+[OpenSubdiv](http://graphics.pixar.com/opensubdiv/) and a heavily
 modified version of [Freestyle](http://freestyle.sourceforge.net/)
 (included).  The mesh generation algorithm is implemented as a
 RifFilter; you will either need
@@ -63,11 +63,18 @@ make
 ### Usage
 
 We provide scripts to run the mesh generation algorithm and contours
-extraction code on a sequence of RIB files.
+extraction code on a sequence of RIB files. We provide three test
+sequences on the
+[project web page](http://www.labri.fr/perso/pbenard/publications/contours.html);
+you can export other shots using RenderMan or 3Delight for Maya, or
+[3Dlight/Blender](http://mattebb.com/3delightblender/).
 
-All the settings need to be set in `build/scripts/settings.py`. Specify the
-local paths to the input and output shots directories in the variables
-`mainTestShotFolder` and `mainOutputFolder` (mandatory). 
+The settings are specified in `build/scripts/settings.py`. You need to
+provide the local paths to the input and output shots directories on
+your machine through the variables `mainTestShotFolder` and
+`mainOutputFolder` (mandatory). The `shot` parameter allows you to
+choose the sequence that you want to process; it needs to match
+the name of the subdirectory containing the RIB files.
 
 Then, to run the code:
 
@@ -76,3 +83,6 @@ Then, to run the code:
 cd scripts
 python npr.py
 ````
+
+The output PLY meshes and curves (EPS, PDF and, on OS X, PNG files)
+are saved in a subdirectory of `mainOutputFolder`. 

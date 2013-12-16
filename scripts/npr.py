@@ -89,10 +89,7 @@ def runStrokes(s):  # s is the settings module/class
         endFrame = s.endFrame
     fileNums = range(s.startFrame,endFrame+1)    
 
-
-    # the RiOrientation field is used in the UP shots and Sanjay's; ignored in the other ones. don't know why...
-    useOrientation = (s.shot[0] in ['u','U']) or s.shot[:18] == 'devresearch_sanjay' or s.shot == 'angela'
-
+    useOrientation = False
 
     styleFilenames = map(lambda x: freestyleDir +'/style_modules/'+x, s.styleBasenames)
 

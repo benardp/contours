@@ -24,11 +24,10 @@ wiggleFactor = 0           # wiggling of the vertices in freestyle to avoid dege
 # ignored when refinement == 'None'
 useConsistency = True
 
-frameRanges = {'torus':(1,100), 'bunnyQuads':(1,400), 'angelaFace':(1,150), 'walk':(1,120)}
+frameRanges = {'torus':(1,100), 'bunnyQuads':(1,400), 'walk':(1,120)}
 
 # active shot
 
-#shot = 'angelaFace'
 #shot = 'bunnyQuads'
 shot = 'torus'
 #shot = 'walk'
