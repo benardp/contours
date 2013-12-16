@@ -4,9 +4,9 @@ Contours
 This is the research prototype implementing the occluding contours
 extraction method described in the following publication:
 
-Computing Smooth Surface Contours with Accurate Topology.
+[Computing Smooth Surface Contours with Accurate Topology.](http://www.labri.fr/perso/pbenard/publications/contours.html)
 Pierre Bénard, Aaron Hertzmann, Michael Kass
-http://www.labri.fr/perso/pbenard/publications/contours.html
+
 
 Note: This is research software. As such, it may fail to run, crash,
 or otherwise not perform as expected. It is not intended for regular
@@ -35,8 +35,10 @@ Optional:
 * [OpenMP](http://openmp.org/wp/) (OpenSubdiv)
 * [TBB](https://www.threadingbuildingblocks.org/) (OpenSubdiv)
 
+-
 
-# Build instructions (Linux/OSX, not tested on Windows)
+# Build instructions
+On Linux (gcc) and OS X (clang), not tested on Windows.
 
 __Clone the repository:__
 
@@ -59,7 +61,9 @@ cmake ..
 make
 ````
 
-. Usage
+-
+
+# Usage
 
 We provide scripts to run the mesh generation algorithm and contours
 extraction code on a sequence of RIB files.
