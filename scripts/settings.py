@@ -1,10 +1,6 @@
 # input and output shots paths
-mainTestShotFolder = ''
-mainOutputFolder   = ''
-
-mainTestShotFolder = '/Users/benard/PostDoc/contours/code/freestyleTestShots/'
-mainOutputFolder   = '/Users/benard/PostDoc/contours/code/freestyleOutput/'
-
+mainTestShotFolder = 'your path here'
+mainOutputFolder   = 'your path here'
 
 # processing steps to perform
 forceRunRIF              = True # Force re-running RIB->PLY processing
