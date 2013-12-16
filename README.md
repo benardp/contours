@@ -5,7 +5,8 @@ This is the research prototype implementing the occluding contours
 extraction method described in the following publication:
 
 [Computing Smooth Surface Contours with Accurate Topology.](http://www.labri.fr/perso/pbenard/publications/contours.html)
-Pierre Bénard, Aaron Hertzmann, Michael Kass
+Pierre Bénard, Aaron Hertzmann, Michael Kass. ACM Transactions on
+Graphics, 2013
 
 
 Note: This is research software. As such, it may fail to run, crash,
@@ -29,6 +30,7 @@ Required:
 * [cmake](http://www.cmake.org/cmake/resources/software.html)
 * [Qt 4.8 libraries](http://qt-project.org/downloads) (Freestyle)
 * [libQGLViewer](http://www.libqglviewer.com/) (Freestyle)
+* [SWIG](http://www.swig.org/) (Freestyle)
 
 Optional:
 * [GLEW](http://sourceforge.net/projects/glew/) (Linux only)
@@ -37,11 +39,9 @@ Optional:
 
 
 ### Build instructions
-On Linux (gcc) and OS X (clang), not tested on Windows.
+Tested on Linux (gcc 4.8) and OS X (clang 5.0), not tested on Windows.
 
 __Clone the repository:__
-
-From the GitShell, Cygwin or the CLI :
 
 ````
 git clone https://github.com/benardp/contours
