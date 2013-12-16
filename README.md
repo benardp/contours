@@ -35,9 +35,8 @@ Optional:
 * [OpenMP](http://openmp.org/wp/) (OpenSubdiv)
 * [TBB](https://www.threadingbuildingblocks.org/) (OpenSubdiv)
 
--
 
-# Build instructions
+### Build instructions
 On Linux (gcc) and OS X (clang), not tested on Windows.
 
 __Clone the repository:__
@@ -61,9 +60,7 @@ cmake ..
 make
 ````
 
--
-
-# Usage
+### Usage
 
 We provide scripts to run the mesh generation algorithm and contours
 extraction code on a sequence of RIB files.
