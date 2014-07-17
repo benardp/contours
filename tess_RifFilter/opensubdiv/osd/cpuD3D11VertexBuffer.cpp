@@ -57,9 +57,9 @@ OsdCpuD3D11VertexBuffer::Create(int numElements, int numVertices, ID3D11Device *
 }
 
 void
-OsdCpuD3D11VertexBuffer::UpdateData(const real *src, int startVertex, int numVertices, void *param) {
+OsdCpuD3D11VertexBuffer::UpdateData(const float *src, int startVertex, int numVertices, void *param) {
 
-    memcpy(_cpuBuffer + startVertex * _numElements, src, _numElements * numVertices * sizeof(real));
+    memcpy(_cpuBuffer + startVertex * _numElements, src, _numElements * numVertices * sizeof(float));
 }
 
 int
@@ -74,7 +74,7 @@ OsdCpuD3D11VertexBuffer::GetNumVertices() const {
     return _numVertices;
 }
 
-real*
+float*
 OsdCpuD3D11VertexBuffer::BindCpuBuffer() {
 
     return _cpuBuffer;
@@ -94,7 +94,7 @@ OsdCpuD3D11VertexBuffer::BindD3D11Buffer(ID3D11DeviceContext *deviceContext) {
         return NULL;
     }
 
-    int size = _numElements * _numVertices * sizeof(real);
+    int size = _numElements * _numVertices * sizeof(float);
 
     memcpy(resource.pData, _cpuBuffer, size);
 
@@ -106,16 +106,16 @@ OsdCpuD3D11VertexBuffer::BindD3D11Buffer(ID3D11DeviceContext *deviceContext) {
 bool
 OsdCpuD3D11VertexBuffer::allocate(ID3D11Device *device) {
 
-    _cpuBuffer = new real[_numElements * _numVertices];
+    _cpuBuffer = new float[_numElements * _numVertices];
 
     // XXX: should move this constructor to factory for error handling
     D3D11_BUFFER_DESC hBufferDesc;
-    hBufferDesc.ByteWidth = _numElements * _numVertices * sizeof(real);
+    hBufferDesc.ByteWidth = _numElements * _numVertices * sizeof(float);
     hBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
     hBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_SHADER_RESOURCE;
     hBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     hBufferDesc.MiscFlags = 0;
-    hBufferDesc.StructureByteStride = sizeof(real);  // XXX ?
+    hBufferDesc.StructureByteStride = sizeof(float);  // XXX ?
 
     HRESULT hr;
     hr = device->CreateBuffer(&hBufferDesc, NULL, &_d3d11Buffer);

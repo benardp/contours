@@ -84,7 +84,7 @@ HbrBilinearSubdivision<T>::transferFVarToChild(HbrMesh<T>* mesh, HbrFace<T>* fac
 
     // We do the face subdivision rule first, because we may reuse the
     // result (stored in fv2) for the other subdivisions.
-    real weight =  1.0f / nv;
+     real weight =  1.0f / nv;
 
     // For the face center vertex, the facevarying data can be cleared
     // and averaged en masse, since the subdivision rules don't change
@@ -307,7 +307,7 @@ HbrBilinearSubdivision<T>::transferFVarToChild(HbrMesh<T>* mesh, HbrFace<T>* fac
         // computed the facevarying values
         else if (!fv0IsSmooth || !fv0.IsInitialized()) {
             int valence = v->GetValence();
-            real invvalencesquared = 1.0f / (valence * valence);
+             real invvalencesquared = 1.0f / (valence * valence);
 
             // Use n-2/n of the current vertex value
             fv0.SetWithWeight(face->GetFVarData(index), fvarindex, fvarwidth, invvalencesquared * valence * (valence - 2));
@@ -422,7 +422,7 @@ HbrBilinearSubdivision<T>::Refine(HbrMesh<T>* mesh, HbrFace<T>* face) {
     HbrHalfedge<T>* prevedge = edge->GetPrev();
     HbrHalfedge<T>* childedge;
     int nv = face->GetNumVertices();
-    real sharpness;
+     real sharpness;
     bool extraordinary = (nv != 4);
     // The funny indexing on vertices is done only for
     // non-extraordinary faces in order to correctly preserve
@@ -496,7 +496,7 @@ HbrBilinearSubdivision<T>::RefineFaceAtVertex(HbrMesh<T>* mesh, HbrFace<T>* face
     HbrHalfedge<T>* prevedge = edge->GetPrev();
     HbrHalfedge<T>* childedge;
     int nv = face->GetNumVertices();
-    real sharpness;
+     real sharpness;
     bool extraordinary = (nv != 4);
     // The funny indexing on vertices is done only for
     // non-extraordinary faces in order to correctly preserve
@@ -785,7 +785,7 @@ HbrBilinearSubdivision<T>::Subdivide(HbrMesh<T>* mesh, HbrFace<T>* face) {
     HbrVertex<T>* v = mesh->NewVertex();
     T& data = v->GetData();
     int nv = face->GetNumVertices();
-    real weight = 1.0f / nv;
+     real weight = 1.0f / nv;
 
     HbrHalfedge<T>* edge = face->GetFirstEdge();
     for (int i = 0; i < face->GetNumVertices(); ++i) {
@@ -818,7 +818,7 @@ HbrVertex<T>*
 HbrBilinearSubdivision<T>::Subdivide(HbrMesh<T>* mesh, HbrHalfedge<T>* edge) {
 
 #ifdef HBR_DEBUG
-    real esharp = edge->GetSharpness();
+     real esharp = edge->GetSharpness();
     std::cerr << "Subdividing at " << *edge << " (sharpness = " << esharp << ")";
 #endif
 
@@ -886,13 +886,13 @@ HbrBilinearSubdivision<T>::Subdivide(HbrMesh<T>* mesh, HbrVertex<T>* vertex) {
 #endif
     // Inherit extraordinary flag and sharpness
     if (vertex->IsExtraordinary()) v->SetExtraordinary();
-    real sharp = vertex->GetSharpness();
+     real sharp = vertex->GetSharpness();
     if (sharp >= HbrVertex<T>::k_InfinitelySharp) {
         v->SetSharpness(HbrVertex<T>::k_InfinitelySharp);
     } else if (sharp > HbrVertex<T>::k_Smooth) {
         sharp -= 1.0f;
-        if (sharp < (real) HbrVertex<T>::k_Smooth) {
-            sharp = (real) HbrVertex<T>::k_Smooth;
+        if (sharp < ( real) HbrVertex<T>::k_Smooth) {
+            sharp = ( real) HbrVertex<T>::k_Smooth;
         }
         v->SetSharpness(sharp);
     } else {

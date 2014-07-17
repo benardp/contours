@@ -12,4 +12,4 @@ add_subdirectory(freestyle)
 
 add_subdirectory(tess_RifFilter)
 
-file(COPY ${CMAKE_SOURCE_DIR}/scripts DESTINATION ${PROJECT_BINARY_DIR})
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/scripts DESTINATION ${PROJECT_BINARY_DIR})

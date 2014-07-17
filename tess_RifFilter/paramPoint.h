@@ -4,6 +4,10 @@
 #include "subdiv.h"
 #include "cameraModel.h"
 
+#include <osd/mesh.h>
+#include <osd/vertex.h>
+#include <osd/error.h>
+
 const int REF_LEVEL = 10;
 const double EXTRAORDINARY_REGION_OFFSET = 1e-5; //1e-10;
 const bool ALLOW_EXTRAORDINARY_INTERPOLATION = true;

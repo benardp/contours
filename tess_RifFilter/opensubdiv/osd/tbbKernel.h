@@ -30,59 +30,82 @@
 namespace OpenSubdiv {
 namespace OPENSUBDIV_VERSION {
 
-struct OsdVertexDescriptor;
+struct OsdVertexBufferDescriptor;
 
-void OsdTbbComputeFace(OsdVertexDescriptor const &vdesc,
-                       real * vertex, real * varying,
+void OsdTbbComputeFace(real * vertex, real * varying,
+                       OsdVertexBufferDescriptor const &vertexDesc,
+                       OsdVertexBufferDescriptor const &varyingDesc,
                        int const *F_IT, int const *F_ITa,
                        int vertexOffset, int tableOffset,
                        int start, int end);
 
-void OsdTbbComputeEdge(OsdVertexDescriptor const &vdesc,
-                       real *vertex, real * varying,
+void OsdTbbComputeQuadFace(real * vertex, real * varying,
+                           OsdVertexBufferDescriptor const &vertexDesc,
+                           OsdVertexBufferDescriptor const &varyingDesc,
+                           int const *F_IT,
+                           int vertexOffset, int tableOffset,
+                           int start, int end);
+
+void OsdTbbComputeTriQuadFace(real * vertex, real * varying,
+                              OsdVertexBufferDescriptor const &vertexDesc,
+                              OsdVertexBufferDescriptor const &varyingDesc,
+                              int const *F_IT,
+                              int vertexOffset, int tableOffset,
+                              int start, int end);
+
+void OsdTbbComputeEdge(real *vertex, real * varying,
+                       OsdVertexBufferDescriptor const &vertexDesc,
+                       OsdVertexBufferDescriptor const &varyingDesc,
                        int const *E_IT, real const *E_ITa,
                        int vertexOffset, int tableOffset,
                        int start, int end);
 
-void OsdTbbComputeVertexA(OsdVertexDescriptor const &vdesc,
-                          real *vertex, real * varying,
+void OsdTbbComputeVertexA(real *vertex, real * varying,
+                          OsdVertexBufferDescriptor const &vertexDesc,
+                          OsdVertexBufferDescriptor const &varyingDesc,
                           int const *V_ITa, real const *V_IT,
                           int vertexOffset, int tableOffset,
                           int start, int end, int pass);
 
-void OsdTbbComputeVertexB(OsdVertexDescriptor const &vdesc,
-                          real *vertex, real * varying,
+void OsdTbbComputeVertexB(real *vertex, real * varying,
+                          OsdVertexBufferDescriptor const &vertexDesc,
+                          OsdVertexBufferDescriptor const &varyingDesc,
                           int const *V_ITa, int const *V_IT, real const *V_W,
                           int vertexOffset, int tableOffset,
                           int start, int end);
 
-void OsdTbbComputeLoopVertexB(OsdVertexDescriptor const &vdesc,
-                              real *vertex, real * varying,
+void OsdTbbComputeLoopVertexB(real *vertex, real * varying,
+                              OsdVertexBufferDescriptor const &vertexDesc,
+                              OsdVertexBufferDescriptor const &varyingDesc,
                               int const *V_ITa, int const *V_IT,
                               real const *V_W,
                               int vertexOffset, int tableOffset,
                               int start, int end);
 
-void OsdTbbComputeBilinearEdge(OsdVertexDescriptor const &vdesc,
-                               real *vertex, real * varying,
+void OsdTbbComputeBilinearEdge(real *vertex, real * varying,
+                               OsdVertexBufferDescriptor const &vertexDesc,
+                               OsdVertexBufferDescriptor const &varyingDesc,
                                int const *E_IT,
                                int vertexOffset, int tableOffset,
                                int start, int end);
 
-void OsdTbbComputeBilinearVertex(OsdVertexDescriptor const &vdesc,
-                                 real *vertex, real * varying,
+void OsdTbbComputeBilinearVertex(real *vertex, real * varying,
+                                 OsdVertexBufferDescriptor const &vertexDesc,
+                                 OsdVertexBufferDescriptor const &varyingDesc,
                                  int const *V_ITa,
                                  int vertexOffset, int tableOffset,
                                  int start, int end);
 
-void OsdTbbEditVertexAdd(OsdVertexDescriptor const &vdesc, real *vertex,
+void OsdTbbEditVertexAdd(real *vertex,
+                         OsdVertexBufferDescriptor const &vertexDesc,
                          int primVarOffset, int primVarWidth,
                          int vertexOffset, int tableOffset,
                          int start, int end,
                          unsigned int const *editIndices,
                          real const *editValues);
 
-void OsdTbbEditVertexSet(OsdVertexDescriptor const &vdesc, real *vertex,
+void OsdTbbEditVertexSet(real *vertex,
+                         OsdVertexBufferDescriptor const &vertexDesc,
                          int primVarOffset, int primVarWidth,
                          int vertexOffset, int tableOffset,
                          int start, int end,

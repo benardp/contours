@@ -43,12 +43,12 @@ evalBilinear(real u, real v,
              OsdVertexBufferDescriptor const & outDesc,
              real * outQ) {
 
-    assert( inDesc.length <= (outDesc.stride-outDesc.offset) );
+    assert( outQ and inDesc.length <= (outDesc.stride-outDesc.offset) );
 
     real const * inOffset = inQ + inDesc.offset;
 
     real * Q = outQ + outDesc.offset;
-    
+
     memset(Q, 0, inDesc.length*sizeof(real));
 
     real ou = 1.0f - u,
@@ -64,7 +64,7 @@ evalBilinear(real u, real v,
         }
     }
 }
-        
+
 
 inline void
 evalCubicBSpline(real u, real B[4], real BU[4], real BUU[4]) {
@@ -108,6 +108,7 @@ evalCubicBSpline(real u, real B[4], real BU[4], real BUU[4]) {
 }
 
 
+
 void
 evalBSpline(real u, real v,
             unsigned int const * vertexIndices,
@@ -122,7 +123,7 @@ evalBSpline(real u, real v,
             real * outDQUDQV) {
 
     // make sure that we have enough space to store results
-    assert( inDesc.length <= (outDesc.stride-outDesc.offset) );
+    assert( outQ and inDesc.length <= (outDesc.stride-outDesc.offset) );
 
     bool evalDeriv = (outDQU or outDQV);
     bool evalSecondDeriv = (outDQUDQU or outDQVDQV or outDQUDQV);
@@ -130,7 +131,7 @@ evalBSpline(real u, real v,
     real BuWeights[4], BvWeights[4], DuWeights[4], DvWeights[4], DDuWeights[4], DDvWeights[4],
           *BU=(real*)alloca(inDesc.length*4*sizeof(real)),
           *DU=(real*)alloca(inDesc.length*4*sizeof(real));
-    
+
     memset(BU, 0, inDesc.length*4*sizeof(real));
     memset(DU, 0, inDesc.length*4*sizeof(real));
 
@@ -140,13 +141,13 @@ evalBSpline(real u, real v,
 
     for (int i=0; i<4; ++i) {
         for (int j=0; j<4; ++j) {
-        
+
             real const * in = inOffset + vertexIndices[i+j*4]*inDesc.stride;
-            
+
             for (int k=0; k<inDesc.length; ++k) {
-            
+
                 BU[i*inDesc.length+k] += in[k] * BuWeights[j];
-                
+
                 if (evalDeriv)
                     DU[i*inDesc.length+k] += in[k] * DuWeights[j];
             }
@@ -169,7 +170,7 @@ evalBSpline(real u, real v,
     for (int i=0; i<4; ++i) {
         for (int k=0; k<inDesc.length; ++k) {
             Q[k] += BU[inDesc.length*i+k] * BvWeights[i];
-            
+
             if (evalDeriv) {
                 dQU[k] += DU[inDesc.length*i+k] * BvWeights[i];
                 dQV[k] += BU[inDesc.length*i+k] * DvWeights[i];
@@ -240,14 +241,14 @@ evalBoundary(real u, real v,
              real * outDQU,
              real * outDQV ) {
 
-    assert( inDesc.length <= (outDesc.stride-outDesc.offset) );
+    assert( outQ and inDesc.length <= (outDesc.stride-outDesc.offset) );
 
     bool evalDeriv = (outDQU or outDQV);
 
     real B[4], D[4],
           *BU=(real*)alloca(inDesc.length*4*sizeof(real)),
           *DU=(real*)alloca(inDesc.length*4*sizeof(real));
-    
+
     memset(BU, 0, inDesc.length*4*sizeof(real));
     memset(DU, 0, inDesc.length*4*sizeof(real));
 
@@ -268,7 +269,7 @@ evalBoundary(real u, real v,
     //   |.....|.....|.....|
     //   |.....|.....|.....|
     //  v8 -- v9 -- v10-- v11
-    
+
     real *M = (real*)alloca(inDesc.length*4*sizeof(real));
 
     real const *v0 = inOffset + vertexIndices[0]*inDesc.stride,
@@ -280,26 +281,26 @@ evalBoundary(real u, real v,
                 *v6 = inOffset + vertexIndices[6]*inDesc.stride,
                 *v7 = inOffset + vertexIndices[7]*inDesc.stride;
 
-    for (int k=0; k<inDesc.stride; ++k) {
+    for (int k=0; k<inDesc.length; ++k) {
         M[0*inDesc.length+k] = 2.0f*v0[k] - v4[k];  // M0 = 2*v0 - v3
         M[1*inDesc.length+k] = 2.0f*v1[k] - v5[k];  // M0 = 2*v1 - v4
         M[2*inDesc.length+k] = 2.0f*v2[k] - v6[k];  // M1 = 2*v2 - v5
         M[3*inDesc.length+k] = 2.0f*v3[k] - v7[k];  // M4 = 2*v2 - v1
     }
-    
+
     for (int i=0; i<4; ++i) {
         for (int j=0; j<4; ++j) {
-        
+
             // swap the missing row of verts with our mirrored ones
-            real const * in = j==0 ? &M[i*inDesc.stride] :
+            real const * in = j==0 ? &M[i*inDesc.length] :
                 inOffset + vertexIndices[i+(j-1)*4]*inDesc.stride;
-            
+
             for (int k=0; k<inDesc.length; ++k) {
-            
+
                 BU[i*inDesc.length+k] += in[k] * B[j];
-                
+
                 if (evalDeriv)
-                    DU[i*inDesc.length+k] += in[k] * D[j];                
+                    DU[i*inDesc.length+k] += in[k] * D[j];
             }
         }
     }
@@ -310,7 +311,7 @@ evalBoundary(real u, real v,
           * dQU = outDQU + outDesc.offset,
           * dQV = outDQV + outDesc.offset;
 
-    // clear result 
+    // clear result
     memset(Q, 0, inDesc.length*sizeof(real));
     if (evalDeriv) {
         memset(dQU, 0, inDesc.length*sizeof(real));
@@ -320,13 +321,13 @@ evalBoundary(real u, real v,
     for (int i=0; i<4; ++i) {
         for (int k=0; k<inDesc.length; ++k) {
             Q[k] += BU[inDesc.length*i+k] * B[i];
-            
+
             if (evalDeriv) {
                 dQU[k] += DU[inDesc.length*i+k] * B[i];
                 dQV[k] += BU[inDesc.length*i+k] * D[i];
             }
         }
-    }    
+    }
 }
 
 
@@ -341,7 +342,7 @@ evalCorner(real u, real v,
            real * outDQU,
            real * outDQV ) {
 
-    assert( inDesc.length <= (outDesc.stride-outDesc.offset) );
+    assert( outQ and inDesc.length <= (outDesc.stride-outDesc.offset) );
 
     int length = inDesc.length;
 
@@ -350,7 +351,7 @@ evalCorner(real u, real v,
     real B[4], D[4],
           *BU=(real*)alloca(length*4*sizeof(real)),
           *DU=(real*)alloca(length*4*sizeof(real));
-    
+
     memset(BU, 0, length*4*sizeof(real));
     memset(DU, 0, length*4*sizeof(real));
 
@@ -371,7 +372,7 @@ evalCorner(real u, real v,
     //   |.....|.....|     |
     //   |.....|.....|     |
     //  v6 -- v7 -- v8 -- M6
-    
+
     real *M = (real*)alloca(length*7*sizeof(real));
 
     real const *v0 = inOffset + vertexIndices[0]*inDesc.stride,
@@ -383,7 +384,7 @@ evalCorner(real u, real v,
                 *v7 = inOffset + vertexIndices[7]*inDesc.stride,
                 *v8 = inOffset + vertexIndices[8]*inDesc.stride;
 
-    for (int k=0; k<inDesc.stride; ++k) {
+    for (int k=0; k<inDesc.length; ++k) {
         M[0*length+k] = 2.0f*v0[k] - v3[k];  // M0 = 2*v0 - v3
         M[1*length+k] = 2.0f*v1[k] - v4[k];  // M0 = 2*v1 - v4
         M[2*length+k] = 2.0f*v2[k] - v5[k];  // M1 = 2*v2 - v5
@@ -391,32 +392,32 @@ evalCorner(real u, real v,
         M[4*length+k] = 2.0f*v2[k] - v1[k];  // M4 = 2*v2 - v1
         M[5*length+k] = 2.0f*v5[k] - v4[k];  // M5 = 2*v5 - v4
         M[6*length+k] = 2.0f*v8[k] - v7[k];  // M6 = 2*v8 - v7
-        
+
         // M3 = 2*M2 - M1
         M[3*length+k] = 2.0f*M[2*length+k] - M[1*length+k];
     }
 
     for (int i=0; i<4; ++i) {
         for (int j=0; j<4; ++j) {
-        
+
             real const * in = NULL;
 
             if (j==0) { // (2)
-                in = &M[i*inDesc.stride];
+                in = &M[i*inDesc.length];
             } else if (i==3) {
-                in = &M[(j+3)*inDesc.stride];
+                in = &M[(j+3)*inDesc.length];
             } else {
                 in = inOffset + vertexIndices[i+(j-1)*3]*inDesc.stride;
             }
 
             assert(in);
-                        
+
             for (int k=0; k<length; ++k) {
-            
+
                 BU[i*length+k] += in[k] * B[j];
-                
+
                 if (evalDeriv)
-                    DU[i*length+k] += in[k] * D[j];                
+                    DU[i*length+k] += in[k] * D[j];
             }
         }
     }
@@ -427,7 +428,7 @@ evalCorner(real u, real v,
           * dQU = outDQU + outDesc.offset,
           * dQV = outDQV + outDesc.offset;
 
-    // clear result 
+    // clear result
     memset(Q, 0, length*sizeof(real));
     if (evalDeriv) {
         memset(dQU, 0, length*sizeof(real));
@@ -437,21 +438,22 @@ evalCorner(real u, real v,
     for (int i=0; i<4; ++i) {
         for (int k=0; k<length; ++k) {
             Q[k] += BU[length*i+k] * B[i];
-            
+
             if (evalDeriv) {
                 dQU[k] += DU[length*i+k] * B[i];
                 dQV[k] += BU[length*i+k] * D[i];
             }
         }
-    }    
+    }
 }
 
-
-static real ef_small[7] = {
+/*
+static real ef[7] = {
     0.813008f, 0.500000f, 0.363636f, 0.287505f,
     0.238692f, 0.204549f, 0.179211f };
-/*
-static real ef_large[27] = {
+*/
+
+static real ef[27] = {
     0.812816f, 0.500000f, 0.363644f, 0.287514f,
     0.238688f, 0.204544f, 0.179229f, 0.159657f,
     0.144042f, 0.131276f, 0.120632f, 0.111614f,
@@ -460,7 +462,6 @@ static real ef_large[27] = {
     0.0669851f, 0.0641504f, 0.0615475f, 0.0591488f,
     0.0569311f, 0.0548745f, 0.0529621f
 };
-*/
 
 inline void
 univar4x4(real u, real B[4], real D[4])
@@ -512,43 +513,43 @@ evalGregory(real u, real v,
     // vertex
 
     // make sure that we have enough space to store results
-    assert( inDesc.length <= (outDesc.stride-outDesc.offset) );
+    assert( outQ and inDesc.length <= (outDesc.stride-outDesc.offset) );
 
     bool evalDeriv = (outDQU or outDQV);
 
     int valences[4], length=inDesc.length;
-    
+
     real const * inOffset = inQ + inDesc.offset;
-    
+
     real  *r  = (real*)alloca((maxValence+2)*4*length*sizeof(real)), *rp,
            *e0 = r + maxValence*4*length,
            *e1 = e0 + 4*length;
     memset(r, 0, (maxValence+2)*4*length*sizeof(real));
-          
+
     real *f=(real*)alloca(maxValence*length*sizeof(real)),
           *pos=(real*)alloca(length*sizeof(real)),
           *opos=(real*)alloca(length*4*sizeof(real));
     memset(opos, 0, length*4*sizeof(real));
-    
+
     for (int vid=0; vid < 4; ++vid) {
-    
+
         int vertexID = vertexIndices[vid];
-        
+
         const int *valenceTable = vertexValenceBuffer + vertexID * (2*maxValence+1);
         int valence = abs(*valenceTable);
         assert(valence<=maxValence);
         valences[vid] = valence;
-        
+
         memcpy(pos, inOffset + vertexID*inDesc.stride, length*sizeof(real));
-        
+
         rp=r+vid*maxValence*length;
-        
+
         int vofs = vid*length;
-        
+
         for (int i=0; i<valence; ++i) {
             unsigned int im = (i+valence-1)%valence,
                          ip = (i+1)%valence;
-            
+
             int idx_neighbor   = valenceTable[2*i  + 0 + 1];
             int idx_diagonal   = valenceTable[2*i  + 1 + 1];
             int idx_neighbor_p = valenceTable[2*ip + 0 + 1];
@@ -560,22 +561,22 @@ evalGregory(real u, real v,
             real const * neighbor_p = inOffset + idx_neighbor_p * inDesc.stride;
             real const * neighbor_m = inOffset + idx_neighbor_m * inDesc.stride;
             real const * diagonal_m = inOffset + idx_diagonal_m * inDesc.stride;
-            
+
             real  *fp = f+i*length;
-        
+
             for (int k=0; k<length; ++k) {
                 fp[k] = (pos[k]*real(valence) + (neighbor_p[k]+neighbor[k])*2.0f + diagonal[k])/(real(valence)+5.0f);
-                
+
                 opos[vofs+k] += fp[k];
                 rp[i*length+k] =(neighbor_p[k]-neighbor_m[k])/3.0f + (diagonal[k]-diagonal_m[k])/6.0f;
             }
-            
+
         }
-        
+
         for (int k=0; k<length; ++k) {
             opos[vofs+k] /= valence;
         }
-        
+
         for (int i=0; i<valence; ++i) {
             int im = (i+valence-1)%valence;
             for (int k=0; k<length; ++k) {
@@ -584,17 +585,17 @@ evalGregory(real u, real v,
                 e1[vofs+k] += csf(valence-3, 2*i+1) * e;
             }
         }
-        
+
         for (int k=0; k<length; ++k) {
-            e0[vofs+k] *= ef_small[valence-3];
-            e1[vofs+k] *= ef_small[valence-3];
-        }       
+            e0[vofs+k] *= ef[valence-3];
+            e1[vofs+k] *= ef[valence-3];
+        }
     }
-    
+
     // tess control
-    
-    // Control Vertices based on : 
-    // "Approximating Subdivision Surfaces with Gregory Patches for Hardware Tessellation" 
+
+    // Control Vertices based on :
+    // "Approximating Subdivision Surfaces with Gregory Patches for Hardware Tessellation"
     // Loop, Schaefer, Ni, Castafio (ACM ToG Siggraph Asia 2009)
     //
     //  P3         e3-      e2+         E2
@@ -623,7 +624,7 @@ evalGregory(real u, real v,
           *Fm=(real*)alloca(length*4*sizeof(real));
 
     for (int vid=0; vid<4; ++vid) {
-    
+
         int ip = (vid+1)%4;
         int im = (vid+3)%4;
         int n = valences[vid];
@@ -633,20 +634,20 @@ evalGregory(real u, real v,
         int prev = (quadOffsets[vid] & 0xff00) / 256;
 
         for (int k=0, ofs=vid*length; k<length; ++k, ++ofs) {
-        
+
             Ep[ofs] = opos[ofs] + e0[ofs] * csf(n-3, 2*start) + e1[ofs]*csf(n-3, 2*start +1);
             Em[ofs] = opos[ofs] + e0[ofs] * csf(n-3, 2*prev ) + e1[ofs]*csf(n-3, 2*prev + 1);
         }
-        
+
         unsigned int np = valences[ip],
                      nm = valences[im];
 
         unsigned int prev_p = (quadOffsets[ip] & 0xff00) / 256,
                     start_m = quadOffsets[im] & 0x00ff;
-                    
+
         real *Em_ip=(real*)alloca(length*sizeof(real)),
               *Ep_im=(real*)alloca(length*sizeof(real));
-        
+
         for (int k=0, ipofs=ip*length, imofs=im*length; k<length; ++k, ++ipofs, ++imofs) {
             Em_ip[k] = opos[ipofs] + e0[ipofs]*csf(np-3, 2*prev_p)  + e1[ipofs]*csf(np-3, 2*prev_p+1);
             Ep_im[k] = opos[imofs] + e0[imofs]*csf(nm-3, 2*start_m) + e1[imofs]*csf(nm-3, 2*start_m+1);
@@ -664,26 +665,32 @@ evalGregory(real u, real v,
     }
 
     real * p[20];
-    for (int i=0, ofs=0; i<4; ++i, ofs+=length) {    
+    for (int i=0, ofs=0; i<4; ++i, ofs+=length) {
         p[i*5+0] = opos + ofs;
         p[i*5+1] =   Ep + ofs;
         p[i*5+2] =   Em + ofs;
         p[i*5+3] =   Fp + ofs;
         p[i*5+4] =   Fm + ofs;
-    }    
+    }
 
     real U = 1-u, V=1-v;
+#ifdef __INTEL_COMPILER // remark #1572: floating-point equality and inequality comparisons are unreliable
+#pragma warning disable 1572
+#endif
     real d11 = u+v; if(u+v==0.0f) d11 = 1.0f;
     real d12 = U+v; if(U+v==0.0f) d12 = 1.0f;
     real d21 = u+V; if(u+V==0.0f) d21 = 1.0f;
     real d22 = U+V; if(U+V==0.0f) d22 = 1.0f;
-    
+#ifdef __INTEL_COMPILER
+#pragma warning enable 1572
+#endif
+
     real *q=(real*)alloca(length*16*sizeof(real));
     for (int k=0; k<length; ++k) {
         q[ 5*length+k] = (u*p[ 3][k] + v*p[ 4][k])/d11;
         q[ 6*length+k] = (U*p[ 9][k] + v*p[ 8][k])/d12;
         q[ 9*length+k] = (u*p[19][k] + V*p[18][k])/d21;
-        q[10*length+k] = (U*p[13][k] + V*p[14][k])/d22;        
+        q[10*length+k] = (U*p[13][k] + V*p[14][k])/d22;
     }
 
     memcpy(q+ 0*length, p[ 0], length*sizeof(real));
@@ -709,15 +716,15 @@ evalGregory(real u, real v,
 
     for (int i=0; i<4; ++i) {
         for (int j=0; j<4; ++j) {
-        
+
             real const * in = q + (i+j*4)*length;
-            
+
             for (int k=0; k<inDesc.length; ++k) {
-            
+
                 BU[i*inDesc.length+k] += in[k] * B[j];
-                
+
                 if (evalDeriv)
-                    DU[i*inDesc.length+k] += in[k] * D[j];                
+                    DU[i*inDesc.length+k] += in[k] * D[j];
             }
         }
     }
@@ -728,7 +735,7 @@ evalGregory(real u, real v,
     real * dQU = outDQU + outDesc.offset;
     real * dQV = outDQV + outDesc.offset;
 
-    // clear result 
+    // clear result
     memset(Q, 0, outDesc.length*sizeof(real));
     if (evalDeriv) {
         memset(dQU, 0, outDesc.length*sizeof(real));
@@ -738,13 +745,13 @@ evalGregory(real u, real v,
     for (int i=0; i<4; ++i) {
         for (int k=0; k<inDesc.length; ++k) {
             Q[k] += BU[inDesc.length*i+k] * B[i];
-            
+
             if (evalDeriv) {
                 dQU[k] += DU[inDesc.length*i+k] * B[i];
                 dQV[k] += BU[inDesc.length*i+k] * D[i];
             }
         }
-    }    
+    }
 }
 
 
@@ -760,11 +767,11 @@ evalGregoryBoundary(real u, real v,
                     real * outQ,
                     real * outDQU,
                     real * outDQV )
-{    
+{
     // vertex
 
     // make sure that we have enough space to store results
-    assert( inDesc.length <= (outDesc.stride-outDesc.offset) );
+    assert( outQ and inDesc.length <= (outDesc.stride-outDesc.offset) );
 
     bool evalDeriv = (outDQU or outDQV);
 
@@ -776,7 +783,7 @@ evalGregoryBoundary(real u, real v,
            *e0 = r + maxValence*4*length,
            *e1 = e0 + 4*length;
     memset(r, 0, (maxValence+2)*4*length*sizeof(real));
-          
+
     real *f=(real*)alloca(maxValence*length*sizeof(real)),
           *org=(real*)alloca(length*4*sizeof(real)),
           *opos=(real*)alloca(length*4*sizeof(real));
@@ -801,7 +808,7 @@ evalGregoryBoundary(real u, real v,
 
         int boundaryEdgeNeighbors[2];
         unsigned int currNeighbor = 0,
-                     ibefore=0, 
+                     ibefore=0,
                      zerothNeighbor=0;
 
         rp=r+vid*maxValence*length;
@@ -816,9 +823,14 @@ evalGregoryBoundary(real u, real v,
             int idx_neighbor_m = valenceTable[2*im + 0 + 1];
             int idx_diagonal_m = valenceTable[2*im + 1 + 1];
 
-            int valenceNeighbor = vertexValenceBuffer[idx_neighbor * (2*maxValence+1)]; 
+            int valenceNeighbor = vertexValenceBuffer[idx_neighbor * (2*maxValence+1)];
             if (valenceNeighbor < 0) {
-                boundaryEdgeNeighbors[currNeighbor++] = idx_neighbor;
+
+                if (currNeighbor<2) {
+                    boundaryEdgeNeighbors[currNeighbor] = idx_neighbor;
+                }
+                currNeighbor++;
+
                 if (currNeighbor == 1)    {
                     ibefore = i;
                     zerothNeighbor = i;
@@ -828,7 +840,7 @@ evalGregoryBoundary(real u, real v,
                         boundaryEdgeNeighbors[0] = boundaryEdgeNeighbors[1];
                         boundaryEdgeNeighbors[1] = tmp;
                         zerothNeighbor = i;
-                    } 
+                    }
                 }
             }
 
@@ -847,7 +859,7 @@ evalGregoryBoundary(real u, real v,
                 rp[i*length+k] =(neighbor_p[k]-neighbor_m[k])/3.0f + (diagonal[k]-diagonal_m[k])/6.0f;
             }
         }
-        
+
         for (int k=0; k<length; ++k) {
             opos[vofs+k] /= ivalence;
         }
@@ -868,14 +880,14 @@ evalGregoryBoundary(real u, real v,
         }
 
         for (int k=0; k<length; ++k) {
-            e0[vofs+k] *= ef_small[ivalence-3];
-            e1[vofs+k] *= ef_small[ivalence-3];
+            e0[vofs+k] *= ef[ivalence-3];
+            e1[vofs+k] *= ef[ivalence-3];
         }
 
         if (valence<0) {
             if (ivalence>2) {
                 for (int k=0; k<length; ++k) {
-                    opos[vofs+k] = (inOffset[boundaryEdgeNeighbors[0]*inDesc.stride+k] + 
+                    opos[vofs+k] = (inOffset[boundaryEdgeNeighbors[0]*inDesc.stride+k] +
                                     inOffset[boundaryEdgeNeighbors[1]*inDesc.stride+k] + 4.0f*pos[k])/6.0f;
                 }
             } else {
@@ -893,13 +905,13 @@ evalGregoryBoundary(real u, real v,
             assert(idx_diagonal>0);
             real const * diagonal = inOffset + idx_diagonal * inDesc.stride;
 
-            for (int k=0; k<length; ++k) {
-                e0[vofs+k] = (inOffset[boundaryEdgeNeighbors[0]*inDesc.stride+k] - 
-                              inOffset[boundaryEdgeNeighbors[1]*inDesc.stride+k])/6.0f;
+            for (int j=0; j<length; ++j) {
+                e0[vofs+j] = (inOffset[boundaryEdgeNeighbors[0]*inDesc.stride+j] -
+                              inOffset[boundaryEdgeNeighbors[1]*inDesc.stride+j])/6.0f;
 
-                e1[vofs+k] = gamma * pos[k] + beta_0 * diagonal[k] +                    
-                            (inOffset[boundaryEdgeNeighbors[0]*inDesc.stride+k] +
-                             inOffset[boundaryEdgeNeighbors[1]*inDesc.stride+k]) * alpha_0k;
+                e1[vofs+j] = gamma * pos[j] + beta_0 * diagonal[j] +
+                            (inOffset[boundaryEdgeNeighbors[0]*inDesc.stride+j] +
+                             inOffset[boundaryEdgeNeighbors[1]*inDesc.stride+j]) * alpha_0k;
 
             }
 
@@ -908,28 +920,28 @@ evalGregoryBoundary(real u, real v,
                 real alpha = (4.0f*sinf((real(M_PI) * real(x))/k))/(3.0f*k+c);
                 real beta = (sinf((real(M_PI) * real(x))/k) + sinf((real(M_PI) * real(x+1))/k))/(3.0f*k+c);
 
-                int idx_neighbor = valenceTable[2*curri + 0 + 1],
+                int idx_neighbor = valenceTable[2*curri + 0 + 1];
                     idx_diagonal = valenceTable[2*curri + 1 + 1];
                 assert( idx_neighbor>0 and idx_diagonal>0 );
-                
-                real const * neighbor = inOffset + idx_neighbor * inDesc.stride,
-                            * diagonal = inOffset + idx_diagonal * inDesc.stride;
 
-                for (int k=0; k<length; ++k) {
-                    e1[vofs+k] += alpha*neighbor[k] + beta*diagonal[k];
+                real const * neighbor = inOffset + idx_neighbor * inDesc.stride;
+                              diagonal = inOffset + idx_diagonal * inDesc.stride;
+
+                for (int j=0; j<length; ++j) {
+                    e1[vofs+j] += alpha*neighbor[j] + beta*diagonal[j];
                 }
             }
 
-            for (int k=0; k<length; ++k) {
-                e1[vofs+k] /= 3.0f;
+            for (int j=0; j<length; ++j) {
+                e1[vofs+j] /= 3.0f;
             }
         }
     }
 
     // tess control
 
-    // Control Vertices based on : 
-    // "Approximating Subdivision Surfaces with Gregory Patches for Hardware Tessellation" 
+    // Control Vertices based on :
+    // "Approximating Subdivision Surfaces with Gregory Patches for Hardware Tessellation"
     // Loop, Schaefer, Ni, Castafio (ACM ToG Siggraph Asia 2009)
     //
     //  P3         e3-      e2+         E2
@@ -987,7 +999,7 @@ evalGregoryBoundary(real u, real v,
             for (int k=0, ipofs=ip*length; k<length; ++k, ++ipofs) {
                 Em_ip[k] = opos[ipofs] + e0[ipofs]*csf(np-3,2*prev_p)  + e1[ipofs]*csf(np-3,2*prev_p+1);
             }
-        } 
+        }
 
         if (valences[im]<-2) {
             unsigned int j = (nm + start_m - zerothNeighbors[im]) % nm;
@@ -1005,7 +1017,7 @@ evalGregoryBoundary(real u, real v,
         }
         if (valences[im] < 0) {
             nm = (nm-1)*2;
-        }  
+        }
         if (valences[ip] < 0) {
             np = (np-1)*2;
         }
@@ -1039,12 +1051,12 @@ evalGregoryBoundary(real u, real v,
             }
 
             if (valences[im]<0) {
-                real s1=3-2*csf(n-3,2)-csf(np-3,2);
+                s1=3-2*csf(n-3,2)-csf(np-3,2);
                 for (int k=0, ofs=vofs; k<length; ++k, ++ofs) {
                     Fp[ofs] = Fm[ofs] = (csf(np-3,2)*opos[ofs] + s1*Ep[ofs] + s2*Em_ip[k] + rp[start*length+k])/3.0f;
                 }
             } else if (valences[ip]<0) {
-                real s1 = 3.0f-2.0f*cosf(2.0f*real(M_PI)/n)-cosf(2.0f*real(M_PI)/nm);
+                s1 = 3.0f-2.0f*cosf(2.0f*real(M_PI)/n)-cosf(2.0f*real(M_PI)/nm);
                 for (int k=0, ofs=vofs; k<length; ++k, ++ofs) {
                     Fm[ofs] = Fp[ofs] = (csf(nm-3,2)*opos[ofs] + s1*Em[ofs] + s2*Ep_im[k] - rp[prev*length+k])/3.0f;
                 }
@@ -1059,7 +1071,7 @@ evalGregoryBoundary(real u, real v,
     }
 
     real * p[20];
-    for (int vid=0, ofs=0; vid<4; ++vid, ofs+=length) {    
+    for (int vid=0, ofs=0; vid<4; ++vid, ofs+=length) {
         p[vid*5+0] = opos + ofs;
         p[vid*5+1] =   Ep + ofs;
         p[vid*5+2] =   Em + ofs;
@@ -1068,17 +1080,23 @@ evalGregoryBoundary(real u, real v,
     }
 
     real U = 1-u, V=1-v;
+#ifdef __INTEL_COMPILER // remark #1572: floating-point equality and inequality comparisons are unreliable
+#pragma warning disable 1572
+#endif
     real d11 = u+v; if(u+v==0.0f) d11 = 1.0f;
     real d12 = U+v; if(U+v==0.0f) d12 = 1.0f;
     real d21 = u+V; if(u+V==0.0f) d21 = 1.0f;
     real d22 = U+V; if(U+V==0.0f) d22 = 1.0f;
+#ifdef __INTEL_COMPILER
+#pragma warning enable 1572
+#endif
 
     real *q=(real*)alloca(length*16*sizeof(real));
     for (int k=0; k<length; ++k) {
         q[ 5*length+k] = (u*p[ 3][k] + v*p[ 4][k])/d11;
         q[ 6*length+k] = (U*p[ 9][k] + v*p[ 8][k])/d12;
         q[ 9*length+k] = (u*p[19][k] + V*p[18][k])/d21;
-        q[10*length+k] = (U*p[13][k] + V*p[14][k])/d22;        
+        q[10*length+k] = (U*p[13][k] + V*p[14][k])/d22;
     }
 
     memcpy(q+ 0*length, p[ 0], length*sizeof(real));
@@ -1104,15 +1122,15 @@ evalGregoryBoundary(real u, real v,
 
     for (int i=0; i<4; ++i) {
         for (int j=0; j<4; ++j) {
-        
+
             real const * in = q + (i+j*4)*length;
-            
+
             for (int k=0; k<inDesc.length; ++k) {
-            
+
                 BU[i*inDesc.length+k] += in[k] * B[j];
-                
+
                 if (evalDeriv)
-                    DU[i*inDesc.length+k] += in[k] * D[j];                
+                    DU[i*inDesc.length+k] += in[k] * D[j];
             }
         }
     }
@@ -1123,7 +1141,7 @@ evalGregoryBoundary(real u, real v,
     real * dQU = outDQU + outDesc.offset;
     real * dQV = outDQV + outDesc.offset;
 
-    // clear result 
+    // clear result
     memset(Q, 0, outDesc.length*sizeof(real));
     if (evalDeriv) {
         memset(dQU, 0, outDesc.length*sizeof(real));
@@ -1133,7 +1151,7 @@ evalGregoryBoundary(real u, real v,
     for (int i=0; i<4; ++i) {
         for (int k=0; k<inDesc.length; ++k) {
             Q[k] += BU[inDesc.length*i+k] * B[i];
-            
+
             if (evalDeriv) {
                 dQU[k] += DU[inDesc.length*i+k] * B[i];
                 dQV[k] += BU[inDesc.length*i+k] * D[i];

@@ -428,3 +428,5 @@ add_subdirectory(hbr)
 add_subdirectory(far)
 
 add_subdirectory(osd)
+
+add_subdirectory(osdutil)

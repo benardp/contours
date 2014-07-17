@@ -39,7 +39,10 @@ OsdCpuGLVertexBuffer::OsdCpuGLVertexBuffer(int numElements, int numVertices)
 OsdCpuGLVertexBuffer::~OsdCpuGLVertexBuffer() {
 
     delete[] _cpuBuffer;
-    glDeleteBuffers(1, &_vbo);
+    
+    if (_vbo) {
+        glDeleteBuffers(1, &_vbo);
+    }
 }
 
 OsdCpuGLVertexBuffer *
@@ -52,9 +55,9 @@ OsdCpuGLVertexBuffer::Create(int numElements, int numVertices) {
 }
 
 void
-OsdCpuGLVertexBuffer::UpdateData(const real *src, int startVertex, int numVertices) {
+OsdCpuGLVertexBuffer::UpdateData(const float *src, int startVertex, int numVertices) {
 
-    memcpy(_cpuBuffer + startVertex * GetNumElements(), src, GetNumElements() * numVertices * sizeof(real));
+    memcpy(_cpuBuffer + startVertex * GetNumElements(), src, GetNumElements() * numVertices * sizeof(float));
     _dataDirty = true;
 }
 
@@ -70,18 +73,24 @@ OsdCpuGLVertexBuffer::GetNumVertices() const {
     return _numVertices;
 }
 
-real*
+float*
 OsdCpuGLVertexBuffer::BindCpuBuffer() {
+
     _dataDirty = true; // caller might modify data
     return _cpuBuffer;
 }
 
 GLuint
 OsdCpuGLVertexBuffer::BindVBO() {
+
     if (not _dataDirty)
         return _vbo;
 
-    int size = GetNumElements() * GetNumVertices() * sizeof(real);
+    int size = GetNumElements() * GetNumVertices() * sizeof(float);
+
+    if (not _vbo) {
+        glGenBuffers(1, &_vbo);
+    }
 
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
     glBufferData(GL_ARRAY_BUFFER, size, _cpuBuffer, GL_STATIC_DRAW);
@@ -93,15 +102,9 @@ OsdCpuGLVertexBuffer::BindVBO() {
 
 bool
 OsdCpuGLVertexBuffer::allocate() {
-    _cpuBuffer = new real[GetNumElements() * GetNumVertices()];
+
+    _cpuBuffer = new float[GetNumElements() * GetNumVertices()];
     _dataDirty = true;
-    int size = GetNumElements() * GetNumVertices() * sizeof(real);
-
-    glGenBuffers(1, &_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-    glBufferData(GL_ARRAY_BUFFER, size, 0, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
     return true;
 }
 

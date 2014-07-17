@@ -10,26 +10,88 @@
 typedef enum { FRONT, BACK, CONTOUR } FacingType;
 typedef enum { RF_NONE, RF_CONTOUR_ONLY, RF_CONTOUR_INCONSISTENT, RF_FULL, RF_OPTIMIZE, RF_RADIAL } RefinementType;
 
+class Vertex {
+
+public:
+    Vertex() { }
+
+    Vertex( int /*i*/ ) { }
+
+    Vertex( const Vertex & src ) { _pos[0]=src._pos[0]; _pos[1]=src._pos[1]; _pos[2]=src._pos[2]; }
+
+    ~Vertex( ) { }
+
+    void AddWithWeight(const Vertex& src, real weight, void * =0 ) {
+        _pos[0]+=weight*src._pos[0];
+        _pos[1]+=weight*src._pos[1];
+        _pos[2]+=weight*src._pos[2];
+    }
+
+    void AddVaryingWithWeight(const Vertex& , real, void * =0 ) { }
+
+    void Clear( void * =0 ) { _pos[0]=_pos[1]=_pos[2]=0.0f; }
+
+    void SetPosition(real x, real y, real z) { _pos[0]=x; _pos[1]=y; _pos[2]=z; }
+
+    void ApplyVertexEdit(const OpenSubdiv::HbrVertexEdit<Vertex> & edit) {
+        const real *src = edit.GetEdit();
+        switch(edit.GetOperation()) {
+        case OpenSubdiv::HbrHierarchicalEdit<Vertex>::Set:
+            _pos[0] = src[0];
+            _pos[1] = src[1];
+            _pos[2] = src[2];
+            break;
+        case OpenSubdiv::HbrHierarchicalEdit<Vertex>::Add:
+            _pos[0] += src[0];
+            _pos[1] += src[1];
+            _pos[2] += src[2];
+            break;
+        case OpenSubdiv::HbrHierarchicalEdit<Vertex>::Subtract:
+            _pos[0] -= src[0];
+            _pos[1] -= src[1];
+            _pos[2] -= src[2];
+            break;
+        }
+    }
+
+    void ApplyMovingVertexEdit(const OpenSubdiv::HbrMovingVertexEdit<Vertex> &) { }
+
+    // custom functions & data not required by Hbr -------------------------
+
+    Vertex( real x, real y, real z ) { _pos[0]=x; _pos[1]=y; _pos[2]=z; }
+
+    const vec3 GetPos() const { return _pos; }
+
+    vec3 _pos;
+};
+
+typedef HbrMesh<Vertex>     CatmarkMesh;
+typedef HbrVertex<Vertex>   CatmarkVertex;
+typedef HbrFace<Vertex>     CatmarkFace;
+typedef HbrHalfedge<Vertex> CatmarkHalfedge;
+
+//------------------------------------------------------------------------------
+
 typedef ParamPoint<Vertex> ParamPointCC;  // sourceLoc for a Catmull-Clark surface
 typedef ParamRay<Vertex> ParamRayCC;
 typedef Chart<Vertex> ChartCC;
 
 struct VertexDataCatmark
 {
-  vec3 pos;             // limit position
+  vec3 pos;                // limit position
   vec3 normal;             // limit normal
   FacingType facing;       // facing direction, as a function of limit normal
-  ParamPointCC sourceLoc;   // parametric location on the source mesh
+  ParamPointCC sourceLoc;  // parametric location on the source mesh
   real ndotv;
 
   // information on how this vertex was created
   bool extraordinary;     // source point is an extraordinary point
   HbrVertex<VertexDataCatmark> * extSrc; // if this is an extraordinary region endpoint, the source extr. point
   bool isShifted;         // variable is redundant, could just check if origLoc is null...
-  ParamPointCC origLoc;     // if this vertex got "shifted," where did it begin?
+  ParamPointCC origLoc;   // if this vertex got "shifted," where did it begin?
   bool shiftSplit;        // created during shifting to make sure parameterizations exist.
 
-  real radialCurvature;  // only computed at the end
+  real radialCurvature;   // only computed at the end
   real isophoteDistance;
   real k1;
   real k2;

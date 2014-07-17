@@ -51,7 +51,7 @@ public:
 
     /// This method is meant to be used in client code in order to provide coarse
     /// vertices data to Osd.
-    void UpdateData(const real *src, int startVertex, int numVertices);
+    void UpdateData(const float *src, int startVertex, int numVertices);
 
     /// Returns how many elements defined in this vertex buffer.
     int GetNumElements() const;
@@ -61,7 +61,7 @@ public:
 
     /// Returns cpu memory. GL buffer will be mapped to cpu address
     /// if necessary.
-    real * BindCpuBuffer();
+    float * BindCpuBuffer();
 
     /// Returns the name of GL buffer object. If the buffer is mapped
     /// to cpu address, it will be unmapped back to GL.
@@ -78,7 +78,7 @@ private:
     int _numElements;
     int _numVertices;
     GLuint _vbo;
-    real *_cpuBuffer;
+    float *_cpuBuffer;
     bool _dataDirty;
 };
 

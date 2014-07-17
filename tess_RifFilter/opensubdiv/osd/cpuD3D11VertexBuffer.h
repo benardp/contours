@@ -54,7 +54,7 @@ public:
 
     /// This method is meant to be used in client code in order to provide coarse
     /// vertices data to Osd.
-    void UpdateData(const real *src, int startVertex, int numVertices, void *param);
+    void UpdateData(const float *src, int startVertex, int numVertices, void *param);
 
     /// Returns how many elements defined in this vertex buffer.
     int GetNumElements() const;
@@ -63,7 +63,7 @@ public:
     int GetNumVertices() const;
 
     /// Returns the address of CPU buffer.
-    real * BindCpuBuffer();
+    float * BindCpuBuffer();
 
     /// Returns the D3D11 buffer object.
     ID3D11Buffer *BindD3D11Buffer(ID3D11DeviceContext *deviceContext);
@@ -80,7 +80,7 @@ private:
     int _numElements;
     int _numVertices;
     ID3D11Buffer *_d3d11Buffer;
-    real *_cpuBuffer;
+    float *_cpuBuffer;
 };
 
 }  // end namespace OPENSUBDIV_VERSION

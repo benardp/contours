@@ -44,6 +44,13 @@ namespace OPENSUBDIV_VERSION {
 ///
 template <class T, class U> class FarVertexEditTablesFactory {
 
+public:
+    typedef std::vector<FarMesh<U> const *> FarMeshVector;
+
+    /// \brief Splices vertex edit tables from multiple meshes and returns it.
+    /// Client code is responsible for deallocation.
+    static FarVertexEditTables *Splice(FarMeshVector const &meshes);
+
 protected:
     template <class X, class Y> friend class FarMeshFactory;
 
@@ -53,7 +60,7 @@ protected:
     static void insertHEditBatch(FarKernelBatchVector *batches, int batchIndex, int batchLevel, int batchCount, int tableOffset);
 
     /// \brief Creates a FarVertexEditTables instance.
-    static FarVertexEditTables<U> * Create( FarMeshFactory<T,U> const * factory, FarMesh<U> * mesh, FarKernelBatchVector *batches, int maxlevel );
+    static FarVertexEditTables * Create( FarMeshFactory<T,U> const * factory, FarMesh<U> * mesh, FarKernelBatchVector *batches, int maxlevel );
 };
 
 template <class T, class U> bool
@@ -76,12 +83,12 @@ FarVertexEditTablesFactory<T,U>::insertHEditBatch(FarKernelBatchVector *batches,
     batches->insert(it, FarKernelBatch( FarKernelBatch::HIERARCHICAL_EDIT, batchLevel+1, batchIndex, 0, batchCount, tableOffset, 0) );
 }
 
-template <class T, class U> FarVertexEditTables<U> * 
+template <class T, class U> FarVertexEditTables * 
 FarVertexEditTablesFactory<T,U>::Create( FarMeshFactory<T,U> const * factory, FarMesh<U> * mesh, FarKernelBatchVector *batches, int maxlevel ) {
 
     assert( factory and mesh );
 
-    FarVertexEditTables<U> * result = new FarVertexEditTables<U>(mesh);
+    FarVertexEditTables* result = new FarVertexEditTables();
 
     std::vector<HbrHierarchicalEdit<T>*> const & hEdits = factory->_hbrMesh->GetHierarchicalEdits();
 
@@ -116,18 +123,18 @@ FarVertexEditTablesFactory<T,U>::Create( FarMeshFactory<T,U> const * factory, Fa
         // XXXX manuelk - if the number of edits becomes large, we may need to switch this
         // to a map.
         int batchIndex = -1;
-        for(int i = 0; i<(int)result->_batches.size(); ++i) {
-            if(result->_batches[i]._primvarIndex == vedit->GetIndex() &&
-               result->_batches[i]._primvarWidth == vedit->GetWidth() &&
-               result->_batches[i]._op == op) {
-                batchIndex = i;
+        for(int j = 0; j<(int)result->_batches.size(); ++j) {
+            if(result->_batches[j]._primvarIndex == vedit->GetIndex() &&
+               result->_batches[j]._primvarWidth == vedit->GetWidth() &&
+               result->_batches[j]._op == op) {
+                batchIndex = j;
                 break;
             }
         }
         if (batchIndex == -1) {
             // create new batch
             batchIndex = (int)result->_batches.size();
-            result->_batches.push_back(typename FarVertexEditTables<U>::VertexEditBatch(vedit->GetIndex(), vedit->GetWidth(), op));
+            result->_batches.push_back(typename FarVertexEditTables::VertexEditBatch(vedit->GetIndex(), vedit->GetWidth(), op));
             batchSizes.push_back(0);
         }
         batchSizes[batchIndex]++;
@@ -162,7 +169,7 @@ FarVertexEditTablesFactory<T,U>::Create( FarMeshFactory<T,U> const * factory, Fa
         int batchIndex = batchIndices[i];
         int & batchLevel = currentLevels[batchIndex];
         int & batchCount = currentCounts[batchIndex];
-        typename FarVertexEditTables<U>::VertexEditBatch &batch = result->_batches[batchIndex];
+        typename FarVertexEditTables::VertexEditBatch &batch = result->_batches[batchIndex];
 
         // if a new batch is needed
         if (batchLevel != level-1) {
@@ -179,12 +186,12 @@ FarVertexEditTablesFactory<T,U>::Create( FarMeshFactory<T,U> const * factory, Fa
         batch._vertIndices[batchCount] = vertexID;
 
         // Copy edit values : Subtract edits are optimized into Add edits (fewer batches)
-        const real *edit = vedit->GetEdit();
+        const  real *edit = vedit->GetEdit();
 
         bool negate = (vedit->GetOperation() == HbrHierarchicalEdit<T>::Subtract);
         
-        for(int i=0; i<batch.GetPrimvarWidth(); ++i)
-            batch._edits[batchCount * batch.GetPrimvarWidth() + i] = negate ? -edit[i] : edit[i];
+        for(int j=0; j<batch.GetPrimvarWidth(); ++j)
+            batch._edits[batchCount * batch.GetPrimvarWidth() + j] = negate ? -edit[j] : edit[j];
 
         batchCount++;
     }
@@ -200,6 +207,31 @@ FarVertexEditTablesFactory<T,U>::Create( FarMeshFactory<T,U> const * factory, Fa
 
     return result;
 }
+
+// splicing functions
+template <class T, class U> FarVertexEditTables *
+FarVertexEditTablesFactory<T, U>::Splice(FarMeshVector const &meshes) {
+    FarVertexEditTables * result = new FarVertexEditTables();
+
+    // at this moment, don't merge vertex edit tables (separate batch)
+    for (size_t i = 0; i < meshes.size(); ++i) {
+        const FarVertexEditTables *vertexEditTables = meshes[i]->GetVertexEditTables();
+        if (not vertexEditTables) continue;
+
+        // copy each edit batch  XXX:inefficient copy
+        result->_batches.insert(result->_batches.end(),
+                                vertexEditTables->_batches.begin(),
+                                vertexEditTables->_batches.end());
+    }
+
+    if (result->_batches.empty()) {
+        delete result;
+        return NULL;
+    }
+    return result;
+}
+
+
 
 } // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;

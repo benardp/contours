@@ -48,29 +48,29 @@ class HbrFaceEdit : public HbrHierarchicalEdit<T> {
 
 public:
 
-    HbrFaceEdit(int _faceid, int _nsubfaces, unsigned char *_subfaces, int _index, int _width, typename HbrHierarchicalEdit<T>::Operation _op, real *_edit)
+    HbrFaceEdit(int _faceid, int _nsubfaces, unsigned char *_subfaces, int _index, int _width, typename HbrHierarchicalEdit<T>::Operation _op,  real *_edit)
         : HbrHierarchicalEdit<T>(_faceid, _nsubfaces, _subfaces), index(_index), width(_width), op(_op) {
-        edit = new real[width];
-        memcpy(edit, _edit, width * sizeof(real));
+        edit = new  real[width];
+        memcpy(edit, _edit, width * sizeof( real));
     }
 
-    HbrFaceEdit(int _faceid, int _nsubfaces, int *_subfaces, int _index, int _width, typename HbrHierarchicalEdit<T>::Operation _op, real *_edit)
+    HbrFaceEdit(int _faceid, int _nsubfaces, int *_subfaces, int _index, int _width, typename HbrHierarchicalEdit<T>::Operation _op,  real *_edit)
         : HbrHierarchicalEdit<T>(_faceid, _nsubfaces, _subfaces), index(_index), width(_width), op(_op) {
-        edit = new real[width];
-        memcpy(edit, _edit, width * sizeof(real));
+        edit = new  real[width];
+        memcpy(edit, _edit, width * sizeof( real));
     }
 
 #ifdef PRMAN
     HbrFaceEdit(int _faceid, int _nsubfaces, unsigned char *_subfaces, int _index, int _width, typename HbrHierarchicalEdit<T>::Operation _op, RtToken _edit)
         : HbrHierarchicalEdit<T>(_faceid, _nsubfaces, _subfaces), index(_index), width(_width), op(_op) {
-        edit = new real[width];
+        edit = new  real[width];
         RtString* sedit = (RtString*) edit;
         *sedit = _edit;
     }
 
     HbrFaceEdit(int _faceid, int _nsubfaces, int *_subfaces, int _index, int _width, typename HbrHierarchicalEdit<T>::Operation _op, RtToken _edit)
         : HbrHierarchicalEdit<T>(_faceid, _nsubfaces, _subfaces), index(_index), width(_width), op(_op) {
-        edit = new real[width];
+        edit = new  real[width];
         RtString* sedit = (RtString*) edit;
         *sedit = _edit;
     }
@@ -89,7 +89,7 @@ public:
     int GetWidth() const { return width; }
 
     // Get the numerical value of the edit
-    const real* GetEdit() const { return edit; }
+    const  real* GetEdit() const { return edit; }
 
     // Get the type of operation
     typename HbrHierarchicalEdit<T>::Operation GetOperation() const { return op; }
@@ -113,7 +113,7 @@ private:
     int index;
     int width;
     typename HbrHierarchicalEdit<T>::Operation op;
-    real* edit;
+     real* edit;
 };
 
 

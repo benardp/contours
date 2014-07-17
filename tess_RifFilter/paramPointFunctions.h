@@ -709,52 +709,28 @@ void ParamPoint<T>::Evaluate(vec3 & limitPosition, vec3 & limitNormal, real * k1
                 //                printf("DIFF NULL\n");
                 (*k1) = 0.0;
                 (*k2) = 0.0;
-                (*d1) = tanU;
-                (*d2) = tanV;
+                if(d1 && d2){
+                    (*d1) = tanU;
+                    (*d2) = tanV;
+                }
             }
         }else{
             Subdiv::getInstance().Evaluate(OsdEvalCoords(face->GetID(),u,v),&limitPosition,&tanU,&tanV,NULL,NULL);
-            //_evaluator->Eval(face,u,v,REF_LEVEL,&limitPosition,&tanU,&tanV,NULL,NULL,NULL,0,NULL,0,NULL,0);
         }
-
-        //        printf("tanV [%f, %f, %f]\n",(double)tanV[0],(double)tanV[1],(double)tanV[2]);
-        //        printf("tanU [%f, %f, %f]\n",(double)tanU[0],(double)tanU[1],(double)tanU[2]);
 
         limitNormal = tanU ^ tanV;
 
         if (limitNormal * limitNormal < 1e-12) // a bug in Nsd, it appears
         {
+            //printf("tanV [%f, %f, %f]\n",(double)tanV[0],(double)tanV[1],(double)tanV[2]);
+            //printf("tanU [%f, %f, %f]\n",(double)tanU[0],(double)tanU[1],(double)tanU[2]);
+
             if (_sourceVertex != NULL)
             {
                 limitNormal = FaceAveragedVertexNormal(_sourceVertex);
                 printf("averaged vtx normal = %f %f %f\n", double(limitNormal[0]), double(limitNormal[1]), double(limitNormal[2]));
             }
         }
-
-        // do some finite differences since the tangent evaluation doesn't work
-
-        //  assert(u >=0 && u <=1 && u+hu >=0 && u+hu <=1);
-        //  assert(v >=0 && v <=1 && v+hv >=0 && v+hv <=1);
-
-        //  limitNormal = tan2 ^ tan1;
-        //limitNormal.Normalize();
-
-        //        if (limitNormal * limitNormal < 1e-12) // a bug in Nsd, it appears
-        //        {
-        //            // printf("VANISHING LIMIT NORMAL\n");
-        //            //      print();
-        //            #if LINK_FREESTYLE
-        //                    char str[200];
-        //                    sprintf(str, "VANISHING LIMIT NORMAL");
-        //                    addRIFDebugPoint(-1, double(limitPosition[0]), double(limitPosition[1]), double(limitPosition[2]), str, NULL);
-        //            #endif
-        //            if (_sourceVertex != NULL)
-        //            {
-        //                limitNormal = FaceAveragedVertexNormal(_sourceVertex);
-        //                //	  printf("averaged vtx normal = %f %f %f\n", double(limitNormal[0]), double(limitNormal[1]), double(limitNormal[2]));
-        //            }
-        //        }
-        //        else
         limitNormal.normalize();
 
         if(d1 && d2){

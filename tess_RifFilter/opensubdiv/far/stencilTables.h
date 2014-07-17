@@ -40,32 +40,32 @@ namespace OPENSUBDIV_VERSION {
 class FarStencil {
 public:
 
-    /// Returns the size of the stencil (number of control vertices)
+    /// \brief Returns the size of the stencil (number of control vertices)
     int GetSize() const {
         return *_size;
     }
 
-    /// Returns the control vertices indices
+    /// \brief Returns the control vertices indices
     int const * GetVertexIndices() const {
         return _indices;
     }
 
-    /// Returns the interpolation weights
+    /// \brief Returns the interpolation weights
     real const * GetValueWeights() const {
         return _point;
     }
 
-    /// Returns U derivative interpolation weights
+    /// \brief Returns U derivative interpolation weights
     real const * GetUDerivWeights() const {
         return _uderiv;
     }
 
-    /// Returns V derivative interpolation weights
+    /// \brief Returns V derivative interpolation weights
     real const * GetVDerivWeights() const {
         return _vderiv;
     }
 
-    /// Increment to the next stencil in the array
+    /// \brief Increment to the next stencil in the array
     /// Note : there is no array boundary check !
     void Increment() {
         int stride = *_size;
@@ -211,7 +211,7 @@ template <class T> void
 FarStencilTables::_Update( T const *controlValues,
                            real const * weights,
                            T *values,
-                           int stride ) const {
+                           int /* stride */ ) const {
 
     int const * index = &_indices.at(0);
 

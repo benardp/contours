@@ -25,7 +25,7 @@
 #ifndef OPENSUBDIV_VERSION_H
 #define OPENSUBDIV_VERSION_H
 
-#define OPENSUBDIV_VERSION v2_3_3
+#define OPENSUBDIV_VERSION v2_5_1
 
 typedef long double real;
 

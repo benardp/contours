@@ -43,7 +43,7 @@ namespace OPENSUBDIV_VERSION {
 struct OsdVertexDescriptor;
 
 template<int numVertexElements>
-void ComputeFaceKernel(real     *vertex,
+void ComputeFaceKernel(real     *vertex, 
                        const int *F_IT, 
                        const int *F_ITa, 
                              int  vertexOffset, 
@@ -52,8 +52,8 @@ void ComputeFaceKernel(real     *vertex,
                              int  end) {
 
     __ALIGN_DATA real result [numVertexElements];
-    __ALIGN_DATA real result1[numVertexElements];
-    real *src, *des;
+    __ALIGN_DATA real result1[numVertexElements];                
+    real *src, *des;        
     for (int i = start + tableOffset; i < end + tableOffset; i++) {
         int h = F_ITa[2*i];
         int n = F_ITa[2*i+1];
@@ -85,26 +85,41 @@ void ComputeFaceKernel(real     *vertex,
         for (int k = 0; k < numVertexElements; ++k)
             result1[k] = result[k];                 
         des = vertex + dstIndex * numVertexElements;
-        memcpy(des, result1, sizeof(real)*numVertexElements);
+        memcpy(des, result1, sizeof(real)*numVertexElements);        
     }
 }
-void OsdCpuComputeFace(OsdVertexDescriptor const &vdesc,
-                       real * vertex, real * varying,
+void OsdCpuComputeFace(real * vertex, real * varying,
+                       OsdVertexBufferDescriptor const &vertexDesc,
+                       OsdVertexBufferDescriptor const &varyingDesc,
                        const int *F_IT, const int *F_ITa,
                        int vertexOffset, int tableOffset,
                        int start, int end);
 
+void OsdCpuComputeQuadFace(real * vertex, real * varying,
+                           OsdVertexBufferDescriptor const &vertexDesc,
+                           OsdVertexBufferDescriptor const &varyingDesc,
+                           const int *F_IT,
+                           int vertexOffset, int tableOffset,
+                           int start, int end);
+
+void OsdCpuComputeTriQuadFace(real * vertex, real * varying,
+                              OsdVertexBufferDescriptor const &vertexDesc,
+                              OsdVertexBufferDescriptor const &varyingDesc,
+                              const int *F_IT,
+                              int vertexOffset, int tableOffset,
+                              int start, int end);
+
 template<int numVertexElements>
 void ComputeEdgeKernel(      real *vertex,
                        const int   *E_IT, 
-                       const real *E_W,
+                       const real *E_W, 
                              int    vertexOffset, 
                              int    tableOffset,
                              int    start, 
                              int    end) 
 {
-    __ALIGN_DATA real result[numVertexElements];
-    __ALIGN_DATA real result1[numVertexElements];
+    __ALIGN_DATA real result[numVertexElements];    
+    __ALIGN_DATA real result1[numVertexElements]; 
     
     real *src, *src2, *des;
     for (int i = start + tableOffset; i < end + tableOffset; i++) {
@@ -147,24 +162,25 @@ void ComputeEdgeKernel(      real *vertex,
         memcpy(des, result1, sizeof(real)*numVertexElements);
     }
 }
-void OsdCpuComputeEdge(OsdVertexDescriptor const &vdesc,
-                       real *vertex, real * varying,
-                       const int *E_IT, const real *E_ITa,
+void OsdCpuComputeEdge(real *vertex, real * varying,
+                       OsdVertexBufferDescriptor const &vertexDesc,
+                       OsdVertexBufferDescriptor const &varyingDesc,
+                       const int *E_IT, const real *E_W,
                        int vertexOffset, int tableOffset,
                        int start, int end);
 
 template<int numVertexElements>
-void ComputeVertexAKernel(      real *vertex,
+void ComputeVertexAKernel(      real *vertex, 
                           const int   *V_ITa, 
-                          const real *V_W,
+                          const real *V_W, 
                                 int vertexOffset,
                                 int tableOffset,
                                 int start,
                                 int end,
                                 int pass) {
     __ALIGN_DATA real result [numVertexElements];
-    __ALIGN_DATA real result1[numVertexElements];
-    real *src, *src2, *src3, *des;
+    __ALIGN_DATA real result1[numVertexElements];        
+    real *src, *src2, *src3, *des;        
     for (int i = start + tableOffset; i < end + tableOffset; i++) {
         int n     = V_ITa[5*i+1];
         int p     = V_ITa[5*i+2];
@@ -230,8 +246,9 @@ void ComputeVertexAKernel(      real *vertex,
         memcpy(des, result1, sizeof(real)*numVertexElements);
     }
 }
-void OsdCpuComputeVertexA(OsdVertexDescriptor const &vdesc,
-                          real *vertex, real * varying,
+void OsdCpuComputeVertexA(real *vertex, real * varying,
+                          OsdVertexBufferDescriptor const &vertexDesc,
+                          OsdVertexBufferDescriptor const &varyingDesc,
                           const int *V_ITa, const real *V_IT,
                           int vertexOffset, int tableOffset,
                           int start, int end, int pass);
@@ -246,8 +263,8 @@ void ComputeVertexBKernel(      real *vertex,
                                   int  start,
                                   int  end) {
     __ALIGN_DATA real result [numVertexElements];
-    __ALIGN_DATA real result1[numVertexElements];
-    real *src, *src1, *src2, *des;
+    __ALIGN_DATA real result1[numVertexElements];        
+    real *src, *src1, *src2, *des;  
     for (int i = start + tableOffset; i < end + tableOffset; i++) {
         int h = V_ITa[5*i];
         int n = V_ITa[5*i+1];
@@ -255,7 +272,7 @@ void ComputeVertexBKernel(      real *vertex,
 
         real weight = V_W[i];
         real wp = 1.0f/static_cast<real>(n*n);
-        real wv = (n-2.0f) * n * wp;
+        real wv = (n-2.0f) * n * wp; 
 
         int dstIndex = i + vertexOffset - tableOffset;
                                   
@@ -291,14 +308,15 @@ void ComputeVertexBKernel(      real *vertex,
     }
 }
         
-void OsdCpuComputeVertexB(OsdVertexDescriptor const &vdesc,
-                          real *vertex, real * varying,
+void OsdCpuComputeVertexB(real *vertex, real * varying,
+                          OsdVertexBufferDescriptor const &vertexDesc,
+                          OsdVertexBufferDescriptor const &varyingDesc,
                           const int *V_ITa, const int *V_IT, const real *V_W,
                           int vertexOffset, int tableOffset,
                           int start, int end);
 
 template<int numVertexElements>
-void ComputeLoopVertexBKernel(      real *vertex,
+void ComputeLoopVertexBKernel(      real *vertex, 
                               const   int *V_ITa, 
                               const   int *V_IT, 
                               const real *V_W,
@@ -307,8 +325,8 @@ void ComputeLoopVertexBKernel(      real *vertex,
                                       int  start, 
                                       int  end) {
     __ALIGN_DATA real result [numVertexElements];
-    __ALIGN_DATA real result1[numVertexElements];
-    real *src, *des;
+    __ALIGN_DATA real result1[numVertexElements];        
+    real *src, *des;  
     for (int i = start + tableOffset; i < end + tableOffset; i++) {
         int h = V_ITa[5*i];
         int n = V_ITa[5*i+1];
@@ -350,8 +368,9 @@ void ComputeLoopVertexBKernel(      real *vertex,
         memcpy(des, result1, sizeof(real)*numVertexElements);
     }
 }
-void OsdCpuComputeLoopVertexB(OsdVertexDescriptor const &vdesc,
-                              real *vertex, real * varying,
+void OsdCpuComputeLoopVertexB(real *vertex, real * varying,
+                              OsdVertexBufferDescriptor const &vertexDesc,
+                              OsdVertexBufferDescriptor const &varyingDesc,
                               const int *V_ITa, const int *V_IT,
                               const real *V_W,
                               int vertexOffset, int tableOffset,
@@ -365,8 +384,8 @@ void ComputeBilinearEdgeKernel(    real *vertex,
                                      int  start, 
                                      int  end) 
 {
-    __ALIGN_DATA real result [numVertexElements];
-    real *src1, *src2, *des;
+    __ALIGN_DATA real result [numVertexElements];        
+    real *src1, *src2, *des;      
     for (int i = start + tableOffset; i < end + tableOffset; i++) {
         int eidx0 = E_IT[2*i+0];
         int eidx1 = E_IT[2*i+1];
@@ -382,29 +401,33 @@ void ComputeBilinearEdgeKernel(    real *vertex,
                 
         int dstIndex = i + vertexOffset - tableOffset;        
         des = vertex + dstIndex * numVertexElements;
-        memcpy(des, result, sizeof(real)*numVertexElements);
+        memcpy(des, result, sizeof(real)*numVertexElements);                    
     }
 }
-void OsdCpuComputeBilinearEdge(OsdVertexDescriptor const &vdesc,
-                               real *vertex, real * varying,
+void OsdCpuComputeBilinearEdge(real *vertex, real * varying,
+                               OsdVertexBufferDescriptor const &vertexDesc,
+                               OsdVertexBufferDescriptor const &varyingDesc,
                                const int *E_IT,
                                int vertexOffset, int tableOffset,
                                int start, int end);
 
-void OsdCpuComputeBilinearVertex(OsdVertexDescriptor const &vdesc,
-                                 real *vertex, real * varying,
+void OsdCpuComputeBilinearVertex(real *vertex, real * varying,
+                                 OsdVertexBufferDescriptor const &vertexDesc,
+                                 OsdVertexBufferDescriptor const &varyingDesc,
                                  const int *V_ITa,
                                  int vertexOffset, int tableOffset,
                                  int start, int end);
 
-void OsdCpuEditVertexAdd(OsdVertexDescriptor const &vdesc, real *vertex,
+void OsdCpuEditVertexAdd(real *vertex,
+                         OsdVertexBufferDescriptor const &vertexDesc,
                          int primVarOffset, int primVarWidth,
                          int vertexOffset, int tableOffset,
                          int start, int end,
                          const unsigned int *editIndices,
                          const real *editValues);
 
-void OsdCpuEditVertexSet(OsdVertexDescriptor const &vdesc, real *vertex,
+void OsdCpuEditVertexSet(real *vertex,
+                         OsdVertexBufferDescriptor const &vertexDesc,
                          int primVarOffset, int primVarWidth,
                          int vertexOffset, int tableOffset,
                          int start, int end,

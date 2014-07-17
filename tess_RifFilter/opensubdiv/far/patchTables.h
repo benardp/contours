@@ -50,26 +50,25 @@ public:
     typedef std::vector<int>           VertexValenceTable;
     typedef std::vector<unsigned int>  QuadOffsetTable;
     typedef std::vector<FarPatchParam> PatchParamTable;
-    typedef std::vector<real>         FVarDataTable;
 
     enum Type {
         NON_PATCH = 0,     ///< undefined
- 
+
         POINTS,            ///< points  (useful for cage drawing)
         LINES,             ///< lines   (useful for cage drawing)
- 
+
         QUADS,             ///< bilinear quads-only patches
         TRIANGLES,         ///< bilinear triangles-only mesh
- 
+
         LOOP,              ///< Loop patch  (unsupported)
- 
+
         REGULAR,           ///< feature-adaptive bicubic patches
         BOUNDARY,
         CORNER,
         GREGORY,
         GREGORY_BOUNDARY
     };
-    
+
     enum TransitionPattern {
         NON_TRANSITION = 0,
         PATTERN0,
@@ -78,7 +77,7 @@ public:
         PATTERN3,
         PATTERN4
     };
-   
+
     /// \brief Describes the type of a patch
     ///
     /// Uniquely identifies all the types of patches in a mesh :
@@ -98,12 +97,12 @@ public:
     /// of valid feature adaptive patch descriptors.
     ///
     class Descriptor {
-    
+
     public:
         /// \brief Default constructor.
         Descriptor() :
             _type(NON_PATCH), _pattern(NON_TRANSITION), _rotation(0) {}
-            
+
         /// \brief Constructor
         Descriptor(int type, int pattern, unsigned char rotation) :
             _type(type), _pattern(pattern), _rotation(rotation) { }
@@ -111,35 +110,52 @@ public:
         /// \brief Copy Constructor
         Descriptor( Descriptor const & d ) :
             _type(d.GetType()), _pattern(d.GetPattern()), _rotation(d.GetRotation()) { }
-        
+
         /// \brief Returns the type of the patch
         Type GetType() const {
             return (Type)_type;
         }
-        
+
         /// \brief Returns the transition pattern of the patch if any (5 types)
         TransitionPattern GetPattern() const {
             return (TransitionPattern)_pattern;
         }
-        
+
         /// \brief Returns the rotation of the patch (4 rotations)
         unsigned char GetRotation() const {
-            return _rotation;
+            return (unsigned char)_rotation;
         }
-                
+
         /// \brief Returns the number of control vertices expected for a patch of the
         /// type described
-        static short GetNumControlVertices( Type t );
-        
-        /// \brief Returns the number of control vertices expected for a patch of the 
+        static inline short GetNumControlVertices( Type t );
+
+        /// \brief Returns the number of control vertices expected for a patch of the
         /// type described
         short GetNumControlVertices() const {
             return GetNumControlVertices( this->GetType() );
         }
-        
-        /// \brief Iterates through the patches in the following preset order
+
+        /// Returns a vector of all the legal patch descriptors
+        static inline std::vector<Descriptor> const & GetAllValidDescriptors();
+
+        /// \brief Allows ordering of patches by type
+        inline bool operator < ( Descriptor const other ) const;
+
+        /// \brief True if the descriptors are identical
+        inline bool operator == ( Descriptor const other ) const;
+
+        /// \brief Descriptor Iterator
+        /// Iterates through the patches in the following preset order
         ///
-        /// Order:
+        /// ANY order:
+        ///        POINTS
+        ///        LINES
+        ///        QUADS
+        ///        TRIANGLES
+        ///        LOOP
+        ///
+        /// FEATURE_ADAPTIVE_CATMARK order:
         ///
         ///       NON_TRANSITION ( REGULAR
         ///                         BOUNDARY
@@ -158,27 +174,26 @@ public:
         ///
         ///        NON_TRANSITION NON_PATCH ROT0 (end)
         ///
-        Descriptor & operator ++ ();
-        
-        /// \brief Allows ordering of patches by type
-        bool operator < ( Descriptor const other ) const;
-
-        /// \brief True if the descriptors are identical
-        bool operator == ( Descriptor const other ) const;
-        
-        /// \brief Descriptor Iterator 
         class iterator;
 
-        /// \brief Returns an iterator to the first type of patch (REGULAR NON_TRANSITION ROT0)
-        static iterator begin();
+        enum PrimType {
+            ANY,
+            FEATURE_ADAPTIVE_CATMARK
+        };
+
+        /// \brief Returns a patch type iterator
+        /// @param type       if type=ANY then the iterater points to type POINTS
+        ///                   if type=FEATURE_ADAPTIVE_CATMARK then the iterator
+        ///                   points to type NON_TRANSITION REGULAR
+        static iterator begin(PrimType type);
 
         /// \brief Returns an iterator to the end of the list of patch types (NON_PATCH)
         static iterator end();
-        
+
     private:
         template <class T> friend class FarPatchTablesFactory;
         friend class iterator;
-        
+
         unsigned int  _type:4;
         unsigned int  _pattern:3;
         unsigned int  _rotation:2;
@@ -189,17 +204,17 @@ public:
 
     /// \brief Describes an array of patches of the same type
     class PatchArray {
-    
+
     public:
         /// \brief Constructor.
         ///
-        /// @param desc             descriptor information for the patches in 
+        /// @param desc             descriptor information for the patches in
         ///                         the array
         ///
         /// @param vertIndex        absolute index to the first control vertex
         ///                         of the first patch in the PTable
         ///
-        /// @param patchIndex       absolute index of the first patch in the 
+        /// @param patchIndex       absolute index of the first patch in the
         ///                         array
         ///
         /// @param npatches         number of patches in the array
@@ -217,22 +232,22 @@ public:
 
         /// \brief Describes the range of patches in a PatchArray
         struct ArrayRange {
-        
+
             /// \brief Constructor
             ///
-            /// @param vertIndex        absolute index to the first control vertex
-            ///                         of the first patch in the PTable
+            /// @param ivertIndex        absolute index to the first control vertex
+            ///                          of the first patch in the PTable
             ///
-            /// @param patchIndex       absolute index of the first patch in the 
-            ///                         array
+            /// @param ipatchIndex       absolute index of the first patch in the
+            ///                          array
             ///
-            /// @param npatches         number of patches in the array
+            /// @param inpatches         number of patches in the array
             ///
-            /// @param quadOffsetIndex  absolute index of the first quad offset
-            ///                         entry
+            /// @param iquadOffsetIndex  absolute index of the first quad offset
+            ///                          entry
             ///
-            ArrayRange( unsigned int vertIndex, unsigned int patchIndex, unsigned int npatches, unsigned int quadOffsetIndex ) :
-                vertIndex(vertIndex), patchIndex(patchIndex), npatches(npatches), quadOffsetIndex(quadOffsetIndex) { }
+            ArrayRange( unsigned int ivertIndex, unsigned int ipatchIndex, unsigned int inpatches, unsigned int iquadOffsetIndex ) :
+                vertIndex(ivertIndex), patchIndex(ipatchIndex), npatches(inpatches), quadOffsetIndex(iquadOffsetIndex) { }
 
             unsigned int vertIndex,       // absolute index to the first control vertex of the first patch in the PTable
                          patchIndex,      // absolute index of the first patch in the array
@@ -245,18 +260,18 @@ public:
             return _range;
         }
 
-        /// \brief Returns the index of the first control vertex of the first patch 
+        /// \brief Returns the index of the first control vertex of the first patch
         /// of this array in the global PTable
-        unsigned int GetVertIndex() const { 
+        unsigned int GetVertIndex() const {
             return _range.vertIndex;
         }
-        
+
         /// \brief Returns the global index of the first patch in this array (Used to
         /// access param / fvar table data)
         unsigned int GetPatchIndex() const {
             return _range.patchIndex;
         }
-        
+
         /// \brief Returns the number of patches in the array
         unsigned int GetNumPatches() const {
             return _range.npatches;
@@ -266,15 +281,15 @@ public:
         unsigned int GetQuadOffsetIndex() const {
             return _range.quadOffsetIndex;
         }
-    
+
     private:
         template <class T> friend class FarPatchTablesFactory;
-        
+
         Descriptor _desc;   // type of patches in the array
 
         ArrayRange _range;  // index locators in the array
     };
-    
+
     typedef std::vector<PatchArray> PatchArrayVector;
 
     /// \brief Constructor
@@ -291,6 +306,8 @@ public:
     ///
     /// @param fvarData         Face varying data table
     ///
+    /// @param fvarWidth        Primvar data width (number of reals)
+    ///
     /// @param maxValence       Highest vertex valence allowed in the mesh
     ///
     FarPatchTables(PatchArrayVector const & patchArrays,
@@ -298,22 +315,23 @@ public:
                    VertexValenceTable const * vertexValences,
                    QuadOffsetTable const * quadOffsets,
                    PatchParamTable const * patchParams,
-                   FVarDataTable const * fvarData,
+                   std::vector<real> const * fvarData,
+                   int fvarWidth,
                    int maxValence);
 
     /// \brief Get the table of patch control vertices
     PTable const & GetPatchTable() const { return _patches; }
 
     /// \brief Returns a pointer to the array of patches matching the descriptor
-    PatchArray const * GetPatchArray( Descriptor desc ) const { 
-        return const_cast<FarPatchTables *>(this)->findPatchArray( desc ); 
+    PatchArray const * GetPatchArray( Descriptor desc ) const {
+        return const_cast<FarPatchTables *>(this)->findPatchArray( desc );
     }
 
     /// \brief Returns all arrays of patches
     PatchArrayVector const & GetPatchArrayVector() const {
         return _patchArrays;
     }
-    
+
     /// \brief Returns a pointer to the vertex indices of uniformly subdivided faces
     ///
     /// In uniform mode the FarPatchTablesFactory can be set to generate either a
@@ -347,7 +365,7 @@ public:
     ///               or -1 if the mesh is not uniform or the level is incorrect.
     ///
     int GetNumFaces(int level=0) const;
-    
+
     /// \brief Returns a vertex valence table used by Gregory patches
     VertexValenceTable const & GetVertexValenceTable() const { return _vertexValenceTable; }
 
@@ -357,103 +375,251 @@ public:
     /// \brief Returns a PatchParamTable for each type of patch
     PatchParamTable const & GetPatchParamTable() const { return _paramTable; }
 
-    /// \brief Returns an FVarDataTable for each type of patch
-    /// The data is stored as a run of totalFVarWidth reals per-vertex per-face
-    /// e.g.: for UV data it has the structure of real[p][4][2] where
-    /// p=primitiveID and totalFVarWidth=2:
-    ///      [ [ uv uv uv uv ] [ uv uv uv uv ] [ ... ] ]
-    ///            prim 0           prim 1
-    FVarDataTable const & GetFVarDataTable() const { return _fvarTable; }
-
     /// \brief Ringsize of Regular Patches in table.
-    static int GetRegularPatchRingsize() { return 16; }
+    static short GetRegularPatchRingsize() { return 16; }
 
     /// \brief Ringsize of Boundary Patches in table.
-    static int GetBoundaryPatchRingsize() { return 12; }
+    static short GetBoundaryPatchRingsize() { return 12; }
 
     /// \brief Ringsize of Boundary Patches in table.
-    static int GetCornerPatchRingsize() { return 9; }
+    static short GetCornerPatchRingsize() { return 9; }
 
     /// \brief Ringsize of Gregory (and Gregory Boundary) Patches in table.
-    static int GetGregoryPatchRingsize() { return 4; }
+    static short GetGregoryPatchRingsize() { return 4; }
 
     /// \brief Returns the total number of patches stored in the tables
     int GetNumPatches() const;
-    
+
     /// \brief Returns the total number of control vertex indices in the tables
     int GetNumControlVertices() const;
 
     /// \brief Returns max vertex valence
     int GetMaxValence() const { return _maxValence; }
-    
+
     /// \brief True if the patches are of feature adaptive types
     bool IsFeatureAdaptive() const;
+
+    /// \brief Returns the total number of vertices in the mesh across across all depths
+    int GetNumPtexFaces() const { return _numPtexFaces; }
+
     
+    /// \brief Container for static face-varying primvar data
+    class FVarData {
+
+    public:
+
+        /// \brief Returns a vector of reals containing the face-varying data attached
+        /// to each patch.
+        ///
+        /// The data is stored as a run of FVarWidth reals per-vertex per-face
+        /// e.g.: for UV data it has the structure of real[p][4][2] where
+        /// p=primitiveID and FVarWidth=2:
+        ///      [ [ uv uv uv uv ] [ uv uv uv uv ] [ ... ] ]
+        ///            prim 0           prim 1
+        ///
+        /// In uniform mode the FarPatchTablesFactory can be set to generate either a
+        /// patch array containing the faces at the highest level of subdivision, or
+        /// a range of arrays, corresponding to multiple successive levels of subdivision.
+        ///
+        /// Note : level '0' is not the coarse mesh. Currently there is no path in the
+        /// factories to convert the coarse mesh to FarPatchTables.
+        ///
+        /// @param level  the level of subdivision of the faces (returns the highest
+        ///               level by default) **Uniform subdivision only**
+        ///
+        real const * GetData(int level=0) const;
+
+        /// \brief Returns a vector of reals containing the face-varying data attached
+        std::vector<real> const & GetAllData() const {
+            return _data;
+        }
+
+        /// \brief Returns the width of the interleaved face-varying data
+        int GetFVarWidth() const {
+            return _fvarWidth;
+        }
+
+    private:
+
+        template <class T> friend class FarPatchTablesFactory;
+        friend class FarPatchTables;
+
+        FVarData() : _fvarWidth(0) { }
+        
+        inline FVarData( std::vector<real> const * data, int fvarWidth );
+
+        std::vector<real>  _data;      // face-varying data stored per-face-per-vertex
+        std::vector<int>   _offsets;   // a vector of offsets if multiple leves of
+                                       // subdivision are stored in _data
+        int                _fvarWidth; // width of the face-varying data
+    };
+    
+    /// \brief Returns a container for face-varying data
+    FVarData const & GetFVarData() const { return _fvarData; }
+
 private:
 
     template <class T> friend class FarPatchTablesFactory;
-    template <class T, class U> friend class FarMultiMeshFactory;
 
     // Returns the array of patches of type "desc", or NULL if there aren't any in the primitive
-    PatchArray * findPatchArray( Descriptor desc );
+    inline PatchArray * findPatchArray( Descriptor desc );
 
     // Private constructor
     FarPatchTables( int maxvalence ) : _maxValence(maxvalence) { }
 
-    
+
     PatchArrayVector    _patchArrays;        // Vector of descriptors for arrays of patches
-    
+
     PTable              _patches;            // Indices of the control vertices of the patches
 
     VertexValenceTable  _vertexValenceTable; // vertex valence table (for Gregory patches)
-    
+
     QuadOffsetTable     _quadOffsetTable;    // quad offsets table (for Gregory patches)
-    
+
     PatchParamTable     _paramTable;
 
-    FVarDataTable       _fvarTable;
+    FVarData            _fvarData;           // face-varying data
 
-    // highest vertex valence allowed in the mesh (used for Gregory 
+    // highest vertex valence allowed in the mesh (used for Gregory
     // vertexValance & quadOffset tables)
     int _maxValence;
+
+    // number of total ptex faces in quads or triangles(loop)
+    int _numPtexFaces;
+
 };
 
-/// \brief Descriptor iterator class 
+/// \brief Descriptor iterator class
 class FarPatchTables::Descriptor::iterator {
     public:
+
         /// Constructor
-        iterator() {}
+        iterator() : _pos(-1) {}
 
         /// Copy Constructor
-        iterator(Descriptor desc) : pos(desc) { }
+        iterator(Descriptor desc);
 
         /// Iteration increment operator
-        iterator & operator ++ () { ++pos; return *this; }
+        iterator & operator ++ ();
 
         /// True of the two descriptors are identical
-        bool operator == ( iterator const & other ) const { return (pos==other.pos); }
+        bool operator == ( iterator const & other ) const {
+            return (_pos==other._pos);
+        }
 
         /// True if the two descriptors are different
-        bool operator != ( iterator const & other ) const { return not (*this==other); }
+        bool operator != ( iterator const & other ) const {
+            return not (*this==other);
+        }
 
         /// Dereferencing operator
-        Descriptor * operator -> () { return &pos; }
+        Descriptor const * operator -> () const {
+            return  getValue();
+        }
 
         /// Dereferencing operator
-        Descriptor & operator * () { return pos; }
+        Descriptor const & operator * () const {
+            return *getValue();
+        }
 
     private:
-        Descriptor pos;
+        inline Descriptor const * getValue() const;
+        
+        int _pos;
 };
 
+// Iterator constructor
+inline FarPatchTables::Descriptor::iterator::iterator(Descriptor desc) {
+
+    _pos = -1;
+    std::vector<Descriptor> const & descs =
+        Descriptor::GetAllValidDescriptors();
+
+    for (int i=0; i<(int)descs.size(); ++i) {
+        if (descs[i] == desc) {
+            _pos = i;
+            break;
+        }
+    }
+}
+
+// Iteration increment operator
+inline FarPatchTables::Descriptor::iterator &
+FarPatchTables::Descriptor::iterator::operator ++ () {
+
+    if (++_pos>=(int)Descriptor::GetAllValidDescriptors().size()) {
+        _pos = -1;
+    }
+    return *this;
+}
+
+inline FarPatchTables::Descriptor const * 
+FarPatchTables::Descriptor::iterator::getValue() const {
+
+    static Descriptor _nonpatch;
+
+    std::vector<Descriptor> const & descs = 
+        Descriptor::GetAllValidDescriptors();
+    
+    if (_pos>=0 and _pos<(int)descs.size()) {
+        return &descs[_pos];
+    }
+    
+    return &_nonpatch;
+}
+
+inline std::vector<FarPatchTables::Descriptor> const &
+FarPatchTables::Descriptor::GetAllValidDescriptors() {
+
+    static std::vector<Descriptor> _descriptors;
+
+    if (_descriptors.empty()) {
+        _descriptors.reserve(55);
+
+        // non-patch primitives
+        for (int i=POINTS; i<=LOOP; ++i) {
+            _descriptors.push_back( Descriptor(i, NON_TRANSITION, 0) );
+        }
+
+        // non-transition patches
+        for (int i=REGULAR; i<=GREGORY_BOUNDARY; ++i) {
+            _descriptors.push_back( Descriptor(i, NON_TRANSITION, 0) );
+        }
+
+        // transition patches
+        for (int i=PATTERN0; i<=PATTERN4; ++i) {
+
+            _descriptors.push_back( Descriptor(REGULAR, i, 0) );
+
+            // 4 rotations for boundary & corner patches
+            for (int j=0; j<4; ++j) {
+                _descriptors.push_back( Descriptor(BOUNDARY, i, j) );
+            }
+
+            for (int j=0; j<4; ++j) {
+                _descriptors.push_back( Descriptor(CORNER, i, j) );
+            }
+        }
+    }
+
+    return _descriptors;
+}
+
 // Returns an iterator to the first type of patch (REGULAR NON_TRANSITION ROT0)
-inline FarPatchTables::Descriptor::iterator 
-FarPatchTables::Descriptor::begin() {
-    return iterator( Descriptor(REGULAR, NON_TRANSITION, 0) );
+inline FarPatchTables::Descriptor::iterator
+FarPatchTables::Descriptor::begin(PrimType type) {
+    switch (type) {
+        case ANY:
+            return iterator( Descriptor(POINTS, NON_TRANSITION, 0) );
+        case FEATURE_ADAPTIVE_CATMARK:
+            return iterator( Descriptor(REGULAR, NON_TRANSITION, 0) );
+        default:
+            return iterator( Descriptor() );
+    }
 }
 
 // Returns an iterator to the end of the list of patch types (NON_PATCH)
-inline FarPatchTables::Descriptor::iterator 
+inline FarPatchTables::Descriptor::iterator
 FarPatchTables::Descriptor::end() {
     return iterator( Descriptor() );
 }
@@ -465,11 +631,14 @@ FarPatchTables::FarPatchTables(PatchArrayVector const & patchArrays,
                                VertexValenceTable const * vertexValences,
                                QuadOffsetTable const * quadOffsets,
                                PatchParamTable const * patchParams,
-                               FVarDataTable const * fvarData,
+                               std::vector<real> const * fvarData,
+                               int fvarWidth,
                                int maxValence) :
     _patchArrays(patchArrays),
     _patches(patches),
-    _maxValence(maxValence) {
+    _fvarData(fvarData, fvarWidth),
+    _maxValence(maxValence),
+    _numPtexFaces(0) {
 
     // copy other tables if exist
     if (vertexValences)
@@ -478,12 +647,10 @@ FarPatchTables::FarPatchTables(PatchArrayVector const & patchArrays,
         _quadOffsetTable = *quadOffsets;
     if (patchParams)
         _paramTable = *patchParams;
-    if (fvarData)
-        _fvarTable = *fvarData;
 }
 
-inline bool 
-FarPatchTables::IsFeatureAdaptive() const { 
+inline bool
+FarPatchTables::IsFeatureAdaptive() const {
 
     // the vertex valence table is only used by Gregory patches, so the PatchTables
     // contain feature adaptive patches if this is not empty.
@@ -494,17 +661,17 @@ FarPatchTables::IsFeatureAdaptive() const {
 
     // otherwise, we have to check each patch array
     for (int i=0; i<(int)parrays.size(); ++i) {
-    
+
         if (parrays[i].GetDescriptor().GetType() >= REGULAR and
             parrays[i].GetDescriptor().GetType() <= GREGORY_BOUNDARY)
             return true;
-        
+
     }
     return false;
 }
- 
+
 // Returns the number of control vertices expected for a patch of this type
-inline short 
+inline short
 FarPatchTables::Descriptor::GetNumControlVertices( FarPatchTables::Type type ) {
     switch (type) {
         case REGULAR           : return FarPatchTables::GetRegularPatchRingsize();
@@ -520,69 +687,24 @@ FarPatchTables::Descriptor::GetNumControlVertices( FarPatchTables::Type type ) {
     }
 }
 
-// Iterates in order through the patch types, patterns and rotation in a preset order
-inline FarPatchTables::Descriptor & 
-FarPatchTables::Descriptor::operator ++ () {
-
-    if (GetPattern()==NON_TRANSITION) {
-        if (GetType()==GREGORY_BOUNDARY) {
-            _type=REGULAR;
-            ++_pattern;
-        } else
-            ++_type;
-    } else {
-
-        switch (GetType()) {
-            case REGULAR  : ++_type; 
-                            _rotation=0; 
-                            break;
-
-            case BOUNDARY : if (GetRotation()==3) {
-                                ++_type; 
-                                _rotation=0;
-                            } else {
-                                ++_rotation;
-                            }; break;
-
-            case CORNER   : if (GetRotation()==3) {
-                                  if (GetPattern()!=PATTERN4) {
-                                      _type=REGULAR;
-                                      _rotation=0;
-                                      ++_pattern;
-                                  } else {
-                                      *this = Descriptor();
-                                  }
-                              } else {
-                                  ++_rotation;
-                              }; break;
-            
-            case NON_PATCH : break;
-            
-            default:
-                assert(0);
-        }
-    }
-    return *this;
-}
-
 // Returns a pointer to the vertex indices of uniformly subdivided faces
-inline unsigned int const * 
+inline unsigned int const *
 FarPatchTables::GetFaceVertices(int level) const {
 
     if (IsFeatureAdaptive())
         return NULL;
-    
+
     PatchArrayVector const & parrays = GetPatchArrayVector();
-    
+
     if (parrays.empty())
         return NULL;
-    
+
     if (level < 1) {
         return &GetPatchTable()[ parrays.rbegin()->GetVertIndex() ];
     } else if ((level-1) < (int)parrays.size() ) {
         return &GetPatchTable()[ parrays[level-1].GetVertIndex() ];
     }
-    
+
     return NULL;
 }
 
@@ -592,23 +714,23 @@ FarPatchTables::GetNumFaces(int level) const {
 
     if (IsFeatureAdaptive())
         return -1;
-    
+
     PatchArrayVector const & parrays = GetPatchArrayVector();
-    
+
     if (parrays.empty())
         return -1;
-    
+
     if (level < 1) {
         return parrays.rbegin()->GetNumPatches();
     } else if ( (level-1) < (int)parrays.size() ) {
         return parrays[level-1].GetNumPatches();
     }
-    
+
     return -1;
 }
 
 // Allows ordering of patches by type
-inline bool 
+inline bool
 FarPatchTables::Descriptor::operator < ( Descriptor const other ) const {
     return _pattern < other._pattern or ((_pattern == other._pattern) and
           (_type < other._type or ((_type == other._type) and
@@ -642,18 +764,46 @@ FarPatchTables::GetNumPatches() const {
 }
 
 // Returns the total number of control vertex indices in the tables
-inline int 
+inline int
 FarPatchTables::GetNumControlVertices() const {
 
     int result=0;
     for (int i=0; i<(int)_patchArrays.size(); ++i) {
-        result += _patchArrays[i].GetDescriptor().GetNumControlVertices() * 
+        result += _patchArrays[i].GetDescriptor().GetNumControlVertices() *
                   _patchArrays[i].GetNumPatches();
     }
 
     return result;
 }
 
+// Constructor
+inline
+FarPatchTables::FVarData::FVarData( std::vector<real> const * data, int fvarWidth ) :
+    _fvarWidth(fvarWidth) {
+
+    if (data) {
+        _data = *data;
+    }    
+}
+
+// Returns a vector of real containing the face-varying data attached
+inline real const *
+FarPatchTables::FVarData::GetData(int level) const {
+
+    if ( (level-1)<(int)_offsets.size()) {
+
+        int offset = 0;
+
+        if ((level>0) and (not _offsets.empty()) ) {
+
+            offset = _offsets[level -1];
+        }
+
+        return &_data[offset];
+    }
+
+    return NULL;
+}
 
 
 } // end namespace OPENSUBDIV_VERSION

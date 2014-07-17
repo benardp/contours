@@ -8,6 +8,10 @@ extraction method described in the following publication:
 Pierre Bénard, Aaron Hertzmann, Michael Kass. ACM Transactions on
 Graphics, 2013
 
+Disclaimer: This version of the mesh generation code is not exactly
+the same as the one used for producing the results in the paper. We
+had to switch to OpenSubdiv to be able to release it. The precision of the
+root-finding procedure is lower, which may impact the tesselation.
 
 Note: This is research software. As such, it may fail to run, crash,
 or otherwise not perform as expected. It is not intended for regular
@@ -39,7 +43,7 @@ Optional:
 
 
 ### Build instructions
-Tested on Linux (gcc 4.8) and OS X (clang 5.0), not tested on Windows.
+Tested on Linux (gcc 4.8) and OS X (clang 5.x), not tested on Windows.
 
 __Clone the repository:__
 
@@ -58,13 +62,14 @@ mkdir build
 cd build
 cmake ..
 make
+make install
 ````
 
 ### Usage
 
 We provide scripts to run the mesh generation algorithm and contours
-extraction code on a sequence of RIB files. We provide three test
-sequences on the
+extraction code on a sequence of RIB files. We provide two test
+sequences (torus and Stanford Bunny) on the
 [project web page](http://www.labri.fr/perso/pbenard/publications/contours.html);
 you can export other shots using RenderMan or 3Delight for Maya, or
 [3Dlight/Blender](http://mattebb.com/3delightblender/).

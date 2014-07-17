@@ -67,7 +67,7 @@ public:
         ///                     rendered with hardware tessellation. 
         ///
         /// @param numElements  The size of the vertex and varying data per-vertex
-        ///                     (in reals)
+        ///                     (in floats)
         ///
         PatchDescriptor(FarPatchTables::Descriptor farDesc, unsigned char maxValence,
                     unsigned char subPatch, unsigned char numElements) :
@@ -112,7 +112,7 @@ public:
 
         /// Set the number of vertex elements
         void SetNumElements(int numElements) {
-            _numElements = numElements;
+            _numElements = (unsigned char)numElements;
         }
 
         /// Allows ordering of patches by type

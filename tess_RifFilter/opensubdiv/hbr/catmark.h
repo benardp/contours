@@ -106,7 +106,7 @@ HbrCatmarkSubdivision<T>::transferFVarToChild(HbrMesh<T>* mesh, HbrFace<T>* face
 
     // We do the face subdivision rule first, because we may reuse the
     // result (stored in fv2) for the other subdivisions.
-    real weight =  1.0f / nv;
+     real weight =  1.0f / nv;
     // For the face center vertex, the facevarying data can be cleared
     // and averaged en masse, since the subdivision rules don't change
     // for any of the data - we use the smooth rule for all of it.
@@ -328,7 +328,7 @@ HbrCatmarkSubdivision<T>::transferFVarToChild(HbrMesh<T>* mesh, HbrFace<T>* face
         // computed the facevarying values
         else if (!fv0IsSmooth || !fv0.IsInitialized()) {
             int valence = v->GetValence();
-            real invvalencesquared = 1.0f / (valence * valence);
+             real invvalencesquared = 1.0f / (valence * valence);
 
             // Use n-2/n of the current vertex value
             fv0.SetWithWeight(face->GetFVarData(index), fvarindex, fvarwidth, invvalencesquared * valence * (valence - 2));
@@ -444,7 +444,7 @@ HbrCatmarkSubdivision<T>::Refine(HbrMesh<T>* mesh, HbrFace<T>* face) {
     HbrHalfedge<T>* prevedge = edge->GetPrev();
     HbrHalfedge<T>* childedge;
     int nv = face->GetNumVertices();
-    real sharpness;
+     real sharpness;
     bool extraordinary = (nv != 4);
     // The funny indexing on vertices is done only for
     // non-extraordinary faces in order to correctly preserve
@@ -520,7 +520,7 @@ HbrCatmarkSubdivision<T>::RefineFaceAtVertex(HbrMesh<T>* mesh, HbrFace<T>* face,
     HbrHalfedge<T>* prevedge = edge->GetPrev();
     HbrHalfedge<T>* childedge;
     int nv = face->GetNumVertices();
-    real sharpness;
+     real sharpness;
     bool extraordinary = (nv != 4);
     // The funny indexing on vertices is done only for
     // non-extraordinary faces in order to correctly preserve
@@ -841,7 +841,7 @@ HbrCatmarkSubdivision<T>::Subdivide(HbrMesh<T>* mesh, HbrFace<T>* face) {
     HbrVertex<T>* v = mesh->NewVertex();
     T& data = v->GetData();
     int nv = face->GetNumVertices();
-    real weight = 1.0f / nv;
+     real weight = 1.0f / nv;
 
     HbrHalfedge<T>* edge = face->GetFirstEdge();
     for (int i = 0; i < face->GetNumVertices(); ++i) {
@@ -886,7 +886,7 @@ HbrCatmarkSubdivision<T>::OldTriangleSubdivide(HbrMesh<T>* mesh, HbrFace<T>* fac
     NgpVVectorItem& data = w->GetData();
     data.Clear();
 
-    real weight = 1.0f / 6.0f;
+     real weight = 1.0f / 6.0f;
 
     for (int i = 0; i < 3; ++i) {
         HbrVertex<T>* w = face->GetVertex(i);
@@ -947,7 +947,7 @@ HbrCatmarkSubdivision<T>::Subdivide(HbrMesh<T>* mesh, HbrHalfedge<T>* edge) {
     // Ensure the opposite face exists.
     GuaranteeNeighbor(mesh, edge);
 
-    real esharp = edge->GetSharpness();
+     real esharp = edge->GetSharpness();
 
 #ifdef HBR_DEBUG
     std::cerr << "Subdividing at " << *edge << " (sharpness = " << esharp << ")";
@@ -970,7 +970,7 @@ HbrCatmarkSubdivision<T>::Subdivide(HbrMesh<T>* mesh, HbrHalfedge<T>* edge) {
         // multi-threading. It doesn't matter as far as the
         // theoretical calculation is concerned, but it is desirable
         // to be consistent about it in the face of the limitations of
-        // realing point commutativity. So we always pick the
+        //  realing point commutativity. So we always pick the
         // half-edge such that its incident face is the smallest of
         // the two faces, as far as the face paths are concerned.
         if (edge->GetOpposite() && edge->GetOpposite()->GetFace()->GetPath() < edge->GetFace()->GetPath()) {
@@ -982,7 +982,7 @@ HbrCatmarkSubdivision<T>::Subdivide(HbrMesh<T>* mesh, HbrHalfedge<T>* edge) {
         // and the unsharp case (average of two end points plus two
         // face averages).
 
-        real leftWeight, rightWeight, faceWeight, vertWeight;
+         real leftWeight, rightWeight, faceWeight, vertWeight;
         HbrFace<T>* rf = edge->GetRightFace();
         HbrFace<T>* lf = edge->GetLeftFace();
 
@@ -1032,8 +1032,8 @@ HbrCatmarkSubdivision<T>::Subdivide(HbrMesh<T>* mesh, HbrVertex<T>* vertex) {
     // we compute the valence
     vertex->GuaranteeNeighbors();
 
-    real valence = static_cast<real>(vertex->GetValence());
-    real invvalencesquared = 1.0f / (valence * valence);
+     real valence = static_cast< real>(vertex->GetValence());
+     real invvalencesquared = 1.0f / (valence * valence);
 
 
     HbrVertex<T>* v = mesh->NewVertex();
@@ -1042,7 +1042,7 @@ HbrCatmarkSubdivision<T>::Subdivide(HbrMesh<T>* mesh, HbrVertex<T>* vertex) {
     // Due to fractional weights we may need to do two subdivision
     // passes
     int masks[2];
-    real weights[2];
+     real weights[2];
     int passes;
     masks[0] = vertex->GetMask(false);
     masks[1] = vertex->GetMask(true);
@@ -1108,13 +1108,13 @@ HbrCatmarkSubdivision<T>::Subdivide(HbrMesh<T>* mesh, HbrVertex<T>* vertex) {
 #endif
     // Inherit extraordinary flag and sharpness
     if (vertex->IsExtraordinary()) v->SetExtraordinary();
-    real sharp = vertex->GetSharpness();
+     real sharp = vertex->GetSharpness();
     if (sharp >= HbrVertex<T>::k_InfinitelySharp) {
         v->SetSharpness(HbrVertex<T>::k_InfinitelySharp);
     } else if (sharp > HbrVertex<T>::k_Smooth) {
         sharp -= 1.0f;
-        if (sharp < (real) HbrVertex<T>::k_Smooth) {
-            sharp = (real) HbrVertex<T>::k_Smooth;
+        if (sharp < ( real) HbrVertex<T>::k_Smooth) {
+            sharp = ( real) HbrVertex<T>::k_Smooth;
         }
         v->SetSharpness(sharp);
     } else {

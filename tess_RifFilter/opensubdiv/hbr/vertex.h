@@ -156,10 +156,10 @@ public:
     bool IsFVarCorner(int datum);
 
     // Returns the sharpness of the vertex
-    real GetSharpness() const { return sharpness; }
+     real GetSharpness() const { return sharpness; }
 
     // Sets the sharpness of the vertex
-    void SetSharpness(real sharp) { sharpness = sharp; ClearMask(); }
+    void SetSharpness( real sharp) { sharpness = sharp; ClearMask(); }
 
     // Returns whether the corner is sharp at the current level of
     // subdivision (next = false) or at the next level of subdivision
@@ -184,7 +184,7 @@ public:
     // subdivision level, based on the fractional sharpnesses of any
     // adjacent sharp edges. The fractional mask is a value between 0
     // and 1
-    real GetFractionalMask() const;
+     real GetFractionalMask() const;
 
     // Returns whether the vertex is singular (has two separate
     // incident halfedge cycles)
@@ -352,7 +352,7 @@ private:
     int used;
 
     // Sharpness
-    real sharpness;
+     real sharpness;
 
     // Index of child vertex
     int vchild;
@@ -888,7 +888,7 @@ HbrVertex<T>::GetFVarData(const HbrFace<T>* face) {
     // See if there are any extra facevarying datum associated with
     // this vertex, and whether any of them match the face.
     if (morefvar) {
-        size_t fvtsize = sizeof(HbrFVarData<T>) + sizeof(real) * (GetMesh()->GetTotalFVarWidth() - 1);
+        size_t fvtsize = sizeof(HbrFVarData<T>) + sizeof( real) * (GetMesh()->GetTotalFVarWidth() - 1);
         HbrFVarData<T> *fvt = (HbrFVarData<T> *)((char *) morefvar + sizeof(int));
         for (int i = 0; i < morefvar->count; ++i) {
             if (fvt->GetFaceID() == face->GetID()) {
@@ -906,7 +906,7 @@ template <class T>
 HbrFVarData<T>&
 HbrVertex<T>::NewFVarData(const HbrFace<T>* face) {
     const int fvarwidth = GetMesh()->GetTotalFVarWidth();
-    size_t fvtsize = sizeof(HbrFVarData<T>) + (fvarwidth - 1) * sizeof(real);
+    size_t fvtsize = sizeof(HbrFVarData<T>) + (fvarwidth - 1) * sizeof( real);
     if (morefvar) {
         struct morefvardata *newmorefvar =
             (struct morefvardata *) malloc(sizeof(int) + (morefvar->count + 1) * fvtsize);
@@ -1201,7 +1201,7 @@ HbrVertex<T>::GetMask(bool next) {
     HbrHalfedge<T>* start = GetIncidentEdge(), *edge, *nextedge;
     edge = start;
     while (edge) {
-        real esharp = edge->GetSharpness();
+         real esharp = edge->GetSharpness();
 
         if (edge->IsSharp(false)) {
             if (mask0 < k_Corner) {
@@ -1290,10 +1290,10 @@ HbrVertex<T>::GetFVarMask(int datum) {
 }
 
 template <class T>
-real
+ real
 HbrVertex<T>::GetFractionalMask() const {
-    real mask = 0;
-    real n = 0;
+     real mask = 0;
+     real n = 0;
 
     if (sharpness > k_Smooth && sharpness < k_Dart) {
         mask += sharpness; ++n;
@@ -1303,7 +1303,7 @@ HbrVertex<T>::GetFractionalMask() const {
     HbrHalfedge<T>* start = GetIncidentEdge(), *edge, *next;
     edge = start;
     while (edge) {
-        real esharp = edge->GetSharpness();
+         real esharp = edge->GetSharpness();
         if (esharp > HbrHalfedge<T>::k_Smooth && esharp < HbrHalfedge<T>::k_Sharp) {
             mask += esharp; ++n;
         }

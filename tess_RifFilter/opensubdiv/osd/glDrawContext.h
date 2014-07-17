@@ -27,7 +27,7 @@
 
 #include "../version.h"
 
-#include "../far/mesh.h"
+#include "../far/patchTables.h"
 #include "../osd/drawContext.h"
 #include "../osd/drawRegistry.h"
 #include "../osd/vertex.h"
@@ -57,12 +57,14 @@ public:
 
     /// \brief Create an OsdGLDraContext from FarPatchTables
     ///
-    /// @param patchTables      a valid set of FarPatchTables
+    /// @param patchTables          a valid set of FarPatchTables
     ///
-    /// @param requireFVarData  set to true to enable face-varying data to be 
-    ///                         carried over from the Far data structures.
+    /// @param numVertexElements    the number of vertex elements
     ///
-    static OsdGLDrawContext * Create(FarPatchTables const * patchTables, bool requireFVarData);
+    /// @param requireFVarData      set to true to enable face-varying data to be
+    ///                             carried over from the Far data structures.
+    ///
+    static OsdGLDrawContext * Create(FarPatchTables const * patchTables, int numVertexElements, bool requireFVarData);
 
     /// Set vbo as a vertex texture (for gregory patch drawing)
     ///
@@ -71,7 +73,7 @@ public:
     template<class VERTEX_BUFFER>
     void UpdateVertexTexture(VERTEX_BUFFER *vbo) {
         if (vbo)
-            updateVertexTexture(vbo->BindVBO(), vbo->GetNumElements());
+            updateVertexTexture(vbo->BindVBO());
     }
 
     /// true if the GL version detected supports shader tessellation
@@ -81,13 +83,6 @@ public:
     GLuint GetPatchIndexBuffer() const {
         return _patchIndexBuffer;
     }
-
-#if defined(GL_ES_VERSION_2_0)
-    /// Returns the GL a VBO containing a triangulated version of the mesh
-    GLuint GetPatchTrianglesIndexBUffer() const {
-        return _patchTrianglesIndexBuffer;
-    }
-#endif
 
     /// Returns the GL texture buffer containing the patch local parameterization
     /// data
@@ -120,10 +115,6 @@ public:
 protected:
     GLuint _patchIndexBuffer;
 
-#if defined(GL_ES_VERSION_2_0)
-    GLuint _patchTrianglesIndexBuffer;
-#endif
-
     GLuint _patchParamTextureBuffer;
     GLuint _fvarDataTextureBuffer;
 
@@ -134,9 +125,9 @@ protected:
     OsdGLDrawContext();
 
     // allocate buffers from patchTables
-    bool create(FarPatchTables const *patchTables, bool requireFVarData);
+    bool create(FarPatchTables const *patchTables, int numElements, bool requireFVarData);
 
-    void updateVertexTexture(GLuint vbo, int numElements);
+    void updateVertexTexture(GLuint vbo);
 };
 
 } // end namespace OPENSUBDIV_VERSION

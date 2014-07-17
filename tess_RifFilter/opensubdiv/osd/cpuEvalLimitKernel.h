@@ -54,17 +54,17 @@ evalBSpline(real u, real v,
             real * outDQUDQV);
 
 void
-evalBoundary(real u, real v,
+evalBoundary(real u, real v, 
              unsigned int const * vertexIndices,
              OsdVertexBufferDescriptor const & inDesc,
              real const * inQ,
              OsdVertexBufferDescriptor const & outDesc,
              real * outQ,
              real * outDQU,
-             real * outDQV);
+             real * outDQV );
 
 void
-evalCorner(real u, real v,
+evalCorner(real u, real v, 
            unsigned int const * vertexIndices,
            OsdVertexBufferDescriptor const & inDesc,
            real const * inQ,
@@ -80,9 +80,9 @@ evalGregory(real u, real v,
             unsigned int const  * quadOffsetBuffer,
             int maxValence,
             OsdVertexBufferDescriptor const & inDesc,
-            real const * inQ,
+            real const * inQ, 
             OsdVertexBufferDescriptor const & outDesc,
-            real * outQ,
+            real * outQ, 
             real * outDQU,
             real * outDQV );
 

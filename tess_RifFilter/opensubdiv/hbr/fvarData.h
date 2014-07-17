@@ -39,7 +39,7 @@ template <class T> class HbrVertex;
 
 // This class implements a "face varying vector item". Really it's
 // just a smart wrapper around face varying data (itself just a bunch
-// of reals) stored on each vertex.
+// of  reals) stored on each vertex.
 template <class T> class HbrFVarData {
 
 private:
@@ -51,7 +51,7 @@ private:
         Uninitialize();
     }
 
-    HbrFVarData(const HbrFVarData &data) {}
+    HbrFVarData(const HbrFVarData &/* data */) {}
 
 public:
     
@@ -82,24 +82,24 @@ public:
     }
 
     // Return the data from the NgpFVVector
-    real* GetData(int item) { return data + item; }
+     real* GetData(int item) { return data + item; }
 
     // Clears the indicates value of this item
     void Clear(int startindex, int width) {
-        memset(data + startindex, 0, width * sizeof(real));
+        memset(data + startindex, 0, width * sizeof( real));
     }
 
     // Clears all values of this item
     void ClearAll(int width) {
         initialized = 1;
-        memset(data, 0, width * sizeof(real));
+        memset(data, 0, width * sizeof( real));
     }
 
     // Set values of the indicated item (with the indicated weighing)
     // on this item
-    void SetWithWeight(const HbrFVarData& fvvi, int startindex, int width, real weight) {
-        real *dst = data + startindex;
-        const real *src = fvvi.data + startindex;
+    void SetWithWeight(const HbrFVarData& fvvi, int startindex, int width,  real weight) {
+         real *dst = data + startindex;
+        const  real *src = fvvi.data + startindex;
         for (int i = 0; i < width; ++i) {
             *dst++ = weight * *src++;
         }
@@ -107,9 +107,9 @@ public:
 
     // Add values of the indicated item (with the indicated weighing)
     // to this item
-    void AddWithWeight(const HbrFVarData& fvvi, int startindex, int width, real weight) {
-        real *dst = data + startindex;
-        const real *src = fvvi.data + startindex;
+    void AddWithWeight(const HbrFVarData& fvvi, int startindex, int width,  real weight) {
+         real *dst = data + startindex;
+        const  real *src = fvvi.data + startindex;
         for (int i = 0; i < width; ++i) {
             *dst++ += weight * *src++;
         }
@@ -117,17 +117,17 @@ public:
 
     // Add all values of the indicated item (with the indicated
     // weighing) to this item
-    void AddWithWeightAll(const HbrFVarData& fvvi, int width, real weight) {
-        real *dst = data;
-        const real *src = fvvi.data;
+    void AddWithWeightAll(const HbrFVarData& fvvi, int width,  real weight) {
+         real *dst = data;
+        const  real *src = fvvi.data;
         for (int i = 0; i < width; ++i) {
             *dst++ += weight * *src++;
         }
     }
 
-    // Compare all values item against a real buffer. Returns true
+    // Compare all values item against a  real buffer. Returns true
     // if all values match
-    bool CompareAll(int width, const real *values, real tolerance=0.0f) const {
+    bool CompareAll(int width, const  real *values,  real tolerance=0.0f) const {
         if (!initialized) return false;
         for (int i = 0; i < width; ++i) {
             if (fabsf(values[i] - data[i]) > tolerance) return false;
@@ -136,14 +136,14 @@ public:
     }
 
     // Initializes data
-    void SetAllData(int width, const real *values) {
+    void SetAllData(int width, const  real *values) {
         initialized = 1;
-        memcpy(data, values, width * sizeof(real));
+        memcpy(data, values, width * sizeof( real));
     }
 
     // Compare this item against another item with tolerance.  Returns
     // true if it compares identical
-    bool Compare(const HbrFVarData& fvvi, int startindex, int width, real tolerance=0.0f) const {
+    bool Compare(const HbrFVarData& fvvi, int startindex, int width,  real tolerance=0.0f) const {
         for (int i = 0; i < width; ++i) {
             if (fabsf(data[startindex + i] - fvvi.data[startindex + i]) > tolerance) return false;
         }
@@ -158,7 +158,7 @@ public:
 private:
     unsigned int faceid:31;
     unsigned int initialized:1;
-    real data[1];
+     real data[1];
 };
 
 } // end namespace OPENSUBDIV_VERSION
@@ -174,8 +174,8 @@ namespace OPENSUBDIV_VERSION {
 template <class T>
 void
 HbrFVarData<T>::ApplyFVarEdit(const HbrFVarEdit<T>& edit) {
-        real *dst = data + edit.GetIndex() + edit.GetOffset();
-        const real *src = edit.GetEdit();
+         real *dst = data + edit.GetIndex() + edit.GetOffset();
+        const  real *src = edit.GetEdit();
         for (int i = 0; i < edit.GetWidth(); ++i) {
             switch(edit.GetOperation()) {
                 case HbrVertexEdit<T>::Set:

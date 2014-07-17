@@ -177,69 +177,69 @@ void SetupVertex(VertexDataCatmark & vd, const ParamPointCC & p, const vec3 & ca
     vd.ndotv = ndotv;
     vd.extraordinary = p.IsExtraordinaryVertex();
 
-    real k_r = 0;
-    if(p.SourceVertex() != NULL || (p.SourceEdge() !=NULL && (p.EdgeT() == 0 || p.EdgeT() == 1)) ||
-            (p.SourceFace() !=NULL && (p.FaceU()==0 || p.FaceU()==1) && (p.FaceV()==0 || p.FaceV()==1) )){
-        HbrVertex<Vertex> * vertex = NULL;
-        if(p.SourceVertex() != NULL){
-            vertex = p.SourceVertex();
-        }else if(p.SourceEdge()!=NULL){
-            vertex = p.EdgeT()==0 ? p.SourceEdge()->GetOrgVertex() : p.SourceEdge()->GetDestVertex();
-        }else{
-            if(p.FaceU()==0)
-                if(p.FaceV()==0)
-                    vertex = p.SourceFace()->GetVertex(0);
-                else
-                    vertex = p.SourceFace()->GetVertex(3);
-            else
-                if(p.FaceV()==0)
-                    vertex = p.SourceFace()->GetVertex(1);
-                else
-                    vertex = p.SourceFace()->GetVertex(2);
-        }
-        assert(vertex);
-        const real t_threshold = pow(.5,REF_LEVEL) + EXTRAORDINARY_REGION_OFFSET+1e-10;
-        if(vertex->GetValence() != 4 || vertex->OnBoundary()){
-            k1 = 0.0;
-            k2 = 0.0;
-            std::set<HbrFace<Vertex>*> oneRingFaces;
-            GetOneRing(vertex,oneRingFaces);
-            for(std::set<HbrFace<Vertex>*>::iterator it=oneRingFaces.begin(); it!=oneRingFaces.end(); it++){
-                HbrFace<Vertex>* face = (*it);
-                real u,v;
-                GetVertexUV(face,vertex,u,v);
-                if(u<0.5)
-                    u += t_threshold;
-                else
-                    u -= t_threshold;
-                if(v<0.5)
-                    v += t_threshold;
-                else
-                    v -= t_threshold;
-                ParamPointCC paramP = ParamPointCC(face,u,v);
-                assert(paramP.IsEvaluable());
-                vec3 p,n;
-                real radCurv_c, k1_c, k2_c;
-                paramP.Evaluate(p,n,&k1_c,&k2_c);
-                k1 += k1_c;
-                k2 += k2_c;
-                paramP.RadialCurvature(cameraCenter,radCurv_c);
-                k_r += radCurv_c;
-            }
-            assert(oneRingFaces.size()!=0);
-            k1 /= real(oneRingFaces.size());
-            k2 /= real(oneRingFaces.size());
-            k_r /= real(oneRingFaces.size());
-        }else{
-            p.RadialCurvature(cameraCenter,k_r);
-        }
-    }else{
-        p.RadialCurvature(cameraCenter,k_r);
-    }
+//    real k_r = 0;
+//    if(p.SourceVertex() != NULL || (p.SourceEdge() !=NULL && (p.EdgeT() == 0 || p.EdgeT() == 1)) ||
+//            (p.SourceFace() !=NULL && (p.FaceU()==0 || p.FaceU()==1) && (p.FaceV()==0 || p.FaceV()==1) )){
+//        HbrVertex<Vertex> * vertex = NULL;
+//        if(p.SourceVertex() != NULL){
+//            vertex = p.SourceVertex();
+//        }else if(p.SourceEdge()!=NULL){
+//            vertex = p.EdgeT()==0 ? p.SourceEdge()->GetOrgVertex() : p.SourceEdge()->GetDestVertex();
+//        }else{
+//            if(p.FaceU()==0)
+//                if(p.FaceV()==0)
+//                    vertex = p.SourceFace()->GetVertex(0);
+//                else
+//                    vertex = p.SourceFace()->GetVertex(3);
+//            else
+//                if(p.FaceV()==0)
+//                    vertex = p.SourceFace()->GetVertex(1);
+//                else
+//                    vertex = p.SourceFace()->GetVertex(2);
+//        }
+//        assert(vertex);
+//        const real t_threshold = pow(.5,REF_LEVEL) + EXTRAORDINARY_REGION_OFFSET+1e-10;
+//        if(vertex->GetValence() != 4 || vertex->OnBoundary()){
+//            k1 = 0.0;
+//            k2 = 0.0;
+//            std::set<HbrFace<Vertex>*> oneRingFaces;
+//            GetOneRing(vertex,oneRingFaces);
+//            for(std::set<HbrFace<Vertex>*>::iterator it=oneRingFaces.begin(); it!=oneRingFaces.end(); it++){
+//                HbrFace<Vertex>* face = (*it);
+//                real u,v;
+//                GetVertexUV(face,vertex,u,v);
+//                if(u<0.5)
+//                    u += t_threshold;
+//                else
+//                    u -= t_threshold;
+//                if(v<0.5)
+//                    v += t_threshold;
+//                else
+//                    v -= t_threshold;
+//                ParamPointCC paramP = ParamPointCC(face,u,v);
+//                assert(paramP.IsEvaluable());
+//                vec3 p,n;
+//                real radCurv_c, k1_c, k2_c;
+//                paramP.Evaluate(p,n,&k1_c,&k2_c);
+//                k1 += k1_c;
+//                k2 += k2_c;
+//                paramP.RadialCurvature(cameraCenter,radCurv_c);
+//                k_r += radCurv_c;
+//            }
+//            assert(oneRingFaces.size()!=0);
+//            k1 /= real(oneRingFaces.size());
+//            k2 /= real(oneRingFaces.size());
+//            k_r /= real(oneRingFaces.size());
+//        }else{
+//            p.RadialCurvature(cameraCenter,k_r);
+//        }
+//    }else{
+//        p.RadialCurvature(cameraCenter,k_r);
+//    }
 
     vd.k1 = k1;
     vd.k2 = k2;
-    vd.radialCurvature = k_r;
+//    vd.radialCurvature = k_r;
 }
 
 real FindZeroCrossingBySampling(const ParamPointCC & p0, const ParamPointCC & p1, FacingType facing, vec3 cameraCenter)
@@ -307,7 +307,8 @@ void ConvertFaceToTriangle(Mesh * outputMesh, CatmarkFace * face, int v0, int v1
     vertex[1] = face->GetVertex(v1);
     vertex[2] = face->GetVertex(v2);
 
-    if (!cameraModel.TriangleInside(vertex[0]->GetData().GetPos(), vertex[1]->GetData().GetPos(),
+    if (!cameraModel.TriangleInside(vertex[0]->GetData().GetPos(),
+                                    vertex[1]->GetData().GetPos(),
                                     vertex[2]->GetData().GetPos())){
         return;
     }
@@ -340,7 +341,7 @@ void ConvertFaceToTriangles(Mesh * outputMesh, CatmarkFace * face,
         CatmarkVertex * v0 = face->GetVertex(e);
         CatmarkVertex * v1 = face->GetVertex((e+1)%4);
 
-        if(  !cameraModel.TriangleInside(v0->GetData().GetPos(),v1->GetData().GetPos(),centerPos))
+        if(!cameraModel.TriangleInside(v0->GetData().GetPos(),v1->GetData().GetPos(),centerPos))
             continue;
 
         ConvertVertex(outputMesh, v0, cameraModel.CameraCenter(), vertexMap);
@@ -404,6 +405,22 @@ int IsNearBoundary(CatmarkFace * face, int distance)
     return false;
 }
 
+template<class T>
+void RefineFaceUniform(HbrFace<T>* face, int level)
+{
+    if(level == 0)
+        return;
+
+    // refine and recurse
+    face->Refine();
+
+    int nv = face->GetNumVertices();
+    for(int i = 0; i < nv; ++i) {
+        HbrFace<T>* childFace = face->GetChild(i);
+        RefineFaceUniform(childFace, level - 1);
+    }
+}
+
 // sample an initial triangle mesh from a surface, clipping to the view frustum
 Mesh * SurfaceToMesh(CatmarkMesh * sourceMesh, int subdivisionLevel,
                      const CameraModel & cameraModel, bool triangles)
@@ -414,16 +431,65 @@ Mesh * SurfaceToMesh(CatmarkMesh * sourceMesh, int subdivisionLevel,
 
     printf("nb faces: %d\n",numFaces);
 
-    for(int l=0; l<subdivisionLevel; ++l ) {
-        int nfaces = sourceMesh->GetNumFaces();
-        for(int i=0; i<nfaces; ++i) {
-            CatmarkFace * f = sourceMesh->GetFace(i);
-            if(f->GetDepth()==l)
-                f->Refine();
+    for(int i=0;i<numFaces;i++)
+    {
+        CatmarkFace* face = sourceMesh->GetFace(i);
+        if (face->HasLimit())
+            RefineFaceUniform(face,subdivisionLevel);
+    }
+
+//    for(int l=0; l<subdivisionLevel; ++l ) {
+//        int nfaces = sourceMesh->GetNumFaces();
+//        for(int i=0; i<nfaces; ++i) {
+//            CatmarkFace * f = sourceMesh->GetFace(i);
+//            if(f->GetDepth()==l)
+//                f->Refine();
+//        }
+//    }
+
+    OsdUtilSubdivTopology topology;
+    std::vector<real> pointPositions;
+    std::map<int,int> indexMap;
+
+    for(int i=0; i<sourceMesh->GetNumVertices(); ++i){
+        CatmarkVertex* vertex = sourceMesh->GetVertex(i);
+        std::set<CatmarkFace*> faces;
+        GetOneRing(vertex,faces);
+        bool found = false;
+        for(std::set<CatmarkFace*>::const_iterator it = faces.begin(); it != faces.end(); it++){
+            if((*it)->GetDepth()==subdivisionLevel)
+                found = true;
+        }
+        if(!found)
+            continue;
+        indexMap[i] = pointPositions.size()/3;
+        vec3 pos = vertex->GetData().GetPos();
+        pointPositions.push_back(pos.x());
+        pointPositions.push_back(pos.y());
+        pointPositions.push_back(pos.z());
+    }
+    topology.numVertices = (int)pointPositions.size()/3;
+
+    for(int i=0; i<sourceMesh->GetNumFaces(); ++i){
+        CatmarkFace* f = sourceMesh->GetFace(i);
+        if(f->GetDepth()!=subdivisionLevel)
+            continue;
+        Subdiv::getInstance().faceIndexMap[i] = topology.nverts.size();
+        topology.nverts.push_back(f->GetNumVertices());
+        for (int j=0; j<f->GetNumVertices(); ++j){
+            topology.indices.push_back(indexMap[f->GetVertex(j)->GetID()]);
         }
     }
 
-    Subdiv::getInstance().initialize(sourceMesh);
+    topology.refinementLevel = 5;
+
+    std::string *errorMessage;
+    if(!topology.IsValid(errorMessage)){
+        std::cout << "Initialize failed with " << *errorMessage << std::endl;
+        return NULL;
+    }
+
+    Subdiv::getInstance().initialize(topology,pointPositions);
 
     Mesh * outputMesh = new Mesh;
 
@@ -450,7 +516,7 @@ Mesh * SurfaceToMesh(CatmarkMesh * sourceMesh, int subdivisionLevel,
             continue;
         }
 
-        printf("Processing face %d / %d                      \r", i, initialNumFaces);
+        printf("Processing face %d / %d \r", i, initialNumFaces);
 
         bool extraord[4];
         int numExtraord = 0;
@@ -2239,10 +2305,10 @@ void WiggleInParamSpace(Mesh * mesh, const vec3 & cameraCenter)
             MeshFace* currentFace = (*fit);
             int res = WiggleFaceVerticesInABSpace(currentFace,cameraCenter);
             reduction += res;
-            if(res>0){
-                idx++;
-                SavePLYFile(mesh,"optimization",idx);
-            }
+            // if(res>0){
+            //     idx++;
+            //     SavePLYFile(mesh,"optimization",idx);
+            // }
         }
         printf("(%d)",reduction);
     }while (reduction > 0);

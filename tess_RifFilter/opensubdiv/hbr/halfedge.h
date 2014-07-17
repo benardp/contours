@@ -59,7 +59,7 @@ private:
     {
     }
 
-    HbrHalfedge(const HbrHalfedge &e) {}
+    HbrHalfedge(const HbrHalfedge &/* edge */) {}
     
     ~HbrHalfedge();
 
@@ -205,13 +205,13 @@ public:
     bool IsFVarInfiniteSharpAnywhere();
 
     // Get the sharpness relative to facevarying data
-    real GetFVarSharpness(int datum, bool ignoreGeometry=false);
+     real GetFVarSharpness(int datum, bool ignoreGeometry=false);
 
     // Returns the (raw) sharpness of the edge
-    real GetSharpness() const { return sharpness; }
+     real GetSharpness() const { return sharpness; }
 
     // Sets the sharpness of the edge
-    void SetSharpness(real sharp) { sharpness = sharp; if (opposite) opposite->sharpness = sharp; ClearMask(); }
+    void SetSharpness( real sharp) { sharpness = sharp; if (opposite) opposite->sharpness = sharp; ClearMask(); }
 
     // Returns whether the edge is sharp at the current level of
     // subdivision (next = false) or at the next level of subdivision
@@ -396,7 +396,7 @@ private:
 
     // Index of subdivided vertex child
     int vchild;
-    real sharpness;
+     real sharpness;
 
 #ifdef HBRSTITCH
     unsigned short stitchccw:1;
@@ -680,7 +680,7 @@ HbrHalfedge<T>::IsFVarInfiniteSharpAnywhere() {
 }
 
 template <class T>
-real
+ real
 HbrHalfedge<T>::GetFVarSharpness(int datum, bool ignoreGeometry) {
 
     if (GetFVarInfiniteSharp(datum)) return k_InfinitelySharp;

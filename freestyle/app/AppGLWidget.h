@@ -47,6 +47,7 @@ using namespace std;
 # include "../rendering/GLDebugRenderer.h"
 # include <QGLViewer/qglviewer.h>
 # include <QGLViewer/camera.h>
+# include <QGLViewer/ManipulatedCameraFrame.h>
 # include "../view_map/ViewMap.h" // for debugvisoptions
 
 GLenum checkForError(const char *file, int line, const char *func);

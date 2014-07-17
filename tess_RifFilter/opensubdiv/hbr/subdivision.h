@@ -109,17 +109,17 @@ protected:
 
     // Helper routine for subclasses: for a given vertex, sums
     // contributions from surrounding vertices
-    void AddSurroundingVerticesWithWeight(HbrMesh<T>* mesh, HbrVertex<T>* vertex, real weight, T* data);
+    void AddSurroundingVerticesWithWeight(HbrMesh<T>* mesh, HbrVertex<T>* vertex,  real weight, T* data);
 
     // Helper routine for subclasses: for a given vertex with a crease
     // mask, adds contributions from the two crease edges
-    void AddCreaseEdgesWithWeight(HbrMesh<T>* mesh, HbrVertex<T>* vertex, bool next, real weight, T* data);
+    void AddCreaseEdgesWithWeight(HbrMesh<T>* mesh, HbrVertex<T>* vertex, bool next,  real weight, T* data);
 
 private:
     // Helper class used by AddSurroundingVerticesWithWeight
     class SmoothSubdivisionVertexOperator : public HbrVertexOperator<T> {
     public:
-        SmoothSubdivisionVertexOperator(T* data, bool meshHasEdits, real weight)
+        SmoothSubdivisionVertexOperator(T* data, bool meshHasEdits,  real weight)
             : m_data(data),
               m_meshHasEdits(meshHasEdits),
               m_weight(weight)
@@ -135,13 +135,13 @@ private:
     private:
         T* m_data;
         const bool m_meshHasEdits;
-        const real m_weight;
+        const  real m_weight;
     };
 
     // Helper class used by AddCreaseEdgesWithWeight
     class CreaseSubdivisionHalfedgeOperator : public HbrHalfedgeOperator<T> {
     public:
-        CreaseSubdivisionHalfedgeOperator(HbrVertex<T> *vertex, T* data, bool meshHasEdits, bool next, real weight)
+        CreaseSubdivisionHalfedgeOperator(HbrVertex<T> *vertex, T* data, bool meshHasEdits, bool next,  real weight)
             : m_vertex(vertex),
               m_data(data),
               m_meshHasEdits(meshHasEdits),
@@ -167,7 +167,7 @@ private:
         T* m_data;
         const bool m_meshHasEdits;
         const bool m_next;
-        const real m_weight;
+        const  real m_weight;
         int m_count;
     };
 
@@ -204,7 +204,7 @@ template <class T>
 void
 HbrSubdivision<T>::SubdivideCreaseWeight(HbrHalfedge<T>* edge, HbrVertex<T>* vertex, HbrHalfedge<T>* subedge) {
 
-    real sharpness = edge->GetSharpness();
+     real sharpness = edge->GetSharpness();
 
     // In all methods, if the parent edge is infinitely sharp, the
     // child edge is also infinitely sharp
@@ -216,7 +216,7 @@ HbrSubdivision<T>::SubdivideCreaseWeight(HbrHalfedge<T>* edge, HbrVertex<T>* ver
     // plus 1/4 of crease sharpnesses incident to vertex
     else if (creaseSubdivision == HbrSubdivision<T>::k_CreaseChaikin) {
 
-        real childsharp = 0.0f;
+         real childsharp = 0.0f;
         
         int n = 0;
 
@@ -226,7 +226,7 @@ HbrSubdivision<T>::SubdivideCreaseWeight(HbrHalfedge<T>* edge, HbrVertex<T>* ver
         public:
 
             ChaikinEdgeCreaseOperator(
-                HbrHalfedge<T> const * edge, real & childsharp, int & count) : 
+                HbrHalfedge<T> const * edge,  real & childsharp, int & count) :
                     m_edge(edge), m_childsharp(childsharp), m_count(count) { }
 
             virtual void operator() (HbrHalfedge<T> &edge) {
@@ -242,7 +242,7 @@ HbrSubdivision<T>::SubdivideCreaseWeight(HbrHalfedge<T>* edge, HbrVertex<T>* ver
 
         private:
             HbrHalfedge<T> const * m_edge;
-            real & m_childsharp;
+             real & m_childsharp;
             int & m_count;
         };
 
@@ -251,21 +251,21 @@ HbrSubdivision<T>::SubdivideCreaseWeight(HbrHalfedge<T>* edge, HbrVertex<T>* ver
         vertex->ApplyOperatorSurroundingEdges(op);
 
         if (n) {
-            childsharp = childsharp * 0.25f / real(n);
+            childsharp = childsharp * 0.25f /  real(n);
         }
 
         // Add 3/4 of the sharpness of this crease edge
         childsharp += sharpness * 0.75f;
         childsharp -= 1.0f;
-        if (childsharp < (real) HbrHalfedge<T>::k_Smooth) {
-            childsharp = (real) HbrHalfedge<T>::k_Smooth;
+        if (childsharp < ( real) HbrHalfedge<T>::k_Smooth) {
+            childsharp = ( real) HbrHalfedge<T>::k_Smooth;
         }
         subedge->SetSharpness(childsharp);
 
     } else {
         sharpness -= 1.0f;
-        if (sharpness < (real) HbrHalfedge<T>::k_Smooth) {
-            sharpness = (real) HbrHalfedge<T>::k_Smooth;
+        if (sharpness < ( real) HbrHalfedge<T>::k_Smooth) {
+            sharpness = ( real) HbrHalfedge<T>::k_Smooth;
         }
         subedge->SetSharpness(sharpness);
     }
@@ -273,14 +273,14 @@ HbrSubdivision<T>::SubdivideCreaseWeight(HbrHalfedge<T>* edge, HbrVertex<T>* ver
 
 template <class T>
 void
-HbrSubdivision<T>::AddSurroundingVerticesWithWeight(HbrMesh<T>* mesh, HbrVertex<T>* vertex, real weight, T* data) {
+HbrSubdivision<T>::AddSurroundingVerticesWithWeight(HbrMesh<T>* mesh, HbrVertex<T>* vertex,  real weight, T* data) {
     SmoothSubdivisionVertexOperator op(data, mesh->HasVertexEdits(), weight);
     vertex->ApplyOperatorSurroundingVertices(op);
 }
 
 template <class T>
 void
-HbrSubdivision<T>::AddCreaseEdgesWithWeight(HbrMesh<T>* mesh, HbrVertex<T>* vertex, bool next, real weight, T* data) {
+HbrSubdivision<T>::AddCreaseEdgesWithWeight(HbrMesh<T>* mesh, HbrVertex<T>* vertex, bool next,  real weight, T* data) {
     CreaseSubdivisionHalfedgeOperator op(vertex, data, mesh->HasVertexEdits(), next, weight);
     vertex->ApplyOperatorSurroundingEdges(op);
 }

@@ -48,14 +48,14 @@ OsdOmpEvalStencilsController::_UpdateValues( OsdCpuEvalStencilsContext * context
     if (not nstencils)
         return result;
 
-    OsdVertexBufferDescriptor ctrlDesc = context->GetControlDataDescriptor(),
-                              outDesc = context->GetOutputDataDescriptor();
-
+    OsdVertexBufferDescriptor ctrlDesc = _currentBindState.controlDataDesc,
+                              outDesc = _currentBindState.outputDataDesc;
+    
     // make sure that we have control data to work with
     if (not ctrlDesc.CanEval(outDesc))
         return 0;
 
-    real const * ctrl = context->GetControlData() + ctrlDesc.offset;
+    float const * ctrl = _currentBindState.controlData + ctrlDesc.offset;
 
     if (not ctrl)
         return result;
@@ -68,15 +68,15 @@ OsdOmpEvalStencilsController::_UpdateValues( OsdCpuEvalStencilsContext * context
 
         int const * index = &stencils->GetControlIndices().at(offset);
 
-        real const * weight = &stencils->GetWeights().at(offset);
+        float const * weight = &stencils->GetWeights().at(offset);
 
-        real * out = context->GetOutputData() + i * outDesc.stride + outDesc.offset;
+        float * out = _currentBindState.outputData + i * outDesc.stride + outDesc.offset;
 
-        memset(out, 0, outDesc.length*sizeof(real));
+        memset(out, 0, outDesc.length*sizeof(float));
 
         for (int j=0; j<size; ++j, ++index, ++weight) {
 
-            real const * cv = ctrl + (*index)*ctrlDesc.stride;
+            float const * cv = ctrl + (*index)*ctrlDesc.stride;
 
             for (int k=0; k<outDesc.length; ++k) {
                 out[k] += cv[k] * (*weight);
@@ -98,15 +98,15 @@ OsdOmpEvalStencilsController::_UpdateDerivs( OsdCpuEvalStencilsContext * context
     if (not nstencils)
         return result;
 
-    OsdVertexBufferDescriptor ctrlDesc = context->GetControlDataDescriptor(),
-                              duDesc = context->GetDuDataDescriptor(),
-                              dvDesc = context->GetDvDataDescriptor();
-
+    OsdVertexBufferDescriptor ctrlDesc = _currentBindState.controlDataDesc,
+                              duDesc = _currentBindState.outputDuDesc,
+                              dvDesc = _currentBindState.outputDvDesc;
+    
     // make sure that we have control data to work with
     if (not (ctrlDesc.CanEval(duDesc) and ctrlDesc.CanEval(dvDesc)))
         return 0;
 
-    real const * ctrl = context->GetControlData() + ctrlDesc.offset;
+    float const * ctrl = _currentBindState.controlData + ctrlDesc.offset;
 
     if (not ctrl)
         return result;
@@ -119,18 +119,18 @@ OsdOmpEvalStencilsController::_UpdateDerivs( OsdCpuEvalStencilsContext * context
 
         int const * index = &stencils->GetControlIndices().at(offset);
 
-        real const * duweight = &stencils->GetDuWeights().at(offset),
+        float const * duweight = &stencils->GetDuWeights().at(offset),
                     * dvweight = &stencils->GetDvWeights().at(offset);
 
-        real * du = context->GetOutputUDerivData() + i * duDesc.stride + duDesc.offset,
-              * dv = context->GetOutputVDerivData() + i * dvDesc.stride + dvDesc.offset;
+        float * du = _currentBindState.outputUDeriv + i * duDesc.stride + duDesc.offset,
+              * dv = _currentBindState.outputVDeriv + i * dvDesc.stride + dvDesc.offset;
 
-        memset(du, 0, duDesc.length*sizeof(real));
-        memset(dv, 0, dvDesc.length*sizeof(real));
+        memset(du, 0, duDesc.length*sizeof(float));
+        memset(dv, 0, dvDesc.length*sizeof(float));
 
         for (int j=0; j<size; ++j, ++index, ++duweight, ++dvweight) {
 
-            real const * cv = ctrl + (*index)*ctrlDesc.stride;
+            float const * cv = ctrl + (*index)*ctrlDesc.stride;
 
             for (int k=0; k<duDesc.length; ++k) {
                 du[k] += cv[k] * (*duweight);

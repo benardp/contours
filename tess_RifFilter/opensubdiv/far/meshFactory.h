@@ -45,6 +45,7 @@
 #include "../far/bilinearSubdivisionTablesFactory.h"
 #include "../far/catmarkSubdivisionTablesFactory.h"
 #include "../far/loopSubdivisionTablesFactory.h"
+#include "../far/patchTables.h"
 #include "../far/patchTablesFactory.h"
 #include "../far/vertexEditTablesFactory.h"
 
@@ -82,14 +83,18 @@ public:
     ///                    level of isolation around extraordinary topological
     ///                    features.
     ///
+    /// @param adaptive    Switch between uniform and feature adaptive mode
+    ///
     /// @param firstLevel  First level of subdivision to use when building the
     ///                    FarMesh. The default -1 only generates a single patch
     ///                    array for the highest level of subdivision)
     ///                    Note : firstLevel is only applicable if adaptive is false
     ///
-    /// @param adaptive Switch between uniform and feature adaptive mode
+    /// @param patchType   The type of patch to create: QUADS or TRIANGLES
+    ///                    Note : patchType is only applicable if adaptive is false
     ///
-    FarMeshFactory(HbrMesh<T> * mesh, int maxlevel, bool adaptive=false, int firstLevel=-1);
+    FarMeshFactory(HbrMesh<T> * mesh, int maxlevel, bool adaptive=false, int firstLevel=-1,
+                   FarPatchTables::Type patchType=FarPatchTables::QUADS);
 
     /// \brief Create a table-based mesh representation
     ///
@@ -224,6 +229,8 @@ private:
         _maxValence,
         _numPtexFaces;
 
+    FarPatchTables::Type _patchType;
+
     // remapping table to translate vertex ID's between Hbr indices and the
     // order of the same vertices in the tables
     std::vector<int> _remapTable;
@@ -264,7 +271,7 @@ FarMeshFactory<T,U>::refine( HbrMesh<T> * mesh, int maxlevel ) {
                     // have to create an extra row of children faces around the
                     // hole.
                     HbrHalfedge<T> * e = f->GetFirstEdge();
-                    for (int i=0; i<f->GetNumVertices(); ++i) {
+                    for (int j=0; j<f->GetNumVertices(); ++j) {
                         assert(e);
                         if (e->GetRightFace() and (not e->GetRightFace()->IsHole())) {
 
@@ -361,18 +368,44 @@ FarMeshFactory<T,U>::vertexIsBSpline( HbrVertex<T> * v, bool next ) {
 
     int valence = v->GetValence();
 
-    bool isRegBoundary = v->OnBoundary() and (valence==3);
+    // Boundary & corner vertices
+    if (v->OnBoundary()) {
+        if (valence==2) {
+            // corner vertex
 
-    // Extraordinary vertices that are not on a regular boundary
-    if (v->IsExtraordinary() and not isRegBoundary )
-        return false;
+            HbrFace<T> * f = v->GetFace();
+            // the vertex may not need isolation depending on boundary
+            // interpolation rule (sharp vs. rounded corner)
+            typename HbrMesh<T>::InterpolateBoundaryMethod method =
+                f->GetMesh()->GetInterpolateBoundaryMethod();
+            if (method==HbrMesh<T>::k_InterpolateBoundaryEdgeAndCorner) {
+                if (not next) {
+                    // if we are checking coarse vertices (next==false),
+                    // count the number of corners in the face, because we
+                    // can only have 1 corner vertex in a corner patch.
+                    int nsharpboundaries=0;
+                    for (int i=0; i<f->GetNumVertices(); ++i) {
+                        HbrHalfedge<T> * e = f->GetEdge(i);
+                        if (e->IsBoundary() and
+                            e->GetSharpness()==HbrHalfedge<T>::k_InfinitelySharp) {
+                            ++nsharpboundaries;
+                        }
+                    }
+                    return nsharpboundaries < 3 ? true: false;
+                } else
+                    return true;
+            } else
+                return false;
+        } else if (valence>3) {
+            // extraordinary boundar vertex (high valence)
+            return false;
+        }
+        // regular boundary vertices have valence 3
+        return true;
+    }
 
-    // Irregular boundary vertices (high valence)
-    if (v->OnBoundary() and (valence>3))
-        return false;
-
-    // Creased vertices that aren't corner / boundaries
-    if (v->IsSharp(next) and not v->OnBoundary())
+    // Extraordinary or creased vertices that aren't corner / boundaries
+    if (v->IsExtraordinary() or v->IsSharp(next))
         return false;
 
     return true;
@@ -419,8 +452,6 @@ FarMeshFactory<T,U>::refineAdaptive( HbrMesh<T> * mesh, int maxIsolate ) {
 
     int ncoarsefaces = mesh->GetNumCoarseFaces(),
         ncoarseverts = mesh->GetNumVertices();
-
-    int maxlevel = maxIsolate+1;
 
     // First pass : tag coarse vertices & faces that need refinement
 
@@ -476,7 +507,7 @@ FarMeshFactory<T,U>::refineAdaptive( HbrMesh<T> * mesh, int maxIsolate ) {
             // for refinement as boundary patches.
             //
             //  o ........ o ........ o ........ o
-            //  .          |          |          .     ... b.undary edge
+            //  .          |          |          .     ... boundary edge
             //  .          |   needs  |          .
             //  .          |   flag   |          .     --- regular edge
             //  .          |          |          .
@@ -494,7 +525,7 @@ FarMeshFactory<T,U>::refineAdaptive( HbrMesh<T> * mesh, int maxIsolate ) {
                     // Tag all 4 vertices of the face to make sure 4 boundary
                     // sub-patches are generated
                     for (int k=0; k<4; ++k) {
-                        HbrVertex<T> * v = f->GetVertex(j);
+                        HbrVertex<T> * v = f->GetVertex(k);
                         v->_adaptiveFlags.isTagged=true;
                         nextverts.insert(v);
                     }
@@ -507,7 +538,7 @@ FarMeshFactory<T,U>::refineAdaptive( HbrMesh<T> * mesh, int maxIsolate ) {
 
     // Second pass : refine adaptively around singularities
 
-    for (int level=0; level<maxlevel-1; ++level) {
+    for (int level=0; level<maxIsolate; ++level) {
 
         verts = nextverts;
         nextverts.clear();
@@ -576,14 +607,14 @@ FarMeshFactory<T,U>::refineAdaptive( HbrMesh<T> * mesh, int maxIsolate ) {
             }
         }
     }
-    return maxlevel-1;
+    return maxIsolate;
 }
 
 // Assumption : the order of the vertices in the HbrMesh could be set in any
 // random order, so the builder runs 2 passes over the entire vertex list to
 // gather the counters needed to generate the indexing tables.
 template <class T, class U>
-FarMeshFactory<T,U>::FarMeshFactory( HbrMesh<T> * mesh, int maxlevel, bool adaptive, int firstlevel ) :
+FarMeshFactory<T,U>::FarMeshFactory( HbrMesh<T> * mesh, int maxlevel, bool adaptive, int firstlevel, FarPatchTables::Type patchType ) :
     _hbrMesh(mesh),
     _adaptive(adaptive),
     _maxlevel(maxlevel),
@@ -591,8 +622,9 @@ FarMeshFactory<T,U>::FarMeshFactory( HbrMesh<T> * mesh, int maxlevel, bool adapt
     _numVertices(-1),
     _numCoarseVertices(-1),
     _numFaces(-1),
-    _maxValence(3),
+    _maxValence(4),
     _numPtexFaces(-1),
+    _patchType(patchType),
     _facesList(maxlevel+1)
 {
     _numCoarseVertices = mesh->GetNumVertices();
@@ -669,7 +701,7 @@ FarMeshFactory<T,U>::isLoop(HbrMesh<T> const * mesh) {
 }
 
 template <class T, class U> void
-copyVertex( T & dest, U const & src ) {
+copyVertex( T & /* dest */, U const & /* src */ ) {
 }
 
 template <class T> void
@@ -703,11 +735,11 @@ FarMeshFactory<T,U>::Create( bool requireFVarData ) {
     FarMesh<U> * result = new FarMesh<U>();
 
     if ( isBilinear( GetHbrMesh() ) ) {
-        result->_subdivisionTables = FarBilinearSubdivisionTablesFactory<T,U>::Create(this, result, &result->_batches);
+        result->_subdivisionTables = FarBilinearSubdivisionTablesFactory<T,U>::Create(this, &result->_batches);
     } else if ( isCatmark( GetHbrMesh() ) ) {
-        result->_subdivisionTables = FarCatmarkSubdivisionTablesFactory<T,U>::Create(this, result, &result->_batches);
+        result->_subdivisionTables = FarCatmarkSubdivisionTablesFactory<T,U>::Create(this, &result->_batches);
     } else if ( isLoop(GetHbrMesh()) ) {
-        result->_subdivisionTables = FarLoopSubdivisionTablesFactory<T,U>::Create(this, result, &result->_batches);
+        result->_subdivisionTables = FarLoopSubdivisionTablesFactory<T,U>::Create(this, &result->_batches);
     } else
         assert(0);
     assert(result->_subdivisionTables);
@@ -720,26 +752,20 @@ FarMeshFactory<T,U>::Create( bool requireFVarData ) {
             copyVertex(result->_vertices[i], GetHbrMesh()->GetVertex(i)->GetData());
     }
 
+    int fvarwidth = requireFVarData ? _hbrMesh->GetTotalFVarWidth() : 0;
+
     // Create the element indices tables (patches for adaptive, quads for non-adaptive)
     if (isAdaptive()) {
 
         FarPatchTablesFactory<T> factory(GetHbrMesh(), _numFaces, _remapTable);
 
         // XXXX: currently PatchGregory shader supports up to 29 valence
-        result->_patchTables = factory.Create(GetMaxLevel()+1, _maxValence, requireFVarData);
+        result->_patchTables = factory.Create(_maxValence, _numPtexFaces, fvarwidth);
 
     } else {
-        result->_patchTables = FarPatchTablesFactory<T>::Create(GetHbrMesh(), _facesList, _remapTable, _firstlevel, requireFVarData );
+        result->_patchTables = FarPatchTablesFactory<T>::Create(GetHbrMesh(), _facesList, _remapTable, _firstlevel, _patchType, _numPtexFaces, fvarwidth );
     }
     assert( result->_patchTables );
-
-    result->_numPtexFaces = _numPtexFaces;
-
-    if (requireFVarData) {
-        result->_totalFVarWidth = _hbrMesh->GetTotalFVarWidth();
-    } else {
-        result->_totalFVarWidth = 0;
-    }
 
     // Create VertexEditTables if necessary
     if (GetHbrMesh()->HasVertexEdits()) {

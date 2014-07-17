@@ -49,16 +49,16 @@ class HbrFVarEdit : public HbrHierarchicalEdit<T> {
 
 public:
 
-    HbrFVarEdit(int _faceid, int _nsubfaces, unsigned char *_subfaces, unsigned char _vertexid, int _index, int _width, int _offset, typename HbrHierarchicalEdit<T>::Operation _op, real *_edit)
+    HbrFVarEdit(int _faceid, int _nsubfaces, unsigned char *_subfaces, unsigned char _vertexid, int _index, int _width, int _offset, typename HbrHierarchicalEdit<T>::Operation _op,  real *_edit)
         : HbrHierarchicalEdit<T>(_faceid, _nsubfaces, _subfaces), vertexid(_vertexid), index(_index), width(_width), offset(_offset), op(_op) {
-        edit = new real[width];
-        memcpy(edit, _edit, width * sizeof(real));
+        edit = new  real[width];
+        memcpy(edit, _edit, width * sizeof( real));
     }
 
-    HbrFVarEdit(int _faceid, int _nsubfaces, int *_subfaces, int _vertexid, int _index, int _width, int _offset, typename HbrHierarchicalEdit<T>::Operation _op, real *_edit)
+    HbrFVarEdit(int _faceid, int _nsubfaces, int *_subfaces, int _vertexid, int _index, int _width, int _offset, typename HbrHierarchicalEdit<T>::Operation _op,  real *_edit)
         : HbrHierarchicalEdit<T>(_faceid, _nsubfaces, _subfaces), vertexid(_vertexid), index(_index), width(_width), offset(_offset), op(_op) {
-        edit = new real[width];
-        memcpy(edit, _edit, width * sizeof(real));
+        edit = new  real[width];
+        memcpy(edit, _edit, width * sizeof( real));
     }
 
     virtual ~HbrFVarEdit() {
@@ -80,7 +80,7 @@ public:
     int GetOffset() const { return offset; }
 
     // Get the numerical value of the edit
-    const real* GetEdit() const { return edit; }
+    const  real* GetEdit() const { return edit; }
 
     // Get the type of operation
     typename HbrHierarchicalEdit<T>::Operation GetOperation() const { return op; }
@@ -108,7 +108,7 @@ private:
     const int index;
     const int width;
     const int offset;
-    real* edit;
+     real* edit;
     typename HbrHierarchicalEdit<T>::Operation op;
 };
 

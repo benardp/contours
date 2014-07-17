@@ -33,6 +33,7 @@
 #include "../hbr/mesh.h"
 
 #include "../osd/vertex.h"
+#include "../osd/vertexDescriptor.h"
 
 #include <bitset>
 
@@ -45,7 +46,7 @@ enum OsdMeshBits {
     MeshPtexData    = 1,
     MeshFVarData    = 2,
 
-    NUM_MESH_BITS   = 3
+    NUM_MESH_BITS   = 3,
 };
 typedef std::bitset<NUM_MESH_BITS> OsdMeshBitset;
 
@@ -67,6 +68,10 @@ public:
     virtual void UpdateVaryingBuffer(real const *varyingData, int startVertex, int numVerts) = 0;
 
     virtual void Refine() = 0;
+
+    virtual void Refine(OsdVertexBufferDescriptor const *vertexDesc,
+                        OsdVertexBufferDescriptor const *varyingDesc,
+                        bool interleaved) = 0;
 
     virtual void Synchronize() = 0;
 
@@ -103,7 +108,7 @@ public:
         FarMeshFactory<OsdVertex> meshFactory(hmesh, level, bits.test(MeshAdaptive));
         _farMesh = meshFactory.Create(bits.test(MeshFVarData));
         
-        _initialize(numVertexElements, numVaryingElements, level, bits);
+        _initialize(numVertexElements, numVaryingElements, bits);
 
     }
 
@@ -111,7 +116,6 @@ public:
             FarMesh<OsdVertex> * fmesh,
             int numVertexElements,
             int numVaryingElements,
-            int level,
             OsdMeshBitset bits = OsdMeshBitset()) :
 
             _farMesh(fmesh),
@@ -121,7 +125,23 @@ public:
             _computeController(computeController),
             _drawContext(0)
     {
-        _initialize(numVertexElements, numVaryingElements, level, bits);
+        _initialize(numVertexElements, numVaryingElements, bits);
+    }
+
+    OsdMesh(ComputeController * computeController,
+            FarMesh<OsdVertex> * fmesh,
+            VertexBuffer * vertexBuffer,
+            VertexBuffer * varyingBuffer,
+            ComputeContext * computeContext,
+            DrawContext * drawContext) :
+
+            _farMesh(fmesh),
+            _vertexBuffer(vertexBuffer),
+            _varyingBuffer(varyingBuffer),
+            _computeContext(computeContext),
+            _computeController(computeController),
+            _drawContext(drawContext)
+    {
     }
 
     virtual ~OsdMesh() {
@@ -143,6 +163,13 @@ public:
     virtual void Refine() {
         _computeController->Refine(_computeContext, _farMesh->GetKernelBatches(), _vertexBuffer, _varyingBuffer);
     }
+    virtual void Refine(OsdVertexBufferDescriptor const *vertexDesc,
+                        OsdVertexBufferDescriptor const *varyingDesc) {
+        _computeController->Refine(_computeContext, _farMesh->GetKernelBatches(),
+                                   _vertexBuffer, _varyingBuffer,
+                                   vertexDesc, varyingDesc);
+    }
+
     virtual void Synchronize() {
         _computeController->Synchronize();
     }
@@ -160,8 +187,7 @@ private:
 
     void _initialize( int numVertexElements,
                       int numVaryingElements,
-                      int level,
-                      OsdMeshBitset bits) 
+                      OsdMeshBitset bits)
     {
         int numVertices = _farMesh->GetNumVertices();
         if (numVertexElements)
@@ -169,7 +195,7 @@ private:
         if (numVaryingElements)
             _varyingBuffer = VertexBuffer::Create(numVaryingElements, numVertices);
         _computeContext = ComputeContext::Create(_farMesh);
-        _drawContext = DrawContext::Create(_farMesh->GetPatchTables(), bits.test(MeshFVarData));
+        _drawContext = DrawContext::Create(_farMesh->GetPatchTables(), numVertexElements, bits.test(MeshFVarData));
     }
 
     FarMesh<OsdVertex> *_farMesh;

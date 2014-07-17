@@ -73,10 +73,10 @@ public:
     /// @return        A patch handle or NULL if the face does not exist or the
     ///                limit surface is tagged as a hole at the given location
     ///
-    Handle const * FindPatch( int faceid, real u, real v ) const;
+    Handle const * FindPatch( int faceid,  real u,  real v ) const;
     
 private:
-    void initialize( FarPatchTables const & patchTables );
+    inline void initialize( FarPatchTables const & patchTables );
 
     // Quadtree node with 4 children
     struct QuadNode {
@@ -182,7 +182,7 @@ FarPatchMap::resolveQuadrant(T & median, T & u, T & v) {
 
 /// Returns a handle to the sub-patch of the face at the given (u,v).
 inline FarPatchMap::Handle const * 
-FarPatchMap::FindPatch( int faceid, real u, real v ) const {
+FarPatchMap::FindPatch( int faceid,  real u,  real v ) const {
     
     if (faceid>(int)_quadtree.size())
         return NULL;
@@ -191,12 +191,12 @@ FarPatchMap::FindPatch( int faceid, real u, real v ) const {
 
     QuadNode const * node = &_quadtree[faceid];
 
-    real half = 0.5f;
+     real half = 0.5f;
 
     // 0xFF : we should never have depths greater than k_InfinitelySharp
     for (int depth=0; depth<0xFF; ++depth) {
 
-        real delta = half * 0.5f;
+         real delta = half * 0.5f;
         
         int quadrant = resolveQuadrant( half, u, v );
         assert(quadrant>=0);
@@ -288,14 +288,14 @@ FarPatchMap::initialize( FarPatchTables const & patchTables ) {
                 continue;
             } 
                   
-            short u = bits.GetU(),
-                  v = bits.GetV(),
-                  pdepth = bits.NonQuadRoot() ? depth-2 : depth-1,
-                  half = 1 << pdepth;
+            int u = bits.GetU(),
+                v = bits.GetV(),
+                pdepth = bits.NonQuadRoot() ? depth-2 : depth-1,
+                half = 1 << pdepth;
             
             for (unsigned char k=0; k<depth; ++k) {
 
-                short delta = half >> 1;
+                int delta = half >> 1;
                 
                 int quadrant = resolveQuadrant(half, u, v);
                 assert(quadrant>=0);

@@ -46,11 +46,11 @@ class HbrCreaseEdit : public HbrHierarchicalEdit<T> {
 
 public:
 
-    HbrCreaseEdit(int _faceid, int _nsubfaces, unsigned char *_subfaces, unsigned char _edgeid, typename HbrHierarchicalEdit<T>::Operation _op, real _sharpness)
+    HbrCreaseEdit(int _faceid, int _nsubfaces, unsigned char *_subfaces, unsigned char _edgeid, typename HbrHierarchicalEdit<T>::Operation _op,  real _sharpness)
         : HbrHierarchicalEdit<T>(_faceid, _nsubfaces, _subfaces), edgeid(_edgeid), op(_op), sharpness(_sharpness) {
     }
 
-    HbrCreaseEdit(int _faceid, int _nsubfaces, int *_subfaces, int _edgeid, typename HbrHierarchicalEdit<T>::Operation _op, real _sharpness)
+    HbrCreaseEdit(int _faceid, int _nsubfaces, int *_subfaces, int _edgeid, typename HbrHierarchicalEdit<T>::Operation _op,  real _sharpness)
         : HbrHierarchicalEdit<T>(_faceid, _nsubfaces, _subfaces), edgeid(static_cast<unsigned char>(_edgeid)), op(_op), sharpness(_sharpness) {
     }
 
@@ -61,7 +61,7 @@ public:
     virtual void ApplyEditToFace(HbrFace<T>* face) {
         if (HbrHierarchicalEdit<T>::GetNSubfaces() == face->GetDepth()) {
             // Modify edge sharpness
-            real sharp=0.0f;
+             real sharp=0.0f;
             if (op == HbrHierarchicalEdit<T>::Set) {
                 sharp = sharpness;
             } else if (op == HbrHierarchicalEdit<T>::Add) {
@@ -88,7 +88,7 @@ private:
     const unsigned char edgeid;
     typename HbrHierarchicalEdit<T>::Operation op;
     // sharpness of the edge edit
-    const real sharpness;
+    const  real sharpness;
 };
 
 

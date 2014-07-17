@@ -46,11 +46,11 @@ class HbrCornerEdit : public HbrHierarchicalEdit<T> {
 
 public:
 
-    HbrCornerEdit(int _faceid, int _nsubfaces, unsigned char *_subfaces, unsigned char _vertexid, typename HbrHierarchicalEdit<T>::Operation _op, real _sharpness)
+    HbrCornerEdit(int _faceid, int _nsubfaces, unsigned char *_subfaces, unsigned char _vertexid, typename HbrHierarchicalEdit<T>::Operation _op,  real _sharpness)
         : HbrHierarchicalEdit<T>(_faceid, _nsubfaces, _subfaces), vertexid(_vertexid), op(_op), sharpness(_sharpness) {
     }
 
-    HbrCornerEdit(int _faceid, int _nsubfaces, int *_subfaces, int _vertexid, typename HbrHierarchicalEdit<T>::Operation _op, real _sharpness)
+    HbrCornerEdit(int _faceid, int _nsubfaces, int *_subfaces, int _vertexid, typename HbrHierarchicalEdit<T>::Operation _op,  real _sharpness)
         : HbrHierarchicalEdit<T>(_faceid, _nsubfaces, _subfaces), vertexid(static_cast<unsigned char>(_vertexid)), op(_op), sharpness(_sharpness) {
     }
 
@@ -62,7 +62,7 @@ public:
         if (HbrHierarchicalEdit<T>::GetNSubfaces() == face->GetDepth()) {
             // Modify vertex sharpness. Note that we could actually do
             // this in ApplyEditToVertex as well!
-            real sharp = 0.0f;
+             real sharp = 0.0f;
             if (op == HbrHierarchicalEdit<T>::Set) {
                 sharp = sharpness;
             } else if (op == HbrHierarchicalEdit<T>::Add) {
@@ -86,7 +86,7 @@ private:
     const unsigned char vertexid;
     typename HbrHierarchicalEdit<T>::Operation op;
     // sharpness of the vertex edit
-    const real sharpness;
+    const  real sharpness;
 };
 
 

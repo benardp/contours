@@ -6,14 +6,15 @@
 #include "rib2mesh.h"
 #include "refineContour.h"
 
+#include <osdutil/adaptiveEvaluator.h>
+#include <osdutil/uniformEvaluator.h>
+#include <osdutil/topology.h>
+
 real OPT_LAMBDA = 1;//1e-16;
 real OPT_EPSILON = 0.000001;//1e-10;
 
 using namespace std;
 
-
-OpenSubdiv::OsdCpuComputeContext * g_osdComputeContext = 0;
-OpenSubdiv::OsdCpuComputeController * g_osdComputeController = 0;
 
 //
 //
@@ -24,8 +25,6 @@ OpenSubdiv::OsdCpuComputeController * g_osdComputeController = 0;
 
 RifPlugin* RifPluginManufacture(int argc, char ** argv)
 { 
-    g_osdComputeController = new OpenSubdiv::OsdCpuComputeController();
-
     const char * targetSurfacePattern = ".";
     const char * outputFilename = "output.ply";
     const char * exclusionPattern = NULL;
@@ -1120,16 +1119,23 @@ void rib2mesh::handleCatmark(RtInt nf, RtInt nverts[],
         exit(1);
     }
 
+//    OsdUtilSubdivTopology topology;
+    std::vector<real> pointPositions;
+
     // --- copy the vertex positions ---
 
-    vec3* controlGeom = new vec3[params.numVertices];
     RtFloat * geom = (RtFloat*) parms[Pindex];
 
     for (i=0;i<params.numVertices;i++)
     {
         vec3 pt = obj->matrixTransform(geom[3*i], geom[3*i+1], geom[3*i+2]);
-        controlGeom[i] = vec3(pt[0], pt[1], pt[2]);
+
+        pointPositions.push_back(pt[0]);
+        pointPositions.push_back(pt[1]);
+        pointPositions.push_back(pt[2]);
     }
+
+//    topology.numVertices = (int)pointPositions.size()/3;
 
     // flip all the faces if necessary
     // orientationOutside == False requires flip
@@ -1161,7 +1167,7 @@ void rib2mesh::handleCatmark(RtInt nf, RtInt nverts[],
     Vertex vtx;
     for(int i=0;i<params.numVertices; i++ ) {
         CatmarkVertex* v = surface->NewVertex(i, vtx);
-        v->GetData().SetPosition(controlGeom[i].x(),controlGeom[i].y(),controlGeom[i].z());
+        v->GetData().SetPosition(pointPositions[3*i],pointPositions[3*i+1],pointPositions[3*i+2]);
     }
 
     int maxFaceSize = 0;
@@ -1175,7 +1181,10 @@ void rib2mesh::handleCatmark(RtInt nf, RtInt nverts[],
         int faceSize = params.faceSizes[i];
         for(j = 0; j < faceSize; ++j) {
             fv[j] = params.vertIndices[k++];
+
+//            topology.indices.push_back(params.vertIndices[k++]);//fv[j]);
         }
+//        topology.nverts.push_back(faceSize);
 
         // now check the half-edges connectivity
         for(j=0; j<faceSize; j++) {
@@ -1219,7 +1228,62 @@ void rib2mesh::handleCatmark(RtInt nf, RtInt nverts[],
         // abort or iterate over the mesh to remove the offending vertices
     }
 
-    delete[] controlGeom;
+
+
+//    topology.refinementLevel = obj->_subdivisionLevel;
+
+//    std::string *errorMessage;
+//    if(!topology.IsValid(errorMessage)){
+//        std::cout << "Initialize failed with " << *errorMessage << std::endl;
+//        return;
+//    }
+
+//    topology.WriteObjFile("input.obj",&(pointPositions[0]),errorMessage);
+//    Subdiv::getInstance().initialize(topology,pointPositions);
+
+//    OsdEvalCoords coord(0,0.0,0.0);
+//    vec3 limit;
+//    Subdiv::getInstance().Evaluate(coord,&limit);
+//    coord = OsdEvalCoords(0,1.0,0.0);
+//    Subdiv::getInstance().Evaluate(coord,&limit);
+//    coord = OsdEvalCoords(0,0.0,1.0);
+//    Subdiv::getInstance().Evaluate(coord,&limit);
+//    coord = OsdEvalCoords(0,1.0,1.0);
+//    Subdiv::getInstance().Evaluate(coord,&limit);
+
+//    printf("FACE: %d %d %d %d\n", params.vertIndices[0], params.vertIndices[1], params.vertIndices[2], params.vertIndices[3]);
+//    printf("VERT_1: %LF, %LF, %LF)\n",pointPositions[3*params.vertIndices[0]], pointPositions[3*params.vertIndices[0]+1], pointPositions[3*params.vertIndices[0]+2]);
+//    printf("VERT_2: %LF, %LF, %LF)\n",pointPositions[3*params.vertIndices[1]], pointPositions[3*params.vertIndices[1]+1], pointPositions[3*params.vertIndices[1]+2]);
+//    printf("VERT_3: %LF, %LF, %LF)\n",pointPositions[3*params.vertIndices[2]], pointPositions[3*params.vertIndices[2]+1], pointPositions[3*params.vertIndices[2]+2]);
+//    printf("VERT_4: %LF, %LF, %LF)\n",pointPositions[3*params.vertIndices[3]], pointPositions[3*params.vertIndices[3]+1], pointPositions[3*params.vertIndices[0]+2]);
+
+//    OsdUtilSubdivTopology refinedTopology;
+//    std::vector<real> limitPositions;
+//    Subdiv::getInstance().getRefineTopology(refinedTopology,limitPositions);
+//    refinedTopology.WriteObjFile("test.obj",&(limitPositions[0]),errorMessage);
+
+//    static HbrCatmarkSubdivision<Vertex> catmark;
+//    CatmarkMesh * surface = new CatmarkMesh(&catmark);
+
+//    Vertex vtx;
+//    for(int i=0;i<pointPositions.size()/3; i++) {
+//        vtx.SetPosition(pointPositions[3*i],pointPositions[3*i+1],pointPositions[3*i+2]);
+//        CatmarkVertex* v = surface->NewVertex(i, vtx);
+//    }
+
+//    int idx = 0;
+//    for (int i=0; i<topology.nverts.size(); ++i) {
+//        int numVertsInFace = topology.nverts[i];
+//        int fv[numVertsInFace];
+//        for (int j=0; j<numVertsInFace; ++j) {
+//            fv[j] = topology.indices[idx+j];
+//        }
+//        idx += numVertsInFace;
+//        surface->NewFace(numVertsInFace, fv, i);
+//    }
+
+//    surface->SetInterpolateBoundaryMethod( CatmarkMesh::k_InterpolateBoundaryEdgeOnly );
+//    surface->Finish();
 
     // ------ RESAMPLE THE SUBD INTO A MESH ------------------------------------------
 
