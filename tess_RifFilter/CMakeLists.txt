@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 2.8.6)
 add_subdirectory(opensubdiv)
 
 include_directories(opensubdiv)
-set(LIBS ${LIBS} osd_static_cpu osdutil)
+set(LIBS ${LIBS} osd_dynamic_cpu osdutil)
 
 find_package(3Delight REQUIRED)
 include_directories(${3Delight_INCLUDE_DIR})

@@ -102,12 +102,12 @@ public:
     }
 
     /// Returns a pointer to the data of the input buffer
-    float const * GetCurrentInputVertexBuffer() const {
+    real const * GetCurrentInputVertexBuffer() const {
         return _iBuffer;
     }
 
     /// Returns a pointer to the data of the output buffer
-    float * GetCurrentOutputVertexBuffer() {
+    real * GetCurrentOutputVertexBuffer() {
         return _oBuffer;
     }
 
@@ -155,7 +155,7 @@ private:
 
     int _numVertices;
 
-    float * _iBuffer,
+    real * _iBuffer,
           * _oBuffer;
 
     bool _resetMemory;  // set to true if the output buffer needs to be reset to 0

@@ -53,6 +53,8 @@ set(CPU_SOURCE_FILES
     cpuEvalLimitKernel.cpp
     cpuEvalStencilsContext.cpp
     cpuEvalStencilsController.cpp
+    cpuSmoothNormalContext.cpp
+    cpuSmoothNormalController.cpp
     cpuVertexBuffer.cpp
     error.cpp
     evalLimitContext.cpp
@@ -83,6 +85,8 @@ set(PUBLIC_HEADER_FILES
     cpuEvalLimitController.h
     cpuEvalStencilsContext.h
     cpuEvalStencilsController.h
+    cpuSmoothNormalContext.h
+    cpuSmoothNormalController.h
     cpuVertexBuffer.h
     error.h
     evalLimitContext.h
@@ -116,6 +120,7 @@ set(OPENMP_PUBLIC_HEADERS
     ompKernel.h
     ompComputeController.h
     ompEvalStencilsController.h
+    ompSmoothNormalController.h
 )
 
 if( OPENMP_FOUND )
@@ -123,6 +128,7 @@ if( OPENMP_FOUND )
         ompKernel.cpp
         ompComputeController.cpp
         ompEvalStencilsController.cpp
+        ompSmoothNormalController.cpp
     )
 
     list(APPEND PUBLIC_HEADER_FILES ${OPENMP_PUBLIC_HEADERS})
@@ -194,11 +200,18 @@ list(APPEND DOXY_HEADER_FILES ${GL_PUBLIC_HEADERS})
 
 if (NOT NO_LIB)
 
-    add_library(osd_static_cpu
-        STATIC
+# Compile objs first for both the CPU and GPU libs -----
+    add_library(osd_cpu_obj
+        OBJECT
             ${CPU_SOURCE_FILES}
             ${PRIVATE_HEADER_FILES}
             ${PUBLIC_HEADER_FILES}
+    )
+
+    # Build static libs ------------------------------------
+    add_library(osd_static_cpu
+        STATIC
+        $<TARGET_OBJECTS:osd_cpu_obj>
     )
     set_target_properties(osd_static_cpu PROPERTIES OUTPUT_NAME osdCPU CLEAN_DIRECT_OUTPUT 1)
 
@@ -206,12 +219,11 @@ if (NOT NO_LIB)
         ${PLATFORM_CPU_LIBRARIES}
     )
 
-    install( TARGETS osd_static_cpu DESTINATION ${CMAKE_LIBDIR_BASE} )
+    install( TARGETS osd_static_cpu DESTINATION "${CMAKE_LIBDIR_BASE}" )
 
     if (NOT WIN32 AND NOT IOS)
 
         # Evaluate 'soname' from OSD version
-
         # replace '_' with '.'
         string(REGEX REPLACE "(_)" "." OSD_SONAME ${OpenSubdiv_VERSION})
 
@@ -221,23 +233,29 @@ if (NOT NO_LIB)
         # generate dynamic-link targets
         add_library(osd_dynamic_cpu
             SHARED
-                ${CPU_SOURCE_FILES}
-                ${PRIVATE_HEADER_FILES}
-                ${PUBLIC_HEADER_FILES}
+            $<TARGET_OBJECTS:osd_cpu_obj>
         )
 
-        set_target_properties(osd_dynamic_cpu
-            PROPERTIES
-                OUTPUT_NAME osdCPU
-                CLEAN_DIRECT_OUTPUT 1
-                SOVERSION ${OSD_SONAME}
-            )
+        if (NOT ANDROID)
+            set_target_properties(osd_dynamic_cpu
+                PROPERTIES
+                    OUTPUT_NAME osdCPU
+                    CLEAN_DIRECT_OUTPUT 1
+                    SOVERSION ${OSD_SONAME}
+                )
+        else()
+            set_target_properties(osd_dynamic_cpu
+                PROPERTIES
+                    OUTPUT_NAME osdCPU
+                    CLEAN_DIRECT_OUTPUT 1
+                )
+        endif()
 
         target_link_libraries(osd_dynamic_cpu
             ${PLATFORM_CPU_LIBRARIES}
         )
 
-        install( TARGETS osd_dynamic_cpu LIBRARY DESTINATION ${CMAKE_LIBDIR_BASE} )
+        install( TARGETS osd_dynamic_cpu LIBRARY DESTINATION "${CMAKE_LIBDIR_BASE}" )
     endif()
 endif()
 
