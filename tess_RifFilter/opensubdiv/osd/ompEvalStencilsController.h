@@ -200,7 +200,7 @@ private:
                                   outputDuDesc,
                                   outputDvDesc;
 
-        float * controlData,
+        real * controlData,
               * outputData,
               * outputUDeriv,
               * outputVDeriv;

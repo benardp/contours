@@ -34,19 +34,19 @@ namespace OpenSubdiv {
 namespace OPENSUBDIV_VERSION {
 
 static inline void
-clear(float *dst, OsdVertexBufferDescriptor const &desc) {
+clear(real *dst, OsdVertexBufferDescriptor const &desc) {
 
     if (dst) {
-        memset(dst, 0, desc.length*sizeof(float));
+        memset(dst, 0, desc.length*sizeof(real));
     }
 }
 
 static inline void
-addWithWeight(float *dst, const float *srcOrigin, int srcIndex, float weight,
+addWithWeight(real *dst, const real *srcOrigin, int srcIndex, real weight,
               OsdVertexBufferDescriptor const &desc) {
 
     if (srcOrigin && dst) {
-        const float *src = srcOrigin + srcIndex * desc.stride;
+        const real *src = srcOrigin + srcIndex * desc.stride;
         for (int k = 0; k < desc.length; ++k) {
             dst[k] += src[k] * weight;
         }
@@ -54,37 +54,37 @@ addWithWeight(float *dst, const float *srcOrigin, int srcIndex, float weight,
 }
 
 static inline void
-copy(float *dstOrigin, const float *src, int dstIndex,
+copy(real *dstOrigin, const real *src, int dstIndex,
      OsdVertexBufferDescriptor const &desc) {
 
     if (dstOrigin && src) {
-        float *dst = dstOrigin + dstIndex * desc.stride;
-        memcpy(dst, src, desc.length*sizeof(float));
+        real *dst = dstOrigin + dstIndex * desc.stride;
+        memcpy(dst, src, desc.length*sizeof(real));
     }
 }
 
 void OsdOmpComputeFace(
-    float * vertex, float * varying,
+    real * vertex, real * varying,
     OsdVertexBufferDescriptor const &vertexDesc,
     OsdVertexBufferDescriptor const &varyingDesc,
     const int *F_IT, const int *F_ITa, int offset, int tableOffset, int start, int end) {
 
     int numThreads = omp_get_max_threads();
-    float *vertexResultsArray = (float*)alloca(vertexDesc.length * sizeof(float) * numThreads);
-    float *varyingResultsArray = (float*)alloca(varyingDesc.length * sizeof(float) * numThreads);
+    real *vertexResultsArray = (real*)alloca(vertexDesc.length * sizeof(real) * numThreads);
+    real *varyingResultsArray = (real*)alloca(varyingDesc.length * sizeof(real) * numThreads);
 
 #pragma omp parallel for
     for (int i = start + tableOffset; i < end + tableOffset; i++) {
         int h = F_ITa[2*i];
         int n = F_ITa[2*i+1];
 
-        float weight = 1.0f/n;
+        real weight = 1.0f/n;
         int dstIndex = offset + i - tableOffset;
 
         int threadId = omp_get_thread_num();
-        float *vertexResults = vertexResultsArray +
+        real *vertexResults = vertexResultsArray +
             vertexDesc.length * threadId;
-        float *varyingResults = varyingResultsArray +
+        real *varyingResults = varyingResultsArray +
             varyingDesc.length * threadId;
 
         // clear
@@ -104,14 +104,14 @@ void OsdOmpComputeFace(
 }
 
 void OsdOmpComputeQuadFace(
-    float * vertex, float * varying,
+    real * vertex, real * varying,
     OsdVertexBufferDescriptor const &vertexDesc,
     OsdVertexBufferDescriptor const &varyingDesc,
     const int *F_IT, int offset, int tableOffset, int start, int end) {
 
     int numThreads = omp_get_max_threads();
-    float *vertexResultsArray = (float*)alloca(vertexDesc.length * sizeof(float) * numThreads);
-    float *varyingResultsArray = (float*)alloca(varyingDesc.length * sizeof(float) * numThreads);
+    real *vertexResultsArray = (real*)alloca(vertexDesc.length * sizeof(real) * numThreads);
+    real *varyingResultsArray = (real*)alloca(varyingDesc.length * sizeof(real) * numThreads);
 
 #pragma omp parallel for
     for (int i = start ; i < end ; i++) {
@@ -123,9 +123,9 @@ void OsdOmpComputeQuadFace(
         int dstIndex = offset + i;
 
         int threadId = omp_get_thread_num();
-        float *vertexResults = vertexResultsArray +
+        real *vertexResults = vertexResultsArray +
             vertexDesc.length * threadId;
-        float *varyingResults = varyingResultsArray +
+        real *varyingResults = varyingResultsArray +
             varyingDesc.length * threadId;
 
         // clear
@@ -148,14 +148,14 @@ void OsdOmpComputeQuadFace(
 }
 
 void OsdOmpComputeTriQuadFace(
-    float * vertex, float * varying,
+    real * vertex, real * varying,
     OsdVertexBufferDescriptor const &vertexDesc,
     OsdVertexBufferDescriptor const &varyingDesc,
     const int *F_IT, int offset, int tableOffset, int start, int end) {
 
     int numThreads = omp_get_max_threads();
-    float *vertexResultsArray = (float*)alloca(vertexDesc.length * sizeof(float) * numThreads);
-    float *varyingResultsArray = (float*)alloca(varyingDesc.length * sizeof(float) * numThreads);
+    real *vertexResultsArray = (real*)alloca(vertexDesc.length * sizeof(real) * numThreads);
+    real *varyingResultsArray = (real*)alloca(varyingDesc.length * sizeof(real) * numThreads);
 
 #pragma omp parallel for
     for (int i = start ; i < end ; i++) {
@@ -164,14 +164,14 @@ void OsdOmpComputeTriQuadFace(
         int fidx2 = F_IT[tableOffset + 4 * i + 2];
         int fidx3 = F_IT[tableOffset + 4 * i + 3];
         bool triangle = (fidx2 == fidx3);
-        float weight = (triangle ? 1.0f / 3.0f : 1.0f / 4.0f);
+        real weight = (triangle ? 1.0f / 3.0f : 1.0f / 4.0f);
 
         int dstIndex = offset + i;
 
         int threadId = omp_get_thread_num();
-        float *vertexResults = vertexResultsArray +
+        real *vertexResults = vertexResultsArray +
             vertexDesc.length * threadId;
-        float *varyingResults = varyingResultsArray +
+        real *varyingResults = varyingResultsArray +
             varyingDesc.length * threadId;
 
         // clear
@@ -196,14 +196,14 @@ void OsdOmpComputeTriQuadFace(
 }
 
 void OsdOmpComputeEdge(
-    float * vertex, float * varying,
+    real * vertex, real * varying,
     OsdVertexBufferDescriptor const &vertexDesc,
     OsdVertexBufferDescriptor const &varyingDesc,
-    const int *E_IT, const float *E_W, int offset, int tableOffset, int start, int end) {
+    const int *E_IT, const real *E_W, int offset, int tableOffset, int start, int end) {
 
     int numThreads = omp_get_max_threads();
-    float *vertexResultsArray = (float*)alloca(vertexDesc.length * sizeof(float) * numThreads);
-    float *varyingResultsArray = (float*)alloca(varyingDesc.length * sizeof(float) * numThreads);
+    real *vertexResultsArray = (real*)alloca(vertexDesc.length * sizeof(real) * numThreads);
+    real *varyingResultsArray = (real*)alloca(varyingDesc.length * sizeof(real) * numThreads);
 
 #pragma omp parallel for
     for (int i = start + tableOffset; i < end + tableOffset; i++) {
@@ -212,13 +212,13 @@ void OsdOmpComputeEdge(
         int eidx2 = E_IT[4*i+2];
         int eidx3 = E_IT[4*i+3];
 
-        float vertWeight = E_W[i*2+0];
+        real vertWeight = E_W[i*2+0];
         int dstIndex = offset + i - tableOffset;
 
         int threadId = omp_get_thread_num();
-        float *vertexResults = vertexResultsArray +
+        real *vertexResults = vertexResultsArray +
             vertexDesc.length * threadId;
-        float *varyingResults = varyingResultsArray +
+        real *varyingResults = varyingResultsArray +
             varyingDesc.length * threadId;
 
         // clear
@@ -229,7 +229,7 @@ void OsdOmpComputeEdge(
         addWithWeight(vertexResults, vertex, eidx1, vertWeight, vertexDesc);
 
         if (eidx2 != -1) {
-            float faceWeight = E_W[i*2+1];
+            real faceWeight = E_W[i*2+1];
 
             addWithWeight(vertexResults, vertex, eidx2, faceWeight, vertexDesc);
             addWithWeight(vertexResults, vertex, eidx3, faceWeight, vertexDesc);
@@ -244,15 +244,15 @@ void OsdOmpComputeEdge(
 }
 
 void OsdOmpComputeVertexA(
-    float * vertex, float * varying,
+    real * vertex, real * varying,
     OsdVertexBufferDescriptor const &vertexDesc,
     OsdVertexBufferDescriptor const &varyingDesc,
-    const int *V_ITa, const float *V_W,
+    const int *V_ITa, const real *V_W,
     int offset, int tableOffset, int start, int end, int pass) {
 
     int numThreads = omp_get_max_threads();
-    float *vertexResultsArray = (float*)alloca(vertexDesc.length * sizeof(float) * numThreads);
-    float *varyingResultsArray = (float*)alloca(varyingDesc.length * sizeof(float) * numThreads);
+    real *vertexResultsArray = (real*)alloca(vertexDesc.length * sizeof(real) * numThreads);
+    real *varyingResultsArray = (real*)alloca(varyingDesc.length * sizeof(real) * numThreads);
 
 #pragma omp parallel for
     for (int i = start + tableOffset; i < end + tableOffset; i++) {
@@ -261,7 +261,7 @@ void OsdOmpComputeVertexA(
         int eidx0 = V_ITa[5*i+3];
         int eidx1 = V_ITa[5*i+4];
 
-        float weight = (pass == 1) ? V_W[i] : 1.0f - V_W[i];
+        real weight = (pass == 1) ? V_W[i] : 1.0f - V_W[i];
 
         // In the case of fractional weight, the weight must be inverted since
         // the value is shared with the k_Smooth kernel (statistically the
@@ -272,9 +272,9 @@ void OsdOmpComputeVertexA(
         int dstIndex = offset + i - tableOffset;
 
         int threadId = omp_get_thread_num();
-        float *vertexResults = vertexResultsArray +
+        real *vertexResults = vertexResultsArray +
             vertexDesc.length * threadId;
-        float *varyingResults = varyingResultsArray +
+        real *varyingResults = varyingResultsArray +
             varyingDesc.length * threadId;
 
         clear(vertexResults, vertexDesc);
@@ -301,15 +301,15 @@ void OsdOmpComputeVertexA(
 }
 
 void OsdOmpComputeVertexB(
-    float * vertex, float * varying,
+    real * vertex, real * varying,
     OsdVertexBufferDescriptor const &vertexDesc,
     OsdVertexBufferDescriptor const &varyingDesc,
-    const int *V_ITa, const int *V_IT, const float *V_W,
+    const int *V_ITa, const int *V_IT, const real *V_W,
     int offset, int tableOffset, int start, int end) {
 
     int numThreads = omp_get_max_threads();
-    float *vertexResultsArray = (float*)alloca(vertexDesc.length * sizeof(float) * numThreads);
-    float *varyingResultsArray = (float*)alloca(varyingDesc.length * sizeof(float) * numThreads);
+    real *vertexResultsArray = (real*)alloca(vertexDesc.length * sizeof(real) * numThreads);
+    real *varyingResultsArray = (real*)alloca(varyingDesc.length * sizeof(real) * numThreads);
 
 #pragma omp parallel for
     for (int i = start + tableOffset; i < end + tableOffset; i++) {
@@ -317,16 +317,16 @@ void OsdOmpComputeVertexB(
         int n = V_ITa[5*i+1];
         int p = V_ITa[5*i+2];
 
-        float weight = V_W[i];
-        float wp = 1.0f/static_cast<float>(n*n);
-        float wv = (n-2.0f) * n * wp;
+        real weight = V_W[i];
+        real wp = 1.0f/static_cast<real>(n*n);
+        real wv = (n-2.0f) * n * wp;
 
         int dstIndex = offset + i - tableOffset;
 
         int threadId = omp_get_thread_num();
-        float *vertexResults = vertexResultsArray +
+        real *vertexResults = vertexResultsArray +
             vertexDesc.length * threadId;
-        float *varyingResults = varyingResultsArray +
+        real *varyingResults = varyingResultsArray +
             varyingDesc.length * threadId;
 
         clear(vertexResults, vertexDesc);
@@ -346,15 +346,15 @@ void OsdOmpComputeVertexB(
 }
 
 void OsdOmpComputeLoopVertexB(
-    float * vertex, float * varying,
+    real * vertex, real * varying,
     OsdVertexBufferDescriptor const &vertexDesc,
     OsdVertexBufferDescriptor const &varyingDesc,
-    const int *V_ITa, const int *V_IT, const float *V_W,
+    const int *V_ITa, const int *V_IT, const real *V_W,
     int vertexOffset, int tableOffset, int start, int end) {
 
     int numThreads = omp_get_max_threads();
-    float *vertexResultsArray = (float*)alloca(vertexDesc.length * sizeof(float) * numThreads);
-    float *varyingResultsArray = (float*)alloca(varyingDesc.length * sizeof(float) * numThreads);
+    real *vertexResultsArray = (real*)alloca(vertexDesc.length * sizeof(real) * numThreads);
+    real *varyingResultsArray = (real*)alloca(varyingDesc.length * sizeof(real) * numThreads);
 
 #pragma omp parallel for
     for (int i = start + tableOffset; i < end + tableOffset; i++) {
@@ -362,18 +362,18 @@ void OsdOmpComputeLoopVertexB(
         int n = V_ITa[5*i+1];
         int p = V_ITa[5*i+2];
 
-        float weight = V_W[i];
-        float wp = 1.0f/static_cast<float>(n);
-        float beta = 0.25f * cosf(static_cast<float>(M_PI) * 2.0f * wp) + 0.375f;
+        real weight = V_W[i];
+        real wp = 1.0f/static_cast<real>(n);
+        real beta = 0.25f * cosf(static_cast<real>(M_PI) * 2.0f * wp) + 0.375f;
         beta = beta * beta;
         beta = (0.625f - beta) * wp;
 
         int dstIndex = i + vertexOffset - tableOffset;
 
         int threadId = omp_get_thread_num();
-        float *vertexResults = vertexResultsArray +
+        real *vertexResults = vertexResultsArray +
             vertexDesc.length * threadId;
-        float *varyingResults = varyingResultsArray +
+        real *varyingResults = varyingResultsArray +
             varyingDesc.length * threadId;
 
         clear(vertexResults, vertexDesc);
@@ -392,14 +392,14 @@ void OsdOmpComputeLoopVertexB(
 }
 
 void OsdOmpComputeBilinearEdge(
-    float * vertex, float * varying,
+    real * vertex, real * varying,
     OsdVertexBufferDescriptor const &vertexDesc,
     OsdVertexBufferDescriptor const &varyingDesc,
     const int *E_IT, int vertexOffset, int tableOffset, int start, int end) {
 
     int numThreads = omp_get_max_threads();
-    float *vertexResultsArray = (float*)alloca(vertexDesc.length * sizeof(float) * numThreads);
-    float *varyingResultsArray = (float*)alloca(varyingDesc.length * sizeof(float) * numThreads);
+    real *vertexResultsArray = (real*)alloca(vertexDesc.length * sizeof(real) * numThreads);
+    real *varyingResultsArray = (real*)alloca(varyingDesc.length * sizeof(real) * numThreads);
 
 #pragma omp parallel for
     for (int i = start + tableOffset; i < end + tableOffset; i++) {
@@ -409,9 +409,9 @@ void OsdOmpComputeBilinearEdge(
         int dstIndex = i + vertexOffset - tableOffset;
 
         int threadId = omp_get_thread_num();
-        float *vertexResults = vertexResultsArray +
+        real *vertexResults = vertexResultsArray +
             vertexDesc.length * threadId;
-        float *varyingResults = varyingResultsArray +
+        real *varyingResults = varyingResultsArray +
             varyingDesc.length * threadId;
 
         clear(vertexResults, vertexDesc);
@@ -429,14 +429,14 @@ void OsdOmpComputeBilinearEdge(
 }
 
 void OsdOmpComputeBilinearVertex(
-    float * vertex, float * varying,
+    real * vertex, real * varying,
     OsdVertexBufferDescriptor const &vertexDesc,
     OsdVertexBufferDescriptor const &varyingDesc,
     const int *V_ITa, int vertexOffset, int tableOffset, int start, int end) {
 
     int numThreads = omp_get_max_threads();
-    float *vertexResultsArray = (float*)alloca(vertexDesc.length * sizeof(float) * numThreads);
-    float *varyingResultsArray = (float*)alloca(varyingDesc.length * sizeof(float) * numThreads);
+    real *vertexResultsArray = (real*)alloca(vertexDesc.length * sizeof(real) * numThreads);
+    real *varyingResultsArray = (real*)alloca(varyingDesc.length * sizeof(real) * numThreads);
 
 #pragma omp parallel for
     for (int i = start + tableOffset; i < end + tableOffset; i++) {
@@ -445,9 +445,9 @@ void OsdOmpComputeBilinearVertex(
         int dstIndex = i + vertexOffset - tableOffset;
 
         int threadId = omp_get_thread_num();
-        float *vertexResults = vertexResultsArray +
+        real *vertexResults = vertexResultsArray +
             vertexDesc.length * threadId;
-        float *varyingResults = varyingResultsArray +
+        real *varyingResults = varyingResultsArray +
             varyingDesc.length * threadId;
 
         clear(vertexResults, vertexDesc);
@@ -462,18 +462,18 @@ void OsdOmpComputeBilinearVertex(
 }
 
 void OsdOmpEditVertexAdd(
-    float * vertex,
+    real * vertex,
     OsdVertexBufferDescriptor const &vertexDesc,
     int primVarOffset, int primVarWidth, int vertexOffset, int tableOffset,
     int start, int end,
-    const unsigned int *editIndices, const float *editValues) {
+    const unsigned int *editIndices, const real *editValues) {
 
 #pragma omp parallel for
     for (int i = start+tableOffset; i < end+tableOffset; i++) {
 
         if (vertex) {
             int editIndex = editIndices[i] + vertexOffset;
-            float *dst = vertex + editIndex * vertexDesc.stride + primVarOffset;
+            real *dst = vertex + editIndex * vertexDesc.stride + primVarOffset;
 
             for (int j = 0; j < primVarWidth; ++j) {
                 dst[j] += editValues[j];
@@ -483,18 +483,18 @@ void OsdOmpEditVertexAdd(
 }
 
 void OsdOmpEditVertexSet(
-    float * vertex,
+    real * vertex,
     OsdVertexBufferDescriptor const &vertexDesc,
     int primVarOffset, int primVarWidth, int vertexOffset, int tableOffset,
     int start, int end,
-    const unsigned int *editIndices, const float *editValues) {
+    const unsigned int *editIndices, const real *editValues) {
 
 #pragma omp parallel for
     for (int i = start+tableOffset; i < end+tableOffset; i++) {
 
         if (vertex) {
             int editIndex = editIndices[i] + vertexOffset;
-            float *dst = vertex + editIndex * vertexDesc.stride + primVarOffset;
+            real *dst = vertex + editIndex * vertexDesc.stride + primVarOffset;
 
             for (int j = 0; j < primVarWidth; ++j) {
                 dst[j] = editValues[j];

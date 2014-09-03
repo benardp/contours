@@ -55,7 +55,7 @@ OsdOmpEvalStencilsController::_UpdateValues( OsdCpuEvalStencilsContext * context
     if (not ctrlDesc.CanEval(outDesc))
         return 0;
 
-    float const * ctrl = _currentBindState.controlData + ctrlDesc.offset;
+    real const * ctrl = _currentBindState.controlData + ctrlDesc.offset;
 
     if (not ctrl)
         return result;
@@ -68,15 +68,15 @@ OsdOmpEvalStencilsController::_UpdateValues( OsdCpuEvalStencilsContext * context
 
         int const * index = &stencils->GetControlIndices().at(offset);
 
-        float const * weight = &stencils->GetWeights().at(offset);
+        real const * weight = &stencils->GetWeights().at(offset);
 
-        float * out = _currentBindState.outputData + i * outDesc.stride + outDesc.offset;
+        real * out = _currentBindState.outputData + i * outDesc.stride + outDesc.offset;
 
-        memset(out, 0, outDesc.length*sizeof(float));
+        memset(out, 0, outDesc.length*sizeof(real));
 
         for (int j=0; j<size; ++j, ++index, ++weight) {
 
-            float const * cv = ctrl + (*index)*ctrlDesc.stride;
+            real const * cv = ctrl + (*index)*ctrlDesc.stride;
 
             for (int k=0; k<outDesc.length; ++k) {
                 out[k] += cv[k] * (*weight);
@@ -106,7 +106,7 @@ OsdOmpEvalStencilsController::_UpdateDerivs( OsdCpuEvalStencilsContext * context
     if (not (ctrlDesc.CanEval(duDesc) and ctrlDesc.CanEval(dvDesc)))
         return 0;
 
-    float const * ctrl = _currentBindState.controlData + ctrlDesc.offset;
+    real const * ctrl = _currentBindState.controlData + ctrlDesc.offset;
 
     if (not ctrl)
         return result;
@@ -119,18 +119,18 @@ OsdOmpEvalStencilsController::_UpdateDerivs( OsdCpuEvalStencilsContext * context
 
         int const * index = &stencils->GetControlIndices().at(offset);
 
-        float const * duweight = &stencils->GetDuWeights().at(offset),
+        real const * duweight = &stencils->GetDuWeights().at(offset),
                     * dvweight = &stencils->GetDvWeights().at(offset);
 
-        float * du = _currentBindState.outputUDeriv + i * duDesc.stride + duDesc.offset,
+        real * du = _currentBindState.outputUDeriv + i * duDesc.stride + duDesc.offset,
               * dv = _currentBindState.outputVDeriv + i * dvDesc.stride + dvDesc.offset;
 
-        memset(du, 0, duDesc.length*sizeof(float));
-        memset(dv, 0, dvDesc.length*sizeof(float));
+        memset(du, 0, duDesc.length*sizeof(real));
+        memset(dv, 0, dvDesc.length*sizeof(real));
 
         for (int j=0; j<size; ++j, ++index, ++duweight, ++dvweight) {
 
-            float const * cv = ctrl + (*index)*ctrlDesc.stride;
+            real const * cv = ctrl + (*index)*ctrlDesc.stride;
 
             for (int k=0; k<duDesc.length; ++k) {
                 du[k] += cv[k] * (*duweight);

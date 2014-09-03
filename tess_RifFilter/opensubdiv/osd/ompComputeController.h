@@ -199,8 +199,8 @@ private:
             vertexDesc.Reset();
             varyingDesc.Reset();
         }
-        float *vertexBuffer;
-        float *varyingBuffer;
+        real *vertexBuffer;
+        real *varyingBuffer;
         OsdVertexBufferDescriptor vertexDesc;
         OsdVertexBufferDescriptor varyingDesc;
     };
