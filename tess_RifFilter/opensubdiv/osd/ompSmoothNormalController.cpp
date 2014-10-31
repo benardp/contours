@@ -35,15 +35,15 @@ namespace OpenSubdiv {
 namespace OPENSUBDIV_VERSION {
 
 inline void
-cross(float *n, const float *p0, const float *p1, const float *p2) {
+cross(real *n, const real *p0, const real *p1, const real *p2) {
 
-    float a[3] = { p1[0]-p0[0], p1[1]-p0[1], p1[2]-p0[2] };
-    float b[3] = { p2[0]-p0[0], p2[1]-p0[1], p2[2]-p0[2] };
+    real a[3] = { p1[0]-p0[0], p1[1]-p0[1], p1[2]-p0[2] };
+    real b[3] = { p2[0]-p0[0], p2[1]-p0[1], p2[2]-p0[2] };
     n[0] = a[1]*b[2]-a[2]*b[1];
     n[1] = a[2]*b[0]-a[0]*b[2];
     n[2] = a[0]*b[1]-a[1]*b[0];
 
-    float rn = 1.0f/sqrtf(n[0]*n[0] + n[1]*n[1] + n[2]*n[2]);
+    real rn = 1.0f/sqrtf(n[0]*n[0] + n[1]*n[1] + n[2]*n[2]);
     n[0] *= rn;
     n[1] *= rn;
     n[2] *= rn;
@@ -57,8 +57,8 @@ void OsdOmpSmoothNormalController::_smootheNormals(
 
     assert(iDesc.length==3 and oDesc.length==3);
 
-    float const * iBuffer = context->GetCurrentInputVertexBuffer() + iDesc.offset;
-    float * oBuffer = context->GetCurrentOutputVertexBuffer() + oDesc.offset;
+    real const * iBuffer = context->GetCurrentInputVertexBuffer() + iDesc.offset;
+    real * oBuffer = context->GetCurrentOutputVertexBuffer() + oDesc.offset;
 
     std::vector<unsigned int> const & verts = context->GetControlVertices();
 
@@ -83,8 +83,8 @@ void OsdOmpSmoothNormalController::_smootheNormals(
             if (context->GetResetMemory()) {
 #pragma omp parallel for
                 for (int j=0; j<context->GetNumVertices(); ++j) {
-                    float * ptr = oBuffer + j * oDesc.stride;
-                    memset(ptr, 0, oDesc.length*sizeof(float));
+                    real * ptr = oBuffer + j * oDesc.stride;
+                    memset(ptr, 0, oDesc.length*sizeof(real));
                 }
             }
 
@@ -94,18 +94,18 @@ void OsdOmpSmoothNormalController::_smootheNormals(
 
                 int idx = pa.GetVertIndex() + j*nv;
 
-                float const * p0 = iBuffer + verts[idx+0]*iDesc.stride,
+                real const * p0 = iBuffer + verts[idx+0]*iDesc.stride,
                             * p1 = iBuffer + verts[idx+1]*iDesc.stride,
                             * p2 = iBuffer + verts[idx+2]*iDesc.stride;
 
                 // compute face normal
-                float n[3];
+                real n[3];
                 cross( n, p0, p1, p2 );
 
                 // add normal to all vertices of the face
                 for (int k=0; k<nv; ++k) {
 
-                    float * dst = oBuffer + verts[idx+k]*oDesc.stride;
+                    real * dst = oBuffer + verts[idx+k]*oDesc.stride;
 
                     dst[0] += n[0];
                     dst[1] += n[1];
