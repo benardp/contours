@@ -16,7 +16,7 @@ set(LIBRARY_OUTPUT_PATH
     ${PROJECT_BINARY_DIR}/lib
 )
 
-if(APPLE)
+if(APPLE AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
  set(CMAKE_CXX_FLAGS "-stdlib=libstdc++")
 endif()
 
