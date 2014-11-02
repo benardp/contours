@@ -172,28 +172,6 @@ def runStrokes(s):  # s is the settings module/class
         PNGFilenameThick = outputFolder+'/'+snapshotBasename+'.%03d.png'%fileNums[i]
         
         cameraFilename = cameraFiles[i]
-    
-        ################### USE A RIF TO EXTRACT CAMERA TRANSFORM FROM RIB ########################
-
-        if not fileExists(cameraFilename):
-            if prmanAvailable:
-                
-                print('*** Extracting camera data from RIB file ***')
-                cameraData = cameraRif.runFilter([headerFilename])
-                
-                cameraFile = open(cameraFilename,'wb')
-                cPickle.dump(cameraData,cameraFile)
-                cameraFile.close()
-            else:
-                print('*** Error camera data not available ***')
-                return
-        else:
-            print('Loading pickled camera data from '+cameraFilename)
-            cameraFile = open(cameraFilename,'r')
-            cameraData = cPickle.load(cameraFile)
-            cameraFile.close()
-        
-        #print(cameraData)
 
         ################### USE THE RIF TO EXTRACT GEOMETRY FROM RIB AND PROCESS IT ##################
 
@@ -264,6 +242,29 @@ def runStrokes(s):  # s is the settings module/class
         ############################ RENDER STROKES IMAGE USING FREESTYLE #########################
 
         if s.renderStrokes and not runRIF:
+
+            ################### USE A RIF TO EXTRACT CAMERA TRANSFORM FROM RIB ########################
+
+            if not fileExists(cameraFilename):
+                if prmanAvailable:
+                    
+                    print('*** Extracting camera data from RIB file ***')
+                    cameraData = cameraRif.runFilter([headerFilename])
+                    
+                    cameraFile = open(cameraFilename,'wb')
+                    cPickle.dump(cameraData,cameraFile)
+                    cameraFile.close()
+                else:
+                    print('*** Error camera data not available ***')
+                    return
+            else:
+                print('Loading pickled camera data from '+cameraFilename)
+                cameraFile = open(cameraFilename,'r')
+                cameraData = cPickle.load(cameraFile)
+                cameraFile.close()
+            
+            #print(cameraData)
+
             print('*** Starting Freestyle ***')
 
             # tell Freestyle which rendering styles to use
