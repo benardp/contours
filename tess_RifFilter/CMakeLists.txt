@@ -5,7 +5,11 @@ cmake_minimum_required(VERSION 2.8.6)
 add_subdirectory(opensubdiv)
 
 include_directories(opensubdiv)
-set(LIBS ${LIBS} -Wl,-whole-archive osd_static_cpu osdutil -Wl,-no-whole-archive)
+if(APPLE)
+	set(LIBS ${LIBS} osd_static_cpu osdutil)
+else()
+	set(LIBS ${LIBS} -Wl,-whole-archive osd_static_cpu osdutil -Wl,-no-whole-archive)
+endif()
 
 find_package(3Delight REQUIRED)
 include_directories(${3Delight_INCLUDE_DIR})
