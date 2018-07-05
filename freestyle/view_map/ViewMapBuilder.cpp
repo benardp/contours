@@ -1771,6 +1771,31 @@ bool DiscreteRadialSign(FEdgeSmooth * fesh, Vec3r & viewpoint)
     }
 }
 
+bool Concave(FEdgeSharp * edge)
+{
+    WFace* aFace = edge->edge()->GetaFace();
+    const vector<WOEdge*>& aEdges = aFace->GetEdgeList();
+
+    Vec3f v[3];
+    for(int i=0; i<3; i++){
+        v[i] = aEdges[i]->GetaVertex()->GetVertex();
+    }
+
+    Vec3f o;
+    WFace* bFace = edge->edge()->GetbFace();
+    for(int i=0; i<3; i++){
+        if(bFace->GetVertex(i)!=edge->vertexA()->GetSourceVertex() && bFace->GetVertex(i)!=edge->vertexB()->GetSourceVertex())
+            o = bFace->GetVertex(i)->GetVertex();
+    }
+
+    // std::cout <<"A = [" << v[0].x() << " " << v[0].y() << " " << v[0].z() << "]" << std::endl;
+    // std::cout <<"B = [" << v[1].x() << " " << v[1].y() << " " << v[1].z() << "]" << std::endl;
+    // std::cout <<"C = [" << v[2].x() << " " << v[2].y() << " " << v[2].z() << "]" << std::endl;
+    // std::cout <<"E = [" << o.x() << " " << o.y() << " " << o.z() << "]" << std::endl;
+
+    return orient3d(v[0],v[1],v[2],o) > 0;
+}
+
 
 void ViewMapBuilder::computeCusps(ViewMap *ioViewMap){
     /*
@@ -1951,7 +1976,8 @@ void ViewMapBuilder::computeCusps(ViewMap *ioViewMap){
 
     // --------------------- cusps for mesh boundaries and silhouettes ---------------------
 
-
+    int nbCusps = 0;
+    int nbCusps2 = 0;
 
     for(vector<SVertex*>::iterator sit = ioViewMap->SVertices().begin(); sit != ioViewMap->SVertices().end();
         ++sit)
@@ -2025,17 +2051,29 @@ void ViewMapBuilder::computeCusps(ViewMap *ioViewMap){
             // A vertex is a cusp if it connects a front-facing to a back-facing edge.
 
             bool facing[2];
+            bool concave[2];
 
             for(int i=0;i<2;i++)
             {
-                //	      WEdge * edge = fesh[i]->edge();
                 WFace * nearerFace = GetNearFace(fesh[i]->edge(),_viewpoint);
-                fesh[i]->edge()->nearerFace = nearerFace;
-
                 facing[i] = ((WXFace*)nearerFace)->front(_useConsistency);
+
+                concave[i] = Concave(fesh[i]);
             }
-            //	  printf("facing: %s, %s\n", facing[0] ? "T" : "F", facing[1] ? "T":"F");
             isCusp = (facing[0] != facing[1]);
+
+            if(isCusp) nbCusps++;
+            if((concave[0] != concave[1])) nbCusps2++;
+
+            if(isCusp && (concave[0] == concave[1]))
+                printf("CUSP & CONCAVE DISAGREE 1\n");
+            else if (!isCusp && (concave[0] != concave[1]))
+                printf("CUSP & CONCAVE DISAGREE 2\n");
+            // else if(isCusp)
+            //     printf("CUSP FOUND CORRECTLY\n");
+
+            // std::cout << "facing: " << facing[0] << " & " << facing[1] << std::endl;
+            // std::cout << "concave: " << concave[0] << " & " << concave[1] << std::endl<< std::endl;
         }
         else
             if (cuspTest == 1)
@@ -2072,6 +2110,7 @@ void ViewMapBuilder::computeCusps(ViewMap *ioViewMap){
             ioViewMap->addDebugPoint(DebugPoint::CUSP,sv->getPoint3D(),false, sv);
         }
     }
+    std::cout << nbCusps << " vs. " << nbCusps2 << std::endl;
 }
 
 
@@ -3790,7 +3829,7 @@ void ViewMapBuilder::ComputeCurveIntersections(ViewMap *ioViewMap, visibility_al
                 SVertex * sv = isBack ? tvert->backSVertex() : tvert->frontSVertex();
                 SVertex * svother = isBack ? tvert->frontSVertex() : tvert->backSVertex();
                 ioViewMap->addDebugPoint(DebugPoint::INTERSECTION_2D, sv->getPoint3D(), svother->getPoint3D(),
-                                         sv, false, svother);
+                                         false, sv, false, svother);
                 //	    addDebugPoint(isBack ? tvert->backSVertex()->getPoint3D() :
                 //			  tvert->frontSVertex()->getPoint3D(), intNode1);
 

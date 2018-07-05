@@ -1,26 +1,25 @@
 #
-#     Copyright 2013 Pixar
+#   Copyright 2013 Pixar
 #
-#     Licensed under the Apache License, Version 2.0 (the "License");
-#     you may not use this file except in compliance with the License
-#     and the following modification to it: Section 6 Trademarks.
-#     deleted and replaced with:
+#   Licensed under the Apache License, Version 2.0 (the "Apache License")
+#   with the following modification; you may not use this file except in
+#   compliance with the Apache License and the following modification to it:
+#   Section 6. Trademarks. is deleted and replaced with:
 #
-#     6. Trademarks. This License does not grant permission to use the
-#     trade names, trademarks, service marks, or product names of the
-#     Licensor and its affiliates, except as required for reproducing
-#     the content of the NOTICE file.
+#   6. Trademarks. This License does not grant permission to use the trade
+#      names, trademarks, service marks, or product names of the Licensor
+#      and its affiliates, except as required to comply with Section 4(c) of
+#      the License and to reproduce the content of the NOTICE file.
 #
-#     You may obtain a copy of the License at
+#   You may obtain a copy of the Apache License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#       http://www.apache.org/licenses/LICENSE-2.0
 #
-#     Unless required by applicable law or agreed to in writing,
-#     software distributed under the License is distributed on an
-#     "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-#     either express or implied.  See the License for the specific
-#     language governing permissions and limitations under the
-#     License.
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the Apache License with the above modification is
+#   distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#   KIND, either express or implied. See the Apache License for the specific
+#   language governing permissions and limitations under the Apache License.
 #
 
 # Try to find GLFW library and include path.
@@ -33,13 +32,38 @@
 
 find_path( GLFW_INCLUDE_DIR 
     NAMES
-        GL/glfw.h
         GLFW/glfw3.h
+    HINTS
+        "${GLFW_LOCATION}/include"
+        "$ENV{GLFW_LOCATION}/include"
     PATHS
-        ${GLFW_LOCATION}/include
-        $ENV{GLFW_LOCATION}/include
-        $ENV{PROGRAMFILES}/GLFW/include
-        ${OPENGL_INCLUDE_DIR}
+        "$ENV{PROGRAMFILES}/GLFW/include"
+        "${OPENGL_INCLUDE_DIR}"
+        /usr/openwin/share/include
+        /usr/openwin/include
+        /usr/X11R6/include
+        /usr/include/X11
+        /opt/graphics/OpenGL/include
+        /opt/graphics/OpenGL/contrib/libglfw
+        /usr/local/include
+        /usr/include/GL
+        /usr/include
+    DOC 
+        "The directory where GLFW/glfw3.h resides"
+)
+
+#
+# XXX: Do we still need to search for GL/glfw.h?
+#
+find_path( GLFW_INCLUDE_DIR 
+    NAMES
+        GL/glfw.h
+    HINTS
+        "${GLFW_LOCATION}/include"
+        "$ENV{GLFW_LOCATION}/include"
+    PATHS
+        "$ENV{PROGRAMFILES}/GLFW/include"
+        "${OPENGL_INCLUDE_DIR}"
         /usr/openwin/share/include
         /usr/openwin/include
         /usr/X11R6/include
@@ -58,11 +82,12 @@ if (WIN32)
         find_library( GLFW_glfw_LIBRARY 
             NAMES
                 glfw32
+            HINTS
+                "${GLFW_LOCATION}/lib"
+                "${GLFW_LOCATION}/lib/x64"
+                "$ENV{GLFW_LOCATION}/lib"
             PATHS
-                ${GLFW_LOCATION}/lib
-                ${GLFW_LOCATION}/lib/x64
-                $ENV{GLFW_LOCATION}/lib
-                ${OPENGL_LIBRARY_DIR}
+                "${OPENGL_LIBRARY_DIR}"
                 /usr/lib
                 /usr/lib/w32api
                 /usr/local/lib
@@ -77,15 +102,18 @@ if (WIN32)
                 glfw32s 
                 glfw
                 glfw3
+            HINTS
+                "${GLFW_LOCATION}/lib"
+                "${GLFW_LOCATION}/lib/x64"
+                "${GLFW_LOCATION}/lib-msvc110"
+                "${GLFW_LOCATION}/lib-vc2012"
+                "$ENV{GLFW_LOCATION}/lib"
+                "$ENV{GLFW_LOCATION}/lib/x64"
+                "$ENV{GLFW_LOCATION}/lib-msvc110"
+                "$ENV{GLFW_LOCATION}/lib-vc2012"
             PATHS
-                ${GLFW_LOCATION}/lib
-                ${GLFW_LOCATION}/lib/x64
-                ${GLFW_LOCATION}/lib-msvc110
-                $ENV{GLFW_LOCATION}/lib
-                ${PROJECT_SOURCE_DIR}/extern/glfw/bin
-                ${PROJECT_SOURCE_DIR}/extern/glfw/lib
-                $ENV{PROGRAMFILES}/GLFW/lib
-                ${OPENGL_LIBRARY_DIR}
+                "$ENV{PROGRAMFILES}/GLFW/lib"
+                "${OPENGL_LIBRARY_DIR}"
             DOC 
                 "The GLFW library"
         )
@@ -96,11 +124,12 @@ else ()
             NAMES 
                 glfw
                 glfw3
+            HINTS
+                "${GLFW_LOCATION}/lib"
+                "${GLFW_LOCATION}/lib/cocoa"
+                "$ENV{GLFW_LOCATION}/lib"
+                "$ENV{GLFW_LOCATION}/lib/cocoa"
             PATHS
-                ${GLFW_LOCATION}/lib
-                ${GLFW_LOCATION}/lib/cocoa
-                $ENV{GLFW_LOCATION}/lib
-                $ENV{GLFW_LOCATION}/lib/cocoa
                 /usr/local/lib
         )
         set(GLFW_cocoa_LIBRARY "-framework Cocoa" CACHE STRING "Cocoa framework for OSX")
@@ -109,6 +138,8 @@ else ()
     else ()
         # (*)NIX
         
+        find_package(Threads REQUIRED)
+
         find_package(X11 REQUIRED)
         
         if(NOT X11_Xrandr_FOUND)
@@ -119,19 +150,36 @@ else ()
             message(FATAL_ERROR "xf86vmode library not found - required for GLFW")
         endif()
 
-        list(APPEND GLFW_x11_LIBRARY ${X11_Xrandr_LIB} ${X11_Xxf86vm_LIB} -lX11 -lXxf86vm -lXrandr -lpthread -lXi)
+        if(NOT X11_Xcursor_FOUND)
+            message(FATAL_ERROR "Xcursor library not found - required for GLFW")
+        endif()
+
+        if(NOT X11_Xinerama_FOUND)
+            message(FATAL_ERROR "Xinerama library not found - required for GLFW")
+        endif()
+
+        if(NOT X11_Xi_FOUND)
+            message(FATAL_ERROR "Xi library not found - required for GLFW")
+        endif()
+
+        list(APPEND GLFW_x11_LIBRARY "${X11_Xrandr_LIB}" "${X11_Xxf86vm_LIB}" "${X11_Xcursor_LIB}" "${X11_Xinerama_LIB}" "${X11_Xi_LIB}" "${X11_LIBRARIES}" "${CMAKE_THREAD_LIBS_INIT}" -lrt -ldl)
 
         find_library( GLFW_glfw_LIBRARY
             NAMES 
                 glfw
                 glfw3
+            HINTS
+                "${GLFW_LOCATION}/lib"
+                "$ENV{GLFW_LOCATION}/lib"
+                "${GLFW_LOCATION}/lib/x11"
+                "$ENV{GLFW_LOCATION}/lib/x11"
             PATHS
-                ${GLFW_LOCATION}/lib
-                $ENV{GLFW_LOCATION}/lib
-                ${GLFW_LOCATION}/lib/x11
-                $ENV{GLFW_LOCATION}/lib/x11
+                /usr/lib64
                 /usr/lib
+                /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}
+                /usr/local/lib64
                 /usr/local/lib
+                /usr/local/lib/${CMAKE_LIBRARY_ARCHITECTURE}
                 /usr/openwin/lib
                 /usr/X11R6/lib
             DOC 
@@ -145,14 +193,14 @@ set( GLFW_FOUND "NO" )
 if(GLFW_INCLUDE_DIR)
 
     if(GLFW_glfw_LIBRARY)
-        set( GLFW_LIBRARIES ${GLFW_glfw_LIBRARY} 
-                            ${GLFW_x11_LIBRARY} 
-                            ${GLFW_cocoa_LIBRARY} 
-                            ${GLFW_iokit_LIBRARY} 
-                            ${GLFW_corevideo_LIBRARY} )        
+        set( GLFW_LIBRARIES "${GLFW_glfw_LIBRARY}"
+                            "${GLFW_x11_LIBRARY}"
+                            "${GLFW_cocoa_LIBRARY}"
+                            "${GLFW_iokit_LIBRARY}"
+                            "${GLFW_corevideo_LIBRARY}" )
         set( GLFW_FOUND "YES" )
-        set (GLFW_LIBRARY ${GLFW_LIBRARIES})
-        set (GLFW_INCLUDE_PATH ${GLFW_INCLUDE_DIR})
+        set (GLFW_LIBRARY "${GLFW_LIBRARIES}")
+        set (GLFW_INCLUDE_PATH "${GLFW_INCLUDE_DIR}")
     endif(GLFW_glfw_LIBRARY)
 
 

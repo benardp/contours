@@ -6,18 +6,17 @@ extraction method described in the following publication:
 
 [Computing Smooth Surface Contours with Accurate Topology.](http://www.labri.fr/perso/pbenard/publications/contours.html)
 Pierre Bénard, Aaron Hertzmann, Michael Kass. ACM Transactions on
-Graphics, 2013
+Graphics, 2014
 
 Disclaimer: This version of the mesh generation code is not exactly
 the same as the one used for producing the results in the paper. We
 had to switch to OpenSubdiv to be able to release it. The precision of the
-root-finding procedure is lower, which may impact the tesselation.
+root-finding procedure is lower, which may impact the tessellation.
 
 Note: This is research software. As such, it may fail to run, crash,
 or otherwise not perform as expected. It is not intended for regular
 use in any kind of production pipeline.
 
--
 
 ### Dependencies
 
@@ -31,10 +30,10 @@ RifFilter; you will either need
 available) to build and run it.
 
 Required:
-* [cmake](http://www.cmake.org/cmake/resources/software.html)
-* [Qt 4.8 libraries](http://qt-project.org/downloads) (Freestyle)
-* [libQGLViewer](http://www.libqglviewer.com/) (Freestyle)
-* [SWIG](http://www.swig.org/) (Freestyle)
+* [cmake](http://www.cmake.org/cmake/resources/software.html) version 2.8.6 minimum
+* [Qt5 libraries](http://qt-project.org/downloads) version 5.4 minimum (Freestyle)
+* [libQGLViewer](http://www.libqglviewer.com/) version 2.7 minimum (Freestyle)
+* [SWIG](http://www.swig.org/) with Python 2.7(Freestyle)
 
 Optional:
 * [GLEW](http://sourceforge.net/projects/glew/) (Linux only)
@@ -43,7 +42,7 @@ Optional:
 
 
 ### Build instructions
-Tested on Linux (gcc 4.8) and OS X (clang 5.x), not tested on Windows.
+Tested on Linux (gcc 4.8) and OS X (clang), not tested on Windows.
 
 __Clone the repository:__
 

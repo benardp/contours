@@ -26,8 +26,8 @@
 #include "../geometry/Geom.h"
 using namespace Geometry;
 
-#include <qstring.h>
-#include <qimage.h>
+#include <QString>
+#include <QImage>
 
 SteerableViewMap::SteerableViewMap(unsigned int nbOrientations){
   _nbOrientations = nbOrientations;

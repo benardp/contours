@@ -33,7 +33,6 @@
 #include <QKeyEvent>
 #include <QWidget>
 #include <QPainter>
-#include <QColorGroup>
 #include "ui_stylewindow4.h"
 
 using namespace Ui;
@@ -43,7 +42,7 @@ class AppStyleWindow : public QDialog, public StyleWindow
 {
   Q_OBJECT
 public:
-	AppStyleWindow(QWidget* parent = 0, const char* name = 0, Qt::WFlags fl = 0);
+	AppStyleWindow(QWidget* parent = 0, const char* name = 0, Qt::WindowFlags fl = 0);
   virtual ~AppStyleWindow();
 
   void ExposeInteractiveShader();

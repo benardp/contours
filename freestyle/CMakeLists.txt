@@ -16,10 +16,6 @@ set(LIBRARY_OUTPUT_PATH
     ${PROJECT_BINARY_DIR}/lib
 )
 
-if(APPLE AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
- set(CMAKE_CXX_FLAGS "-stdlib=libstdc++")
-endif()
-
 add_subdirectory(geometry)
 
 add_subdirectory(image)

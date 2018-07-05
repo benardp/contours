@@ -384,7 +384,7 @@ extern "C"
 {
   void exactinit(); // this must be called before any calls to orient
   //  real orient2d(real * real *, real*);
-  real orient3d(real *,real*,real*,real*);
+  real orient3dexact(real *,real*,real*,real*);
 };
 
 
@@ -399,7 +399,7 @@ real orient3d(Vec3r P, Vec3r Q, Vec3r R, Vec3r A)
   real r[3] = { R[0], R[1], R[2] };
   real a[3] = { A[0], A[1], A[2] };
 
-  return orient3d(p,q,r,a);
+  return orient3dexact(p,q,r,a);
 }
 
 inline 

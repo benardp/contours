@@ -25,7 +25,7 @@
 using namespace std;
 
 
-AppDensityCurvesWindow::AppDensityCurvesWindow(QWidget *parent, const char *name, bool modal, Qt::WFlags fl)
+AppDensityCurvesWindow::AppDensityCurvesWindow(QWidget *parent, const char *name, bool modal,  Qt::WindowFlags fl)
  : QDialog(parent, fl)
 {
 	setupUi(this);

@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 
     int res = app->exec();
 
-    delete g_pController;
+    delete g_pController; 
 
     return res;
 }

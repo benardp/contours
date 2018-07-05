@@ -76,7 +76,7 @@ void AppGL2DCurvesViewer::SetCurve(const Vec2d& vmin, const Vec2d& vmax, const v
     shape->AddRep(new VertexRep(v->x(), v->y(), v->z()));
   }
   _RootNode.AddChild(curveNode);
-  updateGL();
+  update();
 }
 
 void AppGL2DCurvesViewer::AddNode(Node* iNode){

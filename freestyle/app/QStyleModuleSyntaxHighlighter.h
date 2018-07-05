@@ -32,6 +32,7 @@
 #define QSTYLEMODULESYNTAXHIGHLIGHTER_H
 
 #include <QSyntaxHighlighter>
+#include <QTextEdit>
 #include <vector>
 
 class QStyleModuleSyntaxHighlighter : public QSyntaxHighlighter

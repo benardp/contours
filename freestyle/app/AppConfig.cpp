@@ -105,13 +105,13 @@ namespace Config{
   }
   QString Path::getEnvVar(const QString& iEnvVarName){
     QString value;
-    if (!getenv(iEnvVarName.toAscii().data())) {
-      cerr << "Warning: You may want to set the $"<< iEnvVarName.toAscii().data()
-		  << " environment variable to use " << QString(Config::APPLICATION_NAME).toAscii().data() << "." << endl
+    if (!getenv(iEnvVarName.toStdString().c_str())) {
+      cerr << "Warning: You may want to set the $"<< iEnvVarName.toStdString()
+		  << " environment variable to use " << QString(Config::APPLICATION_NAME).toStdString() << "." << endl
 	    << "         Otherwise, the current directory will be used instead." << endl;
       value = ".";
     }else{
-      value = getenv(iEnvVarName.toAscii().data());
+      value = getenv(iEnvVarName.toStdString().c_str());
     } 
     return value;
   }

@@ -34,27 +34,30 @@ if (WIN32)
     find_path(TBB_INCLUDE_DIR
         NAMES
             tbb/tbb.h
+        HINTS
+            "${TBB_LOCATION}/include"
+            "$ENV{TBB_LOCATION}/include"
         PATHS
-            ${TBB_LOCATION}/include
-            $ENV{TBB_LOCATION}/include
-            $ENV{PROGRAMFILES}/Intel/TBB/include
+            "$ENV{PROGRAMFILES}/Intel/TBB/include"
             /usr/include
             DOC "The directory where TBB headers reside")
 elseif (APPLE)
     find_path(TBB_INCLUDE_DIR
         NAMES
             tbb/tbb.h
+        HINTS
+            "${TBB_LOCATION}/include"
+            "$ENV{TBB_LOCATION}/include"
         PATHS
-            ${TBB_LOCATION}/include
-            $ENV{TBB_LOCATION}/include
             DOC "The directory where TBB headers reside")
 else ()
     find_path(TBB_INCLUDE_DIR
         NAMES
             tbb/tbb.h
+        HINTS
+            "${TBB_LOCATION}/include"
+            "$ENV{TBB_LOCATION}/include"
         PATHS
-            ${TBB_LOCATION}/include
-            $ENV{TBB_LOCATION}/include
             /usr/include
             /usr/local/include
             /usr/openwin/share/include
@@ -66,13 +69,13 @@ set (TBB_LIB_ARCH "")
 
 if (WIN32)
 
-        if ("${CMAKE_GENERATOR}" MATCHES "[Ww]in64")
+    if ("${CMAKE_GENERATOR}" MATCHES "[Ww]in64")
         set(WINPATH intel64)
     else ()
         set(WINPATH ia32)
     endif()
 
-        if (MSVC80)
+    if (MSVC80)
         set(WINPATH "${WINPATH}/vc8")
     elseif (MSVC90)
         set(WINPATH "${WINPATH}/vc9")
@@ -80,6 +83,10 @@ if (WIN32)
         set(WINPATH "${WINPATH}/vc10")
     elseif (MSVC11)
         set(WINPATH "${WINPATH}/vc11")
+    elseif (MSVC12)
+        set(WINPATH "${WINPATH}/vc12")
+    elseif (MSVC14)
+        set(WINPATH "${WINPATH}/vc14")
     endif()
 
     list(APPEND TBB_LIB_ARCH ${WINPATH})
@@ -107,21 +114,21 @@ foreach(TBB_LIB tbb             tbb_debug
     find_library(TBB_${TBB_LIB}_LIBRARY
         NAMES
             ${TBB_LIB}
-        PATHS
-            ${TBB_LOCATION}/lib
-            ${TBB_LOCATION}/bin
-            $ENV{TBB_LOCATION}/lib
-            $ENV{TBB_LOCATION}/bin
-            $ENV{PROGRAMFILES}/TBB/lib
+        HINTS
+            "${TBB_LOCATION}/lib"
+            "${TBB_LOCATION}/bin"
+            "$ENV{TBB_LOCATION}/lib"
+            "$ENV{TBB_LOCATION}/bin"
+            "$ENV{PROGRAMFILES}/TBB/lib"
             /usr/lib
             /usr/lib/w32api
             /usr/local/lib
             /usr/X11R6/lib
         PATH_SUFFIXES
-            ${TBB_LIB_ARCH}
-            ${TBB_LIB_ARCH}/${TBB_COMPILER}
-            ${TBB_LIB_ARCH}/gcc4.4
-            ${TBB_LIB_ARCH}/gcc4.1
+            "${TBB_LIB_ARCH}"
+            "${TBB_LIB_ARCH}/${TBB_COMPILER}"
+            "${TBB_LIB_ARCH}/gcc4.4"
+            "${TBB_LIB_ARCH}/gcc4.1"
         DOC "Intel's Threading Building Blocks library")
 
     if (TBB_${TBB_LIB}_LIBRARY)

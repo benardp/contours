@@ -19,18 +19,18 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <qmessagebox.h>
+#include <QMessageBox>
 #include "AppConfig.h"
 #include "AppAboutWindow.h"
 
 void AppAboutWindow::display() {
   QMessageBox* mb;
   
-  mb = new QMessageBox("About " + Config::APPLICATION_NAME,
-						Config::ABOUT_STRING,
-						QMessageBox::NoIcon,
-                        QMessageBox::Ok | QMessageBox::Default, QMessageBox::NoButton, QMessageBox::NoButton,
-						NULL,
-						(Qt::WFlags)(Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint | Qt::WA_DeleteOnClose));
+  mb = new QMessageBox(QMessageBox::NoIcon, 
+  					"About " + Config::APPLICATION_NAME,
+						Config::ABOUT_STRING, 
+						QMessageBox::Ok,
+						Q_NULLPTR,
+						(Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint));
   mb->show();
 }

@@ -180,32 +180,32 @@ public:
   {
     _SilhouetteRootNode->AddChild(iSilhouette);
     //ToggleSilhouette(true);
-    updateGL();
+    update();
   }
 
   inline void AddViewMapVisNode(NodeGroup* visnode)
   {
     _ViewMapVisNode->AddChild(visnode);
-    updateGL();
+    update();
   }
 
   inline void AddViewMapColorNode(NodeGroup* colornode)
   {
     _ViewMapColorNode->AddChild(colornode);
-    updateGL();
+    update();
   }
 
   inline void Add2DSilhouette(NodeGroup *iSilhouette)
   {
     //_pFENode->AddChild(iSilhouette);
     //ToggleSilhouette(true);
-    updateGL();
+    update();
   }
 
   inline void Add2DVisibleSilhouette(NodeGroup *iVSilhouette)
   {
     //_pVisibleSilhouetteNode->AddChild(iVSilhouette);
-    updateGL();
+    update();
   }
 
   inline void SetDebug(NodeGroup* iDebug)
@@ -222,7 +222,7 @@ public:
   inline void AddDebug(NodeGroup* iDebug)
   {
     _DebugRootNode->AddChild(iDebug);
-    updateGL();
+    update();
   }
 
   inline void SetPODebug(NodeGroup* iDebug)
@@ -239,7 +239,7 @@ public:
   inline void AddPODebug(NodeGroup* iDebug)
   {
     _punchOutRootNode->AddChild(iDebug);
-    updateGL();
+    update();
   }
 
 
@@ -269,7 +269,7 @@ public:
     //_p2DNode.DetachChildren();
     //_pFENode->DetachChildren();
     //_pVisibleSilhouetteNode->DetachChildren();
-    updateGL();
+    update();
   }
 
   inline void DetachSilhouette()
@@ -278,7 +278,7 @@ public:
     //_pFENode->DetachChildren();
     //_pVisibleSilhouetteNode->DetachChildren();
     _p2DSelectionNode->destroy();
-    //updateGL(); //FIXME
+    //update(); //FIXME
   }
 
   inline void DetatchViewMapVis()
@@ -295,20 +295,20 @@ public:
   {
     //_pVisibleSilhouetteNode->DetachChildren();
     _p2DSelectionNode->destroy();
-    updateGL();
+    update();
   }
 
   inline void DetachDebug()
   {
     _DebugRootNode->DetachChildren();
-    updateGL();
+    update();
   }
 
 
   inline void DetachPODebug()
   {
     _punchOutRootNode->DetachChildren();
-    updateGL();
+    update();
   }
 
   void SetMainWindow(QMainWindow *iMainWindow) ;
@@ -387,13 +387,13 @@ public:
   inline void ToggleSilhouette(bool enabled) 
   {
     _fedges = enabled;
-    updateGL();
+    update();
   }
   
   inline void ToggleViewMap(bool enabled)
   {
     _drawViewMap = enabled;
-    updateGL();
+    update();
   }
   */
   // Reinit the renderers which need to be informed
@@ -403,8 +403,8 @@ public:
   inline void SetSelectedFEdge(FEdge* iFEdge) { _pDebugRenderer->SetSelectedFEdge(iFEdge); }
 
   inline GLDebugRenderer* debugRenderer() { return _pDebugRenderer; }
-  inline void toggle3D() { _Draw3DScene == true ? _Draw3DScene = false : _Draw3DScene = true; updateGL();}
-  inline void toggle2D() { _Draw2DScene == true ? _Draw2DScene = false : _Draw2DScene = true; updateGL();}
+  inline void toggle3D() { _Draw3DScene == true ? _Draw3DScene = false : _Draw3DScene = true; update();}
+  inline void toggle2D() { _Draw2DScene == true ? _Draw2DScene = false : _Draw2DScene = true; update();}
 
   /*! glReadPixels */
   typedef enum{

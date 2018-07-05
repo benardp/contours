@@ -20,10 +20,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "GLUtils.h"
-#include <qimage.h>
-#include <qfileinfo.h>
+#include <QImage>
+#include <QFileInfo>
 #include <qgl.h>
-#include <qfile.h>
+#include <QFile>
 #include "GLStrokeRenderer.h"
 
 
@@ -455,12 +455,12 @@ GLTextureManager::loadBrush(string sname, Stroke::MediumType mediumType)
   cout << "Loading brush texture..." << endl;
   switch(mediumType){
   case Stroke::DRY_MEDIUM:
-    prepareTextureLuminance((const char*)path.toAscii(), texId);
+    prepareTextureLuminance(path.toStdString(), texId);
     break;
   case Stroke::HUMID_MEDIUM:
   case Stroke::OPAQUE_MEDIUM:
   default:
-    prepareTextureAlpha((const char*)path.toAscii(), texId);
+    prepareTextureAlpha(path.toStdString(), texId);
     break;
   }
   cout << "Done." << endl << endl;
@@ -502,7 +502,7 @@ GLTextureManager::prepareTextureAlpha (string sname, GLuint itexname)
   glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, qim.width(), qim.height(), 0, 
 	       GL_ALPHA, GL_UNSIGNED_BYTE, qim.bits());	
 
-  cout << "  \"" << filename.toAscii().data() << "\" loaded with "<< qim.depth() << " bits per pixel" << endl;
+  cout << "  \"" << filename.toStdString() << "\" loaded with "<< qim.depth() << " bits per pixel" << endl;
 
   return true;
 
@@ -541,7 +541,7 @@ GLTextureManager::prepareTextureLuminance (string sname, GLuint itexname)
   glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, qim.width(), qim.height(), 0, 
 	       GL_LUMINANCE, GL_UNSIGNED_BYTE, qim.bits());	
 
-  cout << "  \"" << filename.toAscii().data() << "\" loaded with "<< qim.depth() << " bits per pixel" << endl;
+  cout << "  \"" << filename.toStdString() << "\" loaded with "<< qim.depth() << " bits per pixel" << endl;
 
   return true;
 
@@ -582,7 +582,7 @@ GLTextureManager::prepareTextureLuminanceAndAlpha (string sname, GLuint itexname
   glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, qim.width(), qim.height(), 0, 
 	       GL_ALPHA, GL_UNSIGNED_BYTE, qim.bits());	
 							 
-  cout << "  \"" << filename.toAscii().data() << "\" loaded with "<< qim.depth() << " bits per pixel" << endl;						   
+  cout << "  \"" << filename.toStdString() << "\" loaded with "<< qim.depth() << " bits per pixel" << endl;						   
 
   return true;
 							     
@@ -618,7 +618,7 @@ GLTextureManager::preparePaper (const char *name, GLuint itexname)
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, qim.width(), qim.height(), 0, 
 	       GL_RGBA, GL_UNSIGNED_BYTE, qim2.bits());	
 
-  cout << "  \"" << filename.toAscii().data() << "\" loaded with "<< qim.depth() << " bits per pixel" << endl;
+  cout << "  \"" << filename.toStdString() << "\" loaded with "<< qim.depth() << " bits per pixel" << endl;
 
   return true;
 }

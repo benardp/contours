@@ -19,10 +19,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "Controller.h"
-
 // Must be included before any QT header, because of moc
 #include "../system/PythonInterpreter.h"
+
+#include "Controller.h"
 
 #include <fstream>
 #include <float.h>
@@ -420,9 +420,9 @@ int Controller::Load3DSFile(const char *iFileName, double wiggleFactor)
     //      delete ws_builder;
     //      ws_builder = 0;
     //    }
-    _pView->updateGL();
+    _pView->update();
     QFileInfo qfi(iFileName);
-    string basename((const char*)qfi.fileName().toAscii().data());
+    string basename = qfi.fileName().toStdString();
     _ListOfModels.push_back(basename);
 
     cout << "Triangles nb     : " << _SceneNumFaces << endl;
@@ -581,7 +581,7 @@ void Controller::SaveViewMapFile(const char *oFileName)
     //  #endif
     _Chrono.start();
 
-    ofs << Config::VIEWMAP_MAGIC.toAscii().data() << endl << Config::VIEWMAP_VERSION.toAscii().data() << endl;
+    ofs << Config::VIEWMAP_MAGIC.toStdString() << endl << Config::VIEWMAP_VERSION.toStdString() << endl;
 
     // Write the models filenames
     ofs << _ListOfModels.size() << endl;
@@ -629,16 +629,16 @@ void Controller::LoadViewMapFile(const char *iFileName, bool only_camera)
     test = tmp_buffer;
     if (test != Config::VIEWMAP_MAGIC) {
         _pMainWindow->DisplayMessage(
-                    (QString("Error: This is not a valid .") + Config::VIEWMAP_EXTENSION + QString(" file")).toAscii().data());
-        cerr << "Error: This is not a valid ." << Config::VIEWMAP_EXTENSION.toAscii().data() << " file" << endl;
+                    (QString("Error: This is not a valid .") + Config::VIEWMAP_EXTENSION + QString(" file")).toStdString().c_str());
+        cerr << "Error: This is not a valid ." << Config::VIEWMAP_EXTENSION.toStdString() << " file" << endl;
         return;
     }
     ifs.getline(tmp_buffer, 255);
     test = tmp_buffer;
     if (test != Config::VIEWMAP_VERSION && !only_camera) {
         _pMainWindow->DisplayMessage(
-                    (QString("Error: This version of the .") + Config::VIEWMAP_EXTENSION + QString(" file format is no longer supported")).toAscii().data());
-        cerr << "Error: This version of the ." << Config::VIEWMAP_EXTENSION.toAscii().data() << " file format is no longer supported" << endl;
+                    (QString("Error: This version of the .") + Config::VIEWMAP_EXTENSION + QString(" file format is no longer supported")).toStdString().c_str());
+        cerr << "Error: This version of the ." << Config::VIEWMAP_EXTENSION.toStdString() << " file format is no longer supported" << endl;
         return;
     }
 
@@ -733,8 +733,8 @@ void Controller::LoadViewMapFile(const char *iFileName, bool only_camera)
     if (ViewMapIO::load(ifs, _ViewMap, _ProgressBar)) {
         _Chrono.stop();
         _pMainWindow->DisplayMessage(
-                    (QString("Error: This is not a valid .") + Config::VIEWMAP_EXTENSION + QString(" file")).toAscii().data());
-        cerr << "Error: This is not a valid ." << Config::VIEWMAP_EXTENSION.toAscii().data() << " file" << endl;
+                    (QString("Error: This is not a valid .") + Config::VIEWMAP_EXTENSION + QString(" file")).toStdString().c_str());
+        cerr << "Error: This is not a valid ." << Config::VIEWMAP_EXTENSION.toStdString() << " file" << endl;
         return;
     }
 
@@ -868,7 +868,7 @@ void Controller::ComputeViewMap()
         // retrieve the projection matrix:
         _pView->RetriveModelViewMatrix((double *)mv);
         _pView->RetrieveProjectionMatrix((double *)proj);
-        _pView->camera()->getWorldCoordinatesOf(src, vp_tmp);
+        _pView->camera()->getWorldCoordinatesOf((double *)src, (double *)vp_tmp);
         _pView->RetrieveViewport(viewport);
         focalLength = _pView->GetFocalLength();
 
@@ -1367,7 +1367,7 @@ void Controller::InsertStyleModule(unsigned index, const char *iFileName)
     QString ext = fi.suffix();
     assert(ext == "py");
     if (ext != "py") {
-        cerr << "Error: Cannot load \"" << fi.fileName().toAscii().data()
+        cerr << "Error: Cannot load \"" << fi.fileName().toStdString()
              << "\", unknown extension" << endl;
         return;
     }
@@ -1438,7 +1438,7 @@ void Controller::SwapStyleModules(unsigned i1, unsigned i2)
 void Controller::toggleLayer(unsigned index, bool iDisplay)
 {
     _Canvas->SetVisible(index, iDisplay);
-    _pView->updateGL();
+    _pView->update();
 }
 
 void Controller::setModified(unsigned index, bool iMod)
@@ -1468,21 +1468,21 @@ void Controller::savePSLayers(const QString& baseName, bool polyline, int polyli
         moduleName.chop(3);
         int idx = moduleName.lastIndexOf('/');
         currentName.replace('#',moduleName.right(moduleName.size()-idx-1));
-        printf("\topen %s\n",currentName.toAscii().data());
-        PSStrokeRenderer psRenderer((const char*)currentName.toAscii().data(), outputWidth, outputHeight, polyline, polylineWidth);
+        printf("\topen %s\n",currentName.toStdString().c_str());
+        PSStrokeRenderer psRenderer(currentName.toStdString().c_str(), outputWidth, outputHeight, polyline, polylineWidth);
         _Canvas->Canvas::RenderLayer(&psRenderer,i);
         psRenderer.Close();
     }
 }
 
 void Controller::savePSSnapshot(const QString& iFileName, bool polyline, int polylineWidth){
-    PSStrokeRenderer psRenderer((const char*)iFileName.toAscii().data(), outputWidth, outputHeight, polyline, polylineWidth);
+    PSStrokeRenderer psRenderer(iFileName.toStdString().c_str(), outputWidth, outputHeight, polyline, polylineWidth);
     _Canvas->Canvas::Render(&psRenderer);
     psRenderer.Close();
 }
 
 void Controller::saveTextSnapshot(const QString& iFileName){
-    TextStrokeRenderer textRenderer((const char*)iFileName.toAscii().data());
+    TextStrokeRenderer textRenderer(iFileName.toStdString().c_str());
     _Canvas->Render(&textRenderer);
     textRenderer.Close();
 }

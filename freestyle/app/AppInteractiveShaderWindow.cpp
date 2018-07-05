@@ -25,7 +25,7 @@
 #include "AppInteractiveShaderWindow.h"
 #include "QStyleModuleSyntaxHighlighter.h"
 
-AppInteractiveShaderWindow::AppInteractiveShaderWindow(QWidget* parent /* = 0 */, const char* name /* = 0 */, bool modal /* = FALSE */, Qt::WFlags fl /* = 0  */)
+AppInteractiveShaderWindow::AppInteractiveShaderWindow(QWidget* parent /* = 0 */, const char* name /* = 0 */, bool modal /* = FALSE */, Qt::WindowFlags fl /* = 0  */)
 : InteractiveShaderWindow() // parent, name, modal, fl)
 {
 	setupUi(this);
@@ -96,7 +96,7 @@ void AppInteractiveShaderWindow::fileSaveAs()
       QTextStream ts( &file );
       ts << TextArea->toPlainText();
       file.close();
-      g_pController->AddStyleModule(fn.toAscii().data());
+      g_pController->AddStyleModule(fn.toStdString().c_str());
       g_pController->setModulesDir(fi2.dir().path());
     }
 }

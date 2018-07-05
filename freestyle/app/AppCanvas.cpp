@@ -49,7 +49,7 @@ AppCanvas::AppCanvas()
 {
     _pViewer = 0;
     _blendEquation = true;
-    _MapsPath = (const char*)(Config::Path::getInstance()->getMapsDir().toAscii().data());
+    _MapsPath = Config::Path::getInstance()->getMapsDir().toStdString().c_str();
 }
 
 AppCanvas::AppCanvas(AppGLWidget* iViewer)
@@ -245,11 +245,11 @@ void AppCanvas::update()
     //
     CHECK_FOR_ERROR;
 
-    _pViewer->updateGL();
+    _pViewer->update();
 
     CHECK_FOR_ERROR;
 
-    _pViewer->swapBuffers();
+    // _pViewer->swapBuffers();
     //QImage fb = _pViewer->grabFrameBuffer();
     //  sprintf(number, "%3d", counter);
     //  strcat(fileName, number);

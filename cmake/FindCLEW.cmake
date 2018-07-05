@@ -22,46 +22,57 @@
 #   language governing permissions and limitations under the Apache License.
 #
 
-# - Try to find OpenGLES
+# Try to find CLEW library and include path.
 # Once done this will define
-#  
-#  OPENGLES_FOUND        - system has OpenGLES
-#  OPENGLES_INCLUDE_DIR  - the GL include directory
-#  OPENGLES_LIBRARIES    - Link these to use OpenGLES
+#
+# CLEW_FOUND
+# CLEW_INCLUDE_DIR
+# CLEW_LIBRARY
+#
 
-if(ANDROID)
-    FIND_PATH( OPENGLES_INCLUDE_DIR
-        GLES2/gl2.h
-        "${ANDROID_STANDALONE_TOOLCHAIN}/usr/include"
-    )
+include (FindPackageHandleStandardArgs)
 
-    FIND_LIBRARY( OPENGLES_LIBRARIES
-        NAMES
-            GLESv2
-        PATHS
-            "${ANDROID_STANDALONE_TOOLCHAIN}/usr/lib"
-    )
-
-elseif(IOS)
-    FIND_PATH( OPENGLES_INCLUDE_DIR
-        OpenGLES/ES2/gl.h
-    )
-
-    FIND_LIBRARY( OPENGLES_FRAMEWORKS OpenGLES )
-
-    if(OPENGLES_FRAMEWORKS)
-        set( OPENGLES_LIBRARIES "-framework OpenGLES" )
-    endif()
-
+if(WIN32)
+  set(_clew_SEARCH_DIRS
+    "${CLEW_LOCATION}/include"
+    "$ENV{CLEW_LOCATION}/include"
+    "$ENV{PROGRAMFILES}/CLEW/include"
+    "${PROJECT_SOURCE_DIR}/extern/clew/include"
+  )
+else()
+  set(_clew_SEARCH_DIRS
+      "${CLEW_LOCATION}"
+      "$ENV{CLEW_LOCATION}"
+      /usr
+      /usr/local
+      /sw
+      /opt/local
+      /opt/lib/clew
+  )
 endif()
 
-SET( OPENGLES_FOUND "NO" )
-IF(OPENGLES_LIBRARIES)
-    SET( OPENGLES_FOUND "YES" )
-ENDIF(OPENGLES_LIBRARIES)
+find_path(CLEW_INCLUDE_DIR
+  NAMES
+    clew.h
+  HINTS
+    ${_clew_SEARCH_DIRS}
+  PATH_SUFFIXES
+    include
+  NO_DEFAULT_PATH
+  DOC "The directory where clew.h resides")
 
-MARK_AS_ADVANCED(
-  OPENGLES_INCLUDE_DIR
-  OPENGLES_LIBRARIES
+find_library(CLEW_LIBRARY
+  NAMES
+    CLEW clew
+  PATHS
+    ${_clew_SEARCH_DIRS}
+  PATH_SUFFIXES
+    lib lib64
+  NO_DEFAULT_PATH
+  DOC "The CLEW library")
+
+find_package_handle_standard_args(CLEW
+    REQUIRED_VARS
+        CLEW_INCLUDE_DIR
+        CLEW_LIBRARY
 )
-

@@ -532,7 +532,7 @@ AppGLWidget::mousePressEvent(QMouseEvent *e)
         }else{
             QGLViewer::mousePressEvent(e);
         }
-        updateGL();
+        update();
     }
     else
         QGLViewer::mousePressEvent(e);
@@ -559,7 +559,7 @@ AppGLWidget::keyPressEvent(QKeyEvent* e)
         break;
     case Qt::Key_V:
         _visOptions.visibleOnly = !_visOptions.visibleOnly;
-        updateGL();
+        update();
         break;
     case Qt::Key_R:
         if(e->modifiers() == Qt::ShiftModifier){
@@ -575,10 +575,10 @@ AppGLWidget::keyPressEvent(QKeyEvent* e)
         }
         else if(e->modifiers() == Qt::ControlModifier && _cameraStateSaved) {
             setCameraState(_cameraPosition, _cameraOrientation);
-            updateGL();
+            update();
         }else{
             _visOptions.showRadial =! _visOptions.showRadial;
-            updateGL();
+            update();
         }
         break;
     case Qt::Key_PageUp:
@@ -589,7 +589,7 @@ AppGLWidget::keyPressEvent(QKeyEvent* e)
             if(_currentEnvMap > _maxId)
                 _currentEnvMap = 1;
         }
-        updateGL();
+        update();
         break;
     case Qt::Key_PageDown:
         if(e->modifiers() == Qt::ControlModifier)
@@ -599,15 +599,15 @@ AppGLWidget::keyPressEvent(QKeyEvent* e)
             if(_currentEnvMap < 1)
                 _currentEnvMap = _maxId;
         }
-        updateGL();
+        update();
         break;
 
         // All of the names of the rendering styles are now obsolete
-    case Qt::Key_1: _Draw2DScene = false; _Draw3DScene = true; _SurfaceRenderStyle = INVISIBLE_SURFACE_STYLE;  _visOptions.showMesh = false; updateGL(); break;
-    case Qt::Key_2: _Draw2DScene = false; _Draw3DScene = true; _SurfaceRenderStyle = SELECTION_SURFACE_STYLE; _visOptions.lighting = true;  _visOptions.showMesh = true; _visOptions.nDotVshading = false; updateGL(); break;
-    case Qt::Key_3: _Draw2DScene = false; _Draw3DScene = true; _SurfaceRenderStyle = SELECTION_SURFACE_STYLE; _visOptions.lighting = false;  _visOptions.showMesh = true; _visOptions.nDotVshading = false; updateGL(); break;
-    case Qt::Key_4: _Draw2DScene = false; _Draw3DScene = true; _SurfaceRenderStyle = SMOOTH_SURFACE_STYLE; _visOptions.showMesh = false; _visOptions.lighting = false; _visOptions.nDotVshading = false; updateGL(); break;
-    case Qt::Key_5: _Draw2DScene = false; _Draw3DScene = true; _SurfaceRenderStyle = N_DOT_V_STYLE; _visOptions.lighting = false;  _visOptions.showMesh = true; _visOptions.nDotVshading = true; updateGL(); break;
+    case Qt::Key_1: _Draw2DScene = false; _Draw3DScene = true; _SurfaceRenderStyle = INVISIBLE_SURFACE_STYLE;  _visOptions.showMesh = false; update(); break;
+    case Qt::Key_2: _Draw2DScene = false; _Draw3DScene = true; _SurfaceRenderStyle = SELECTION_SURFACE_STYLE; _visOptions.lighting = true;  _visOptions.showMesh = true; _visOptions.nDotVshading = false; update(); break;
+    case Qt::Key_3: _Draw2DScene = false; _Draw3DScene = true; _SurfaceRenderStyle = SELECTION_SURFACE_STYLE; _visOptions.lighting = false;  _visOptions.showMesh = true; _visOptions.nDotVshading = false; update(); break;
+    case Qt::Key_4: _Draw2DScene = false; _Draw3DScene = true; _SurfaceRenderStyle = SMOOTH_SURFACE_STYLE; _visOptions.showMesh = false; _visOptions.lighting = false; _visOptions.nDotVshading = false; update(); break;
+    case Qt::Key_5: _Draw2DScene = false; _Draw3DScene = true; _SurfaceRenderStyle = N_DOT_V_STYLE; _visOptions.lighting = false;  _visOptions.showMesh = true; _visOptions.nDotVshading = true; update(); break;
     case Qt::Key_0:
     {
         _frontCameraMode = !_frontCameraMode;
@@ -615,16 +615,16 @@ AppGLWidget::keyPressEvent(QKeyEvent* e)
             setCamera(&_frontCamera);
         else
             setCamera(_standardCamera);
-        updateGL(); break;
+        update(); break;
     }
     case Qt::Key_B:
     {
-        _drawBBox == true ? _drawBBox = false : _drawBBox = true; updateGL(); break;
+        _drawBBox == true ? _drawBBox = false : _drawBBox = true; update(); break;
     }
     case Qt::Key_S:
     {
         _visOptions.showSpecificPoints = !_visOptions.showSpecificPoints;
-        updateGL();
+        update();
     }
 
     case Qt::Key_Equal:
@@ -633,7 +633,7 @@ AppGLWidget::keyPressEvent(QKeyEvent* e)
             _visOptions.pointsToShow = DebugPoint::ERROR;
         else
             _visOptions.pointsToShow = DebugPoint::PointType(_visOptions.pointsToShow + 1);
-        updateGL();
+        update();
     }
         break;
 
@@ -643,97 +643,97 @@ AppGLWidget::keyPressEvent(QKeyEvent* e)
             _visOptions.pointsToShow = DebugPoint::SI_SIL_CONNECTION;
         else
             _visOptions.pointsToShow = DebugPoint::PointType(_visOptions.pointsToShow - 1);
-        updateGL();
+        update();
     }
         break;
 
     case Qt::Key_L:
     {
-        _visOptions.limitRegion = !_visOptions.limitRegion; updateGL();
+        _visOptions.limitRegion = !_visOptions.limitRegion; update();
         break;
     }
         break;
 
     case Qt::Key_T:
     {
-        _visOptions.showPOCuspTesselation = !_visOptions.showPOCuspTesselation; updateGL();
+        _visOptions.showPOCuspTesselation = !_visOptions.showPOCuspTesselation; update();
         break;
     }
 
     case Qt::Key_E:
     {
         _visOptions.showViewEdges = !_visOptions.showViewEdges;
-        updateGL();
+        update();
         break;
     }
 
     case Qt::Key_W:
         _visOptions.showWireframe = !_visOptions.showWireframe;
-        updateGL();
+        update();
         break;
 
     case Qt::Key_I:
     {
         _visOptions.edgeColors = DebugVisOptions::EC_ID_COLOR;
-        updateGL();
+        update();
         break;
     }
 
     case Qt::Key_M:
     {
         _visOptions.showPairs = !_visOptions.showPairs;
-        updateGL();
+        update();
         break;
     }
 
     case Qt::Key_C:
     {
         _visOptions.edgeColors = DebugVisOptions::EC_TYPE;
-        updateGL();
+        update();
         break;
     }
 
 
     case Qt::Key_D:
     {
-        _visOptions.showPoints = !_visOptions.showPoints; updateGL();
+        _visOptions.showPoints = !_visOptions.showPoints; update();
         break;
     }
 
     case Qt::Key_G:
     {
-        _visOptions.showViewVertices = !_visOptions.showViewVertices; updateGL();
+        _visOptions.showViewVertices = !_visOptions.showViewVertices; update();
         break;
     }
 
     case Qt::Key_F:
     {
-        _visOptions.showRIFPoints = !_visOptions.showRIFPoints; updateGL();
+        _visOptions.showRIFPoints = !_visOptions.showRIFPoints; update();
         break;
     }
 
     case Qt::Key_P:
-        _visOptions.radialCurvaturePoints = !_visOptions.radialCurvaturePoints; updateGL();
+        _visOptions.radialCurvaturePoints = !_visOptions.radialCurvaturePoints; update();
         break;
     case Qt::Key_N:
-        _visOptions.normals = !_visOptions.normals; updateGL();
+        _visOptions.normals = !_visOptions.normals; update();
         break;
     case Qt::Key_QuoteLeft:  // back-tick, next to 1 key
     case Qt::Key_F2:
         _Draw2DScene = true;
         _Draw3DScene = false;
-        updateGL();
+        update();
         break;
 
     case Qt::Key_F3:
         _Draw2DScene = false;
         _Draw3DScene = true;
-        updateGL();
+        update();
         break;
 
     case Qt::Key_Q:
         _visOptions.showInconsistentFaces = !_visOptions.showInconsistentFaces;
-        updateGL();
+        update();
         break;
 
     default:
@@ -903,11 +903,11 @@ void AppGLWidget::init()
     // open and read texture data
     Config::Path * cpath = Config::Path::getInstance();
     QString envmapDir = cpath->getEnvMapDir();
-    LoadEnvMap((envmapDir + QString("gray00.png")).toAscii().data());
+    LoadEnvMap((envmapDir + QString("gray00.png")).toStdString().c_str());
     //LoadEnvMap(Config::ENV_MAP_DIR + "gray01.bmp");
-    LoadEnvMap((envmapDir + QString("gray02.png")).toAscii().data());
-    LoadEnvMap((envmapDir + QString("gray03.png")).toAscii().data());
-    LoadEnvMap((envmapDir + QString("brown00.png")).toAscii().data());
+    LoadEnvMap((envmapDir + QString("gray02.png")).toStdString().c_str());
+    LoadEnvMap((envmapDir + QString("gray03.png")).toStdString().c_str());
+    LoadEnvMap((envmapDir + QString("brown00.png")).toStdString().c_str());
     glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP) ;
     glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP) ;
 

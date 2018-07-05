@@ -30,8 +30,8 @@
 #ifndef  PYTHON_INTERPRETER_H
 # define PYTHON_INTERPRETER_H
 
-# include <iostream>
 # include <Python.h>
+# include <iostream>
 # include "StringUtils.h"
 # include "Interpreter.h"
 
@@ -58,7 +58,7 @@ public:
 
     int interpretFile(const string& filename) {
         initPath();
-        string cmd("execfile(\"" + filename + "\")");
+        string cmd("exec(compile(open(\"" + filename + "\",\"rb\").read(),\"" + filename + "\", 'exec'))");
         char* c_cmd = strdup(cmd.c_str());
         printf("PythonInterpreter::interpretFile, running \"%s\"\n",c_cmd);
         int err = PyRun_SimpleString(c_cmd);

@@ -42,7 +42,7 @@ class AppDensityCurvesWindow : public QDialog, public DensityCurvesWindow
 {
 Q_OBJECT
 public:
-	AppDensityCurvesWindow(QWidget *parent = 0, const char *name = 0, bool modal = FALSE, Qt::WFlags fl = 0);
+	AppDensityCurvesWindow(QWidget *parent = 0, const char *name = 0, bool modal = false, Qt::WindowFlags fl = 0);
   virtual ~AppDensityCurvesWindow();
 
   /*! Sets the node that contains the orientation curve i in 

@@ -19,9 +19,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <Python.h>
 #include <QApplication>
 #include "../rendering/GLUtils.h"
-#include <Python.h>
 #include "Controller.h"
 #include "AppMainWindow.h"
 #include "AppConfig.h"
@@ -212,7 +212,6 @@ void saveFBOandCleanup(const char * filename, bool save)
     glDeleteRenderbuffers(1, &depth_rb);
 
     //Bind 0, which means render to back buffer, as a result, fb is unbound
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDeleteFramebuffers(1, &fbo);
 
     glDrawBuffer(GL_FRONT);
@@ -370,7 +369,7 @@ void run(const char * meshFilename, const char * snapshotFilename, const char * 
         g_pController->interpreter()->interpretCmd("import sys");
         g_pController->interpreter()->interpretCmd(cmd);
 
-        delete cmd;
+        delete[] cmd;
     }
 
 
@@ -435,8 +434,8 @@ void run(const char * meshFilename, const char * snapshotFilename, const char * 
 
     CHECK_FOR_ERROR;
 
-    printf("Rendering to FBO\n");
-    setupFBOrendering();
+    // printf("Rendering to FBO\n");
+    // setupFBOrendering();
 
     CHECK_FOR_ERROR;
 
@@ -447,9 +446,9 @@ void run(const char * meshFilename, const char * snapshotFilename, const char * 
     CHECK_FOR_ERROR;
 
 
-    saveFBOandCleanup(snapshotFilename,!saveLayers);
+    // saveFBOandCleanup(snapshotFilename,!saveLayers);
 
-    CHECK_FOR_ERROR;
+    // CHECK_FOR_ERROR;
 
     if(saveLayers){
         g_pController->savePSLayers(outputEPSPolyline, true, 2);
@@ -465,8 +464,9 @@ void run(const char * meshFilename, const char * snapshotFilename, const char * 
         g_pController->SaveSVG(qPrintable(svgName), true, 1);
     }
 
-    if (runInteractive)
+    if (runInteractive){        
         app->exec();
+    }
 }
 
 

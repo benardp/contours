@@ -34,7 +34,7 @@
 #include "../view_map/ViewMapIO.h"
 #include "AppOptionsWindow.h"
 
-AppOptionsWindow::AppOptionsWindow(QWidget *parent, const char *name, bool modal, Qt::WFlags fl)
+AppOptionsWindow::AppOptionsWindow(QWidget *parent, const char *name, bool modal, Qt::WindowFlags fl)
 : QDialog(parent, fl) { // parent, name, modal, fl) {
 
 	setupUi(this);
@@ -147,10 +147,10 @@ AppOptionsWindow::~AppOptionsWindow() {
 void AppOptionsWindow::Propagate() {
 
   // Directories
-  ViewMapIO::Options::setModelsPath((const char*)modelsPathLineEdit->text().toAscii().data());
-  PythonInterpreter::Options::setPythonPath((const char*)pythonPathLineEdit->text().toAscii().data());
-  TextureManager::Options::setPatternsPath((const char*)patternsPathLineEdit->text().toAscii().data());
-  TextureManager::Options::setBrushesPath((const char*)brushesPathLineEdit->text().toAscii().data());
+  ViewMapIO::Options::setModelsPath((const char*)modelsPathLineEdit->text().toStdString().c_str());
+  PythonInterpreter::Options::setPythonPath((const char*)pythonPathLineEdit->text().toStdString().c_str());
+  TextureManager::Options::setPatternsPath((const char*)patternsPathLineEdit->text().toStdString().c_str());
+  TextureManager::Options::setBrushesPath((const char*)brushesPathLineEdit->text().toStdString().c_str());
   g_pController->setBrowserCmd(browserCmdLineEdit->text());
   g_pController->setHelpIndex(helpIndexPathLineEdit->text());
 
@@ -174,7 +174,7 @@ void AppOptionsWindow::Propagate() {
   // Papers Textures
   vector<string> sl;
   for (unsigned i = 0; i < paperTexturesList->count(); i++) {
-    sl.push_back(paperTexturesList->item(i)->text().toAscii().constData());
+    sl.push_back(paperTexturesList->item(i)->text().toStdString());
   }
   TextureManager::Options::setPaperTextures(sl);
 

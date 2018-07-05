@@ -69,7 +69,7 @@ int	ConfigIO::loadFile(const QString& _filename) {
   QFileInfo fileinfo(filename);
   if (!fileinfo.isFile() || !fileinfo.isReadable()) {
     std::cerr << "Warning: unable to load configuration file \""
-	 << fileinfo.fileName().toAscii().data() << "\"" << std::endl;
+	 << fileinfo.fileName().toStdString() << "\"" << std::endl;
     return 1;
   }
 
@@ -103,7 +103,7 @@ int	ConfigIO::saveFile(const QString& _filename) const {
   file.open(QIODevice::WriteOnly);
   if (!file.isOpen()) {
     std::cerr << "Warning: unable to save configuration file \""
-	 << fileinfo.fileName().toAscii().data() << "\"" << std::endl;
+	 << fileinfo.fileName().toStdString() << "\"" << std::endl;
     return 1;
   }
 

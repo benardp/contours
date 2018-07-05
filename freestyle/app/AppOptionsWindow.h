@@ -40,7 +40,7 @@ class AppOptionsWindow : public QDialog, public OptionsWindow
 
 public:
 
-	AppOptionsWindow(QWidget *parent = 0, const char *name = 0, bool modal = FALSE, Qt::WFlags fl = 0);
+	AppOptionsWindow(QWidget *parent = 0, const char *name = 0, bool modal = false, Qt::WindowFlags fl = 0);
     ~AppOptionsWindow();
 
     virtual void updateViewMapFormat();

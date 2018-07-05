@@ -32,14 +32,14 @@
 #include "AppInteractiveShaderWindow.h"
 #include "AppConfig.h"
 
-AppStyleWindow::AppStyleWindow(QWidget* parent /* = 0 */, const char* name /* = 0 */, Qt::WFlags fl /* = 0 */)
+AppStyleWindow::AppStyleWindow(QWidget* parent /* = 0 */, const char* name /* = 0 */, Qt::WindowFlags fl /* = 0 */)
   : QDialog(parent, fl)
 {
   // QDialog *widget = new QDialog(parent);
   setupUi(this);
 	PlayList->setShowGrid(false);
 	PlayList->verticalHeader()->setVisible(false);
-	PlayList->horizontalHeader()->setClickable(false);
+	PlayList->horizontalHeader()->setSectionsClickable(false);
 	PlayList->setSelectionBehavior(QAbstractItemView::SelectRows);
 	PlayList->setSelectionMode(QAbstractItemView::SingleSelection);
 	PlayList->setColumnCount(5);
@@ -155,7 +155,7 @@ void AppStyleWindow::AddList(const char* iFileName) {
       disp = false;
     else
       disp = true;
-    s = (const char*)fi.dir().path().toAscii().data();
+    s = (const char*)fi.dir().path().toStdString().c_str();
     s += Config::DIR_SEP;
     s += tmp_buffer + 1;
     ifstream test(s.c_str(), ios::binary);
@@ -181,7 +181,7 @@ void AppStyleWindow::SaveList() {
   QString ext = fi.suffix();
   if (ext != Config::STYLE_MODULES_LIST_EXTENSION)
     s += "." + Config::STYLE_MODULES_LIST_EXTENSION;
-  ofstream ofs(s.toAscii().data(), ios::binary);
+  ofstream ofs(s.toStdString().c_str(), ios::binary);
   if (!ofs.is_open()) {
     cerr << "Error: Cannot save this file" << endl;
     return;
@@ -191,7 +191,7 @@ void AppStyleWindow::SaveList() {
 	for (unsigned i = 0 ; i < PlayList->rowCount(); i++) {
     checkItem = PlayList->item(i, 4);
 		ofs << ((checkItem->checkState() ==  Qt::Checked) ? '1' : '0');
-    ofs << PlayList->item(i, 1)->text().toAscii().data() << endl;
+    ofs << PlayList->item(i, 1)->text().toStdString().c_str() << endl;
   }
   g_pController->setModulesDir(fi.dir().path());
   cout << "Style modules list saved" << endl;
@@ -213,11 +213,11 @@ void AppStyleWindow::Add()
 
   if (ext == Config::STYLE_MODULE_EXTENSION) {
     g_pController->setModulesDir(fi.dir().path());
-    Add(s.toAscii().data());
+    Add(s.toStdString().c_str());
   }
   else if (ext == Config::STYLE_MODULES_LIST_EXTENSION) {
     g_pController->setModulesDir(fi.dir().path());
-    AddList(s.toAscii().data());
+    AddList(s.toStdString().c_str());
   }
 }
 
@@ -341,7 +341,7 @@ void AppStyleWindow::Down() {
 void AppStyleWindow::fileSave() {
   int current = _pInteractiveShaderWindow->getCurrentShaderRow();
 	QString text = (PlayList->item(current, 3)->text());
-  g_pController->ReloadStyleModule(current, text.toAscii().data());
+  g_pController->ReloadStyleModule(current, text.toStdString().c_str());
 	QTableWidgetItem *checkItem = PlayList->item(current, 4);
 	bool isChecked = (checkItem->checkState() == Qt::Checked) ? true : false;
   g_pController->toggleLayer(current, isChecked);

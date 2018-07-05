@@ -84,14 +84,14 @@ void AppMainWindow::fileOpen()
   if ((ext == "3ds") || (ext == "3DS") || (ext == "ply") || (ext == "PLY"))
     {
       QApplication::setOverrideCursor( Qt::WaitCursor );
-      g_pController->Load3DSFile(s.toAscii().data()); // lunch time...
+      g_pController->Load3DSFile(s.toStdString().c_str()); // lunch time...
       g_pController->setModelsDir(fi.dir().path());
       QApplication::restoreOverrideCursor();
     }
   else if (ext == Config::VIEWMAP_EXTENSION)
     {
       QApplication::setOverrideCursor( Qt::WaitCursor );
-      g_pController->LoadViewMapFile(s.toAscii().data()); // ...and now tea time...
+      g_pController->LoadViewMapFile(s.toStdString().c_str()); // ...and now tea time...
       g_pController->setModelsDir(fi.dir().path());
       QApplication::restoreOverrideCursor();
     }
@@ -114,7 +114,7 @@ void AppMainWindow::loadCamera()
   if (ext == Config::VIEWMAP_EXTENSION)
     {
       QApplication::setOverrideCursor( Qt::WaitCursor );
-      g_pController->LoadViewMapFile(s.toAscii().data(), true);
+      g_pController->LoadViewMapFile(s.toStdString().c_str(), true);
       QApplication::restoreOverrideCursor();
     }
 }
@@ -137,7 +137,7 @@ void AppMainWindow::ViewMapFileSave() {
 
   QApplication::setOverrideCursor( Qt::WaitCursor );
   g_pController->setModelsDir(fi.dir().path());
-  g_pController->SaveViewMapFile(s.toAscii().data());
+  g_pController->SaveViewMapFile(s.toStdString().c_str());
   QApplication::restoreOverrideCursor();
 }
 

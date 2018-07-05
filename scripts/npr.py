@@ -188,7 +188,7 @@ def runStrokes(s):  # s is the settings module/class
             if buildName == 'linux':
                 dso='../tess_RifFilter/lib/libtess_RifFilter.so'
             else:
-                dso='../tess_RifFilter/lib/libtess_RifFilter.dylib'
+                dso='../tess_RifFilter/libtess_RifFilter.dylib'
 
             rifargs = string.join(['-rifargs',geomFilename,'-pattern','"'+pattern+'"',
                                    '-refinement',refinementLocal,
@@ -220,7 +220,7 @@ def runStrokes(s):  # s is the settings module/class
 
             rifargs = rifargs + ' -rifend'
         
-            cmd = 'renderdl -rif %s %s  -catrib %s'%(dso,rifargs,headerFilename)
+            cmd = 'prman -rif %s %s %s'%(dso,rifargs,headerFilename)
         
             print('Executing '+cmd)
             result = os.system(cmd)

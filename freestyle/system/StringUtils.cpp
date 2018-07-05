@@ -19,7 +19,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <qfileinfo.h>
+#include <QFileInfo>
 #include "FreestyleConfig.h"
 #include "StringUtils.h"
 
@@ -36,7 +36,7 @@ namespace StringUtils {
 	sep = size;
       dir = path.substr(pos, sep - pos);
       QFileInfo fi(dir.c_str());
-      string res = (const char*)fi.absoluteFilePath().toAscii();
+      string res = fi.absoluteFilePath().toStdString();
       if (!base.empty())
 	res += Config::DIR_SEP + base;
       pathnames.push_back(res);

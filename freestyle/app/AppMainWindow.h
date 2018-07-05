@@ -24,7 +24,6 @@
 #include <QKeyEvent>
 #include <QWidget>
 #include <QPainter>
-#include <QColorGroup>
 #include <QToolBar>
 #include <QMainWindow>
 #include "ui_appmainwindowbase4.h"
